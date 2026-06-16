@@ -1,0 +1,260 @@
+import React, { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import { MapPin, LogOut, Bell, ChevronDown, Menu } from 'lucide-react'
+
+export default function Layout({ children, navItems, role, roleColor = '#6aab42', lightTheme = false }) {
+  const { user, logout } = useAuth()
+  const navigate    = useNavigate()
+  const location    = useLocation()
+  const [collapsed, setCollapsed]       = useState(false)
+  const [mobileOpen, setMobileOpen]     = useState(false)
+  const [showUserMenu, setShowUserMenu] = useState(false)
+
+  const handleLogout = () => { logout(); navigate('/login') }
+
+  const T = lightTheme ? {
+    mainBg:      '#f0f2f4',
+    sidebarBg:   '#ffffff',
+    sidebarBdr:  '#e5e7eb',
+    topbarBg:    '#ffffff',
+    topbarBdr:   '#e5e7eb',
+    logo:        '#111827',
+    subtext:     '#9ca3af',
+    navText:     '#6b7280',
+    navActive:   '#111827',
+    navActiveBg: `${roleColor}14`,
+    navHoverBg:  '#f9fafb',
+    navBadgeBg:  `${roleColor}18`,
+    badgeText:   roleColor,
+    userText:    '#111827',
+    userSub:     '#9ca3af',
+    logoutClr:   '#6b7280',
+    logoutHover: '#111827',
+    iconBg:      '#f3f4f6',
+    iconBdr:     '#e5e7eb',
+    iconClr:     '#6b7280',
+    iconHover:   '#111827',
+    menuBg:      '#ffffff',
+    menuBdr:     '#e5e7eb',
+    menuText:    '#374151',
+    menuHover:   '#f3f4f6',
+    badgePing:   roleColor,
+    overlay:     'rgba(0,0,0,0.3)',
+  } : {
+    mainBg:      '#0b1207',
+    sidebarBg:   'rgba(10,14,6,0.75)',
+    sidebarBdr:  'rgba(138,194,104,0.09)',
+    topbarBg:    'rgba(10,14,6,0.75)',
+    topbarBdr:   'rgba(138,194,104,0.09)',
+    logo:        '#f5ede0',
+    subtext:     'rgba(245,237,224,0.35)',
+    navText:     'rgba(245,237,224,0.45)',
+    navActive:   '#f5ede0',
+    navActiveBg: `${roleColor}22`,
+    navHoverBg:  'rgba(245,240,224,0.06)',
+    navBadgeBg:  `${roleColor}28`,
+    badgeText:   roleColor,
+    userText:    '#f5ede0',
+    userSub:     'rgba(245,237,224,0.35)',
+    logoutClr:   'rgba(245,237,224,0.40)',
+    logoutHover: '#f5ede0',
+    iconBg:      'rgba(245,240,224,0.06)',
+    iconBdr:     'rgba(138,194,104,0.14)',
+    iconClr:     'rgba(245,237,224,0.45)',
+    iconHover:   '#f5ede0',
+    menuBg:      'rgba(245,240,224,0.04)',
+    menuBdr:     'rgba(138,194,104,0.12)',
+    menuText:    'rgba(245,237,224,0.55)',
+    menuHover:   'rgba(245,240,224,0.07)',
+    badgePing:   '#3d7020',
+    overlay:     'rgba(0,0,0,0.65)',
+  }
+
+  const Sidebar = ({ mobile = false }) => (
+    <div className={`flex flex-col h-full transition-all duration-300 ${mobile ? 'w-72' : collapsed ? 'w-[72px]' : 'w-60'}`}
+      style={{ background: T.sidebarBg }}>
+      {/* Logo */}
+      <div className="flex items-center gap-3 px-4 py-5 border-b" style={{ borderColor: T.sidebarBdr }}>
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+          style={{ background: '#3d7020' }}>
+          <MapPin className="w-4 h-4" style={{ color: '#f5ede0' }} />
+        </div>
+        {(!collapsed || mobile) && (
+          <div className="overflow-hidden min-w-0">
+            <div className="font-bold text-sm leading-tight" style={{ color: T.logo }}>Resolute</div>
+            <div className="text-xs capitalize" style={{ color: T.subtext }}>{role} Portal</div>
+          </div>
+        )}
+        {!mobile && (
+          <button onClick={() => setCollapsed(!collapsed)}
+            className="ml-auto flex-shrink-0 transition-colors"
+            style={{ color: T.subtext }}
+            onMouseOver={e => e.currentTarget.style.color = T.logo}
+            onMouseOut={e => e.currentTarget.style.color = T.subtext}>
+            <Menu className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+
+      {/* Role badge */}
+      {(!collapsed || mobile) && (
+        <div className="px-4 py-3">
+          <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-lg"
+            style={{ background: `${roleColor}20`, color: roleColor, border: `1px solid ${roleColor}30` }}>
+            {role}
+          </span>
+        </div>
+      )}
+
+      {/* Nav items */}
+      <nav className="flex-1 px-2.5 py-1 space-y-0.5 overflow-y-auto">
+        {navItems.map(item => {
+          const Icon   = item.icon
+          const active = location.pathname === item.path || location.pathname.startsWith(item.path + '/')
+          return (
+            <button key={item.path}
+              onClick={() => { navigate(item.path); setMobileOpen(false) }}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium"
+              style={{
+                color:      active ? T.navActive : T.navText,
+                background: active ? T.navActiveBg : 'transparent',
+                borderLeft: active ? `3px solid ${roleColor}` : '3px solid transparent',
+              }}
+              onMouseOver={e => { if (!active) e.currentTarget.style.background = T.navHoverBg }}
+              onMouseOut={e => { if (!active) e.currentTarget.style.background = 'transparent' }}
+            >
+              <Icon className="w-4 h-4 flex-shrink-0" style={{ color: active ? roleColor : 'inherit' }} />
+              {(!collapsed || mobile) && <span>{item.label}</span>}
+              {(!collapsed || mobile) && item.badge && (
+                <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full font-bold"
+                  style={{ background: T.navBadgeBg, color: T.badgeText }}>
+                  {item.badge}
+                </span>
+              )}
+            </button>
+          )
+        })}
+      </nav>
+
+      {/* User footer */}
+      <div className="p-3 border-t" style={{ borderColor: T.sidebarBdr }}>
+        <button onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors"
+          style={{ color: T.logoutClr }}
+          onMouseOver={e => e.currentTarget.style.color = T.logoutHover}
+          onMouseOut={e => e.currentTarget.style.color = T.logoutClr}>
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold flex-shrink-0"
+            style={{ background: `${roleColor}35`, color: roleColor }}>
+            {user?.avatar}
+          </div>
+          {(!collapsed || mobile) && (
+            <div className="flex-1 text-left overflow-hidden">
+              <div className="text-sm font-medium truncate" style={{ color: T.userText }}>{user?.name}</div>
+              <div className="text-xs flex items-center gap-1" style={{ color: T.userSub }}>
+                <LogOut className="w-3 h-3" /> Sign out
+              </div>
+            </div>
+          )}
+        </button>
+      </div>
+    </div>
+  )
+
+  return (
+    <div className="flex h-screen overflow-hidden" style={{ background: T.mainBg }}>
+      {/* Desktop sidebar */}
+      <div className="hidden md:flex flex-shrink-0 flex-col border-r"
+        style={{
+          borderColor: T.sidebarBdr,
+          background: T.sidebarBg,
+          backdropFilter: lightTheme ? 'none' : 'blur(20px)',
+          WebkitBackdropFilter: lightTheme ? 'none' : 'blur(20px)',
+        }}>
+        <Sidebar />
+      </div>
+
+      {/* Mobile overlay */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-40 md:hidden" style={{ background: T.overlay }}
+              onClick={() => setMobileOpen(false)} />
+            <motion.div initial={{ x: -290 }} animate={{ x: 0 }} exit={{ x: -290 }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="fixed left-0 top-0 bottom-0 z-50 border-r md:hidden"
+              style={{ borderColor: T.sidebarBdr }}>
+              <Sidebar mobile />
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Main */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Topbar */}
+        <header className="border-b flex items-center gap-3 px-4 md:px-6 py-3 flex-shrink-0"
+          style={{
+            background: T.topbarBg,
+            borderColor: T.topbarBdr,
+            backdropFilter: lightTheme ? 'none' : 'blur(20px)',
+            WebkitBackdropFilter: lightTheme ? 'none' : 'blur(20px)',
+          }}>
+          <button className="md:hidden transition-colors" style={{ color: T.navText }}
+            onClick={() => setMobileOpen(true)}>
+            <Menu className="w-5 h-5" />
+          </button>
+          <div className="flex-1" />
+
+          {/* Bell */}
+          <div className="relative">
+            <button className="w-9 h-9 rounded-xl border flex items-center justify-center transition-colors"
+              style={{ background: T.iconBg, borderColor: T.iconBdr, color: T.iconClr }}
+              onMouseOver={e => e.currentTarget.style.color = T.iconHover}
+              onMouseOut={e => e.currentTarget.style.color = T.iconClr}>
+              <Bell className="w-4 h-4" />
+            </button>
+            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center"
+              style={{ background: T.badgePing, color: '#f5ede0' }}>3</span>
+          </div>
+
+          {/* User menu */}
+          <div className="relative">
+            <button onClick={() => setShowUserMenu(!showUserMenu)}
+              className="flex items-center gap-2 rounded-xl border px-3 py-2 transition-colors"
+              style={{ background: T.iconBg, borderColor: T.iconBdr }}>
+              <div className="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold"
+                style={{ background: `${roleColor}35`, color: roleColor }}>
+                {user?.avatar}
+              </div>
+              <span className="hidden sm:block text-sm font-medium" style={{ color: T.userText }}>{user?.name}</span>
+              <ChevronDown className="w-3 h-3" style={{ color: T.iconClr }} />
+            </button>
+            <AnimatePresence>
+              {showUserMenu && (
+                <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }}
+                  className="absolute right-0 top-full mt-2 w-48 p-1 z-50 rounded-xl border shadow-lg"
+                  style={{ background: T.menuBg, borderColor: T.menuBdr }}>
+                  <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors"
+                    style={{ color: T.menuText }}
+                    onMouseOver={e => e.currentTarget.style.background = T.menuHover}
+                    onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                    onClick={handleLogout}>
+                    <LogOut className="w-4 h-4" /> Sign out
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </header>
+
+        {/* Page content */}
+        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+          {children}
+        </main>
+      </div>
+    </div>
+  )
+}

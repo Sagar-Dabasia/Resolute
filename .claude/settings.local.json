@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:resolute-title-services.vercel.app)",
+      "WebFetch(domain:resolute-platform-website.vercel.app)"
+    ]
+  }
+}

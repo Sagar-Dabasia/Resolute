@@ -1,0 +1,181 @@
+import React, { useState } from 'react'
+import { Routes, Route } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import Layout from '../../components/Layout'
+import OrdersTable from '../../components/OrdersTable'
+import { LayoutDashboard, Truck, Package, CheckCircle, Clock, Download, Send, X, ChevronRight } from 'lucide-react'
+import { ORDERS } from '../../data/mockData'
+
+const ROLE_COLOR = '#c4783e'
+const NAV = [
+  { path: '/delivery',         label: 'Dashboard',    icon: LayoutDashboard },
+  { path: '/delivery/queue',   label: 'Ready to Send',icon: Package, badge: 2 },
+  { path: '/delivery/sent',    label: 'Delivered',    icon: CheckCircle },
+]
+const readyOrders     = ORDERS.filter(o => ['examining','searching'].includes(o.status))
+const deliveredOrders = ORDERS.filter(o => o.status === 'delivered')
+
+function DeliveryModal({ order, onClose }) {
+  const [method, setMethod] = useState('email')
+  const [recipient, setRecipient] = useState('')
+  const [note, setNote] = useState('')
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background:'rgba(0,0,0,0.65)' }} onClick={onClose}>
+      <motion.div initial={{ scale:0.95, opacity:0 }} animate={{ scale:1, opacity:1 }}
+        className="glass-card p-6 w-full max-w-lg" onClick={e=>e.stopPropagation()}>
+        <div className="flex items-start justify-between mb-6">
+          <div>
+            <div className="font-mono font-semibold text-sm" style={{ color:ROLE_COLOR }}>{order.id}</div>
+            <div className="text-xl font-bold" style={{ color:'#f5ede0' }}>{order.client}</div>
+          </div>
+          <button onClick={onClose} style={{ color:'rgba(245,237,224,0.30)' }}><X className="w-5 h-5" /></button>
+        </div>
+        <div className="flex items-center gap-3 p-4 rounded-xl mb-5"
+          style={{ background:'rgba(109,188,120,0.12)', border:'1px solid rgba(109,188,120,0.25)' }}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background:'rgba(109,188,120,0.20)' }}>
+            <CheckCircle className="w-5 h-5" style={{ color:'#6dbc78' }} />
+          </div>
+          <div>
+            <div className="font-semibold text-sm" style={{ color:'#f5ede0' }}>Report Ready for Delivery</div>
+            <div className="text-xs" style={{ color:'rgba(245,237,224,0.42)' }}>{order.type} · {order.state}, {order.county} County</div>
+          </div>
+        </div>
+        <div className="mb-4">
+          <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
+            style={{ color:'rgba(245,237,224,0.38)' }}>Delivery Method</label>
+          <div className="grid grid-cols-3 gap-2">
+            {[['email','Email'],['portal','Portal'],['api','API Push']].map(([k,l]) => (
+              <button key={k} onClick={() => setMethod(k)}
+                className="py-2.5 rounded-xl text-sm font-medium transition-all border"
+                style={method===k
+                  ? { background:`${ROLE_COLOR}22`, border:`1px solid ${ROLE_COLOR}55`, color:'#f5ede0' }
+                  : { border:'1px solid rgba(245,240,224,0.08)', color:'rgba(245,237,224,0.40)' }}>
+                {l}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="mb-4">
+          <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
+            style={{ color:'rgba(245,237,224,0.38)' }}>Recipient Email</label>
+          <input value={recipient} onChange={e=>setRecipient(e.target.value)}
+            placeholder="client@company.com" className="input-field text-sm" />
+        </div>
+        <div className="mb-5">
+          <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
+            style={{ color:'rgba(245,237,224,0.38)' }}>Delivery Note</label>
+          <textarea value={note} onChange={e=>setNote(e.target.value)}
+            placeholder="Notes for the client…" rows={3} className="input-field text-sm resize-none" />
+        </div>
+        <div className="flex gap-3">
+          <button className="flex-1 btn-primary text-sm py-2.5 flex items-center justify-center gap-2" onClick={onClose}>
+            <Send className="w-4 h-4" /> Deliver Report
+          </button>
+          <button className="btn-secondary text-sm py-2.5 px-4 flex items-center gap-2" onClick={onClose}>
+            <Download className="w-4 h-4" /> Preview
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+function DeliveryHome() {
+  const [selected, setSelected] = useState(null)
+  return (
+    <div className="space-y-6">
+      {selected && <DeliveryModal order={selected} onClose={() => setSelected(null)} />}
+      <div>
+        <h1 className="text-2xl font-bold" style={{ color:'#f5ede0' }}>Delivery Dashboard</h1>
+        <p className="text-sm" style={{ color:'rgba(245,237,224,0.45)' }}>Manage and deliver completed title search reports</p>
+      </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { icon:Package,     label:'Ready to Deliver', value:'2',  color:ROLE_COLOR },
+          { icon:Truck,       label:'Sent Today',       value:'3',  color:'#8ab868' },
+          { icon:CheckCircle, label:'Delivered (MTD)',  value:'79', color:'#6dbc78' },
+          { icon:Clock,       label:'Avg Delivery',     value:'22m',color:'#c4a44e' },
+        ].map(s => (
+          <motion.div key={s.label} initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} className="stat-card">
+            <div className="w-9 h-9 rounded-xl mb-3 flex items-center justify-center" style={{ background:`${s.color}22` }}>
+              <s.icon className="w-4 h-4" style={{ color:s.color }} />
+            </div>
+            <div className="text-2xl font-bold" style={{ color:'#f5ede0' }}>{s.value}</div>
+            <div className="text-sm" style={{ color:'rgba(245,237,224,0.45)' }}>{s.label}</div>
+          </motion.div>
+        ))}
+      </div>
+      <div className="glass-card p-5">
+        <h2 className="font-semibold mb-4" style={{ color:'#f5ede0' }}>Ready to Deliver</h2>
+        <div className="space-y-3">
+          {readyOrders.map((o,i) => (
+            <motion.div key={o.id} initial={{ opacity:0, x:-8 }} animate={{ opacity:1, x:0 }}
+              transition={{ delay:i*0.07 }}
+              className="flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all"
+              style={{ background:'rgba(245,240,224,0.03)', border:'1px solid rgba(138,194,104,0.08)' }}
+              onMouseOver={e=>e.currentTarget.style.borderColor='rgba(196,120,62,0.30)'}
+              onMouseOut={e=>e.currentTarget.style.borderColor='rgba(138,194,104,0.08)'}
+              onClick={() => setSelected(o)}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background:`${ROLE_COLOR}22` }}>
+                <Package className="w-5 h-5" style={{ color:ROLE_COLOR }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono font-semibold text-sm" style={{ color:ROLE_COLOR }}>{o.id}</span>
+                  {o.priority==='rush' && (
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-md"
+                      style={{ background:'rgba(220,80,60,0.18)', color:'#e08080' }}>RUSH</span>
+                  )}
+                </div>
+                <div className="font-medium text-sm mt-0.5 truncate" style={{ color:'#f5ede0' }}>{o.client}</div>
+                <div className="text-xs" style={{ color:'rgba(245,237,224,0.42)' }}>{o.type} · {o.state}</div>
+              </div>
+              <div className="text-right flex-shrink-0">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full capitalize"
+                  style={{ background:`${ROLE_COLOR}22`, color:ROLE_COLOR }}>{o.status}</span>
+                <div className="text-xs mt-1" style={{ color:'rgba(245,237,224,0.28)' }}>ETA {o.eta}</div>
+              </div>
+              <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color:'rgba(245,237,224,0.18)' }} />
+            </motion.div>
+          ))}
+        </div>
+      </div>
+      <div className="glass-card p-5">
+        <h2 className="font-semibold mb-4" style={{ color:'#f5ede0' }}>Recently Delivered</h2>
+        <div className="space-y-2">
+          {deliveredOrders.map(o => (
+            <div key={o.id} className="flex items-center gap-3 p-3 rounded-xl transition-colors"
+              onMouseOver={e=>e.currentTarget.style.background='rgba(245,240,224,0.03)'}
+              onMouseOut={e=>e.currentTarget.style.background='transparent'}>
+              <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color:'#6dbc78' }} />
+              <span className="font-mono text-xs flex-shrink-0" style={{ color:'rgba(245,237,224,0.55)' }}>{o.id}</span>
+              <span className="text-xs flex-1 truncate" style={{ color:'rgba(245,237,224,0.45)' }}>{o.client}</span>
+              <span className="text-xs flex-shrink-0" style={{ color:'rgba(245,237,224,0.28)' }}>{o.eta}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function DeliveryDashboard() {
+  return (
+    <Layout navItems={NAV} role="delivery" roleColor={ROLE_COLOR}>
+      <Routes>
+        <Route index element={<DeliveryHome />} />
+        <Route path="queue" element={<div className="space-y-6">
+          <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>Ready to Send</h1>
+          <div className="glass-card p-5"><OrdersTable orders={readyOrders} /></div>
+        </div>} />
+        <Route path="sent" element={<div className="space-y-6">
+          <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>Delivered Orders</h1>
+          <div className="glass-card p-5"><OrdersTable orders={deliveredOrders} /></div>
+        </div>} />
+      </Routes>
+    </Layout>
+  )
+}
