@@ -8,11 +8,6 @@ import { useOrders } from '../../context/OrderContext'
 import { useAuth } from '../../context/AuthContext'
 
 const ROLE_COLOR = '#8ab868'
-const NAV = [
-  { path: '/screener',           label: 'Dashboard',       icon: LayoutDashboard },
-  { path: '/screener/queue',     label: 'Screening Queue', icon: ClipboardList, badge: 3 },
-  { path: '/screener/completed', label: 'Completed',       icon: CheckCircle },
-]
 
 const STATUS_DOT = {
   received:  '#8ab0e8', screening: '#d4b450', searching: '#8ab868',
@@ -22,10 +17,10 @@ const STATUS_DOT = {
 function OrderModal({ order, onClose }) {
   const { completeStep } = useOrders()
   const { user }         = useAuth()
-  const [status, setStatus] = useState(order.status)
   const [notes, setNotes]   = useState('')
 
   function handleComplete() {
+    if (!user) return
     completeStep(order.id, 'screener', user.name, notes)
     onClose()
   }
@@ -50,21 +45,6 @@ function OrderModal({ order, onClose }) {
               <div className="font-medium text-sm" style={{ color: '#f5ede0' }}>{v}</div>
             </div>
           ))}
-        </div>
-        <div className="mb-4">
-          <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
-            style={{ color: 'rgba(245,237,224,0.38)' }}>Update Status</label>
-          <div className="flex gap-2 flex-wrap">
-            {['received','screening','searching'].map(s => (
-              <button key={s} onClick={() => setStatus(s)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all"
-                style={status === s
-                  ? { background: `${ROLE_COLOR}28`, color: ROLE_COLOR, border: `1px solid ${ROLE_COLOR}55` }
-                  : { background: 'rgba(245,240,224,0.05)', color: 'rgba(245,237,224,0.40)', border: '1px solid rgba(245,240,224,0.08)' }}>
-                {s}
-              </button>
-            ))}
-          </div>
         </div>
         <textarea value={notes} onChange={e => setNotes(e.target.value)}
           placeholder="Add screening notes…" rows={3} className="input-field text-sm mb-4 resize-none" />
@@ -174,8 +154,15 @@ function ScreenerCompleted() {
 }
 
 export default function ScreenerDashboard() {
+  const { getOrdersForRole } = useOrders()
+  const queueCount = getOrdersForRole('screener').length
+  const navItems = [
+    { path: '/screener',           label: 'Dashboard',       icon: LayoutDashboard },
+    { path: '/screener/queue',     label: 'Screening Queue', icon: ClipboardList, badge: queueCount },
+    { path: '/screener/completed', label: 'Completed',       icon: CheckCircle },
+  ]
   return (
-    <Layout navItems={NAV} role="screener" roleColor={ROLE_COLOR}>
+    <Layout navItems={navItems} role="screener" roleColor={ROLE_COLOR}>
       <Routes>
         <Route index element={<ScreenerHome />} />
         <Route path="queue"     element={<ScreenerQueue />} />

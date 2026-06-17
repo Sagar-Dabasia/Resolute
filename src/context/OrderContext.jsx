@@ -18,7 +18,7 @@ export function OrderProvider({ children }) {
     setOrders(prev => prev.map(o => {
       if (o.id !== orderId) return o
       const update = { assignedTo: queue }
-      update[queue] = personName || null
+      if (personName) update[queue] = personName
       return { ...o, ...update }
     }))
   }
@@ -37,7 +37,7 @@ export function OrderProvider({ children }) {
     const stageName = { screener: 'Screening', delivery: 'Delivery', examiner: 'Examination' }[role] || role
     setActivity(prev => [
       {
-        id:     orderId + '-' + role,
+        id:     orderId + '-' + role + '-' + Date.now(),
         action: `${userName} completed ${stageName} on ${orderId}${notes ? ' — ' + notes : ''}`,
         time:   'Just now',
         type:   'progress',

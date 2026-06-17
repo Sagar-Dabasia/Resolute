@@ -21,7 +21,7 @@ export const ORDERS = [
     delivery: 'Morgan Davis', priority: 'normal', created: '2026-06-09', eta: '2026-06-12',
     progress: 45,
     assignedTo: 'examiner',
-    completedDates: { screener: '2026-06-09', examiner: null, delivery: '2026-06-10' },
+    completedDates: { screener: '2026-06-09', examiner: null, delivery: null },
   },
   {
     id: 'RTS-10044', client: 'Pinnacle Real Estate', state: 'NY', county: 'Kings',
@@ -61,7 +61,7 @@ export const ORDERS = [
     delivery: 'Morgan Davis', priority: 'normal', created: '2026-06-08', eta: '2026-06-12',
     progress: 70,
     assignedTo: 'examiner',
-    completedDates: { screener: '2026-06-08', examiner: null, delivery: '2026-06-09' },
+    completedDates: { screener: '2026-06-08', examiner: null, delivery: null },
   },
 ]
 
@@ -83,12 +83,12 @@ export const USERS = [
 ]
 
 export const ACTIVITY = [
-  { time: '10:42 AM', action: 'Order RTS-10044 received from Pinnacle Real Estate', type: 'new' },
-  { time: '10:28 AM', action: 'RTS-10042 delivered to Apex Lending Partners', type: 'delivered' },
-  { time: '10:15 AM', action: 'RTS-10047 search in progress – 55% complete', type: 'progress' },
-  { time: '09:55 AM', action: 'RTS-10043 moved to Examination stage', type: 'status' },
-  { time: '09:30 AM', action: 'New client registered: Riley Stone (Sterling Law)', type: 'user' },
-  { time: '09:12 AM', action: 'RTS-10048 examination started by Jordan Lee', type: 'status' },
+  { id: 'act-1', time: '10:42 AM', action: 'Order RTS-10044 received from Pinnacle Real Estate', type: 'new' },
+  { id: 'act-2', time: '10:28 AM', action: 'RTS-10042 delivered to Apex Lending Partners', type: 'delivered' },
+  { id: 'act-3', time: '10:15 AM', action: 'RTS-10047 search in progress – 55% complete', type: 'progress' },
+  { id: 'act-4', time: '09:55 AM', action: 'RTS-10043 moved to Examination stage', type: 'status' },
+  { id: 'act-5', time: '09:30 AM', action: 'New client registered: Riley Stone (Sterling Law)', type: 'user' },
+  { id: 'act-6', time: '09:12 AM', action: 'RTS-10048 examination started by Jordan Lee', type: 'status' },
 ]
 
 export const MONTHLY_STATS = [

@@ -241,16 +241,19 @@ function OrdersPipeline({ orders }) {
                   <td style={{ padding:'10px 16px', color:Q.faint, fontSize:12, whiteSpace:'nowrap' }}>{o.eta}</td>
                   <td style={{ padding:'10px 16px' }}>
                     <div style={{ display:'flex', alignItems:'center', gap:2 }}>
-                      <button title="Assign" onClick={e => { e.stopPropagation(); setAssignTarget(o) }}
+                      <button title="Assign" onClick={e => { e.stopPropagation(); if (o.status !== 'delivered') setAssignTarget(o) }}
                         style={{
                           display:'flex', alignItems:'center', gap:5, padding:'5px 10px',
-                          borderRadius:6, background: isUnassigned ? '#fffbeb' : 'transparent',
-                          border: isUnassigned ? '1px solid #fde68a' : '1px solid transparent',
-                          cursor:'pointer', color: isUnassigned ? '#d97706' : Q.faint,
+                          borderRadius:6,
+                          background: o.status === 'delivered' ? 'transparent' : isUnassigned ? '#fffbeb' : 'transparent',
+                          border: o.status === 'delivered' ? '1px solid transparent' : isUnassigned ? '1px solid #fde68a' : '1px solid transparent',
+                          cursor: o.status === 'delivered' ? 'default' : 'pointer',
+                          color: o.status === 'delivered' ? Q.faint : isUnassigned ? '#d97706' : Q.faint,
                           fontSize:11, fontWeight:600,
+                          opacity: o.status === 'delivered' ? 0.3 : 1,
                         }}
-                        onMouseOver={e => { if (!isUnassigned) e.currentTarget.style.background = '#f1f5f9' }}
-                        onMouseOut={e => { if (!isUnassigned) e.currentTarget.style.background = 'transparent' }}>
+                        onMouseOver={e => { if (o.status !== 'delivered' && !isUnassigned) e.currentTarget.style.background = '#f1f5f9' }}
+                        onMouseOut={e => { if (o.status !== 'delivered' && !isUnassigned) e.currentTarget.style.background = 'transparent' }}>
                         <UserCheck style={{ width:13, height:13 }} />
                         {isUnassigned ? 'Assign' : ''}
                       </button>

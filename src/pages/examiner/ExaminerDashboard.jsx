@@ -8,11 +8,6 @@ import { useOrders } from '../../context/OrderContext'
 import { useAuth } from '../../context/AuthContext'
 
 const ROLE_COLOR = '#c4a44e'
-const NAV = [
-  { path: '/examiner',           label: 'Dashboard',  icon: LayoutDashboard },
-  { path: '/examiner/examine',   label: 'To Examine', icon: FileSearch, badge: 2 },
-  { path: '/examiner/completed', label: 'Completed',  icon: CheckCircle },
-]
 
 function ExamineModal({ order, onClose }) {
   const { completeStep } = useOrders()
@@ -22,6 +17,7 @@ function ExamineModal({ order, onClose }) {
   const [encumbrances, setEncumbrances] = useState(false)
 
   function handleComplete() {
+    if (!user) return
     completeStep(order.id, 'examiner', user.name, findings)
     onClose()
   }
@@ -193,8 +189,15 @@ function ExaminerCompleted() {
 }
 
 export default function ExaminerDashboard() {
+  const { getOrdersForRole } = useOrders()
+  const examineCount = getOrdersForRole('examiner').length
+  const navItems = [
+    { path: '/examiner',           label: 'Dashboard',  icon: LayoutDashboard },
+    { path: '/examiner/examine',   label: 'To Examine', icon: FileSearch, badge: examineCount },
+    { path: '/examiner/completed', label: 'Completed',  icon: CheckCircle },
+  ]
   return (
-    <Layout navItems={NAV} role="examiner" roleColor={ROLE_COLOR}>
+    <Layout navItems={navItems} role="examiner" roleColor={ROLE_COLOR}>
       <Routes>
         <Route index element={<ExaminerHome />} />
         <Route path="examine"   element={<ExaminerQueue />} />

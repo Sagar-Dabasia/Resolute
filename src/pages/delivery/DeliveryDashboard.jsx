@@ -8,11 +8,6 @@ import { useOrders } from '../../context/OrderContext'
 import { useAuth } from '../../context/AuthContext'
 
 const ROLE_COLOR = '#c4783e'
-const NAV = [
-  { path: '/delivery',         label: 'Dashboard',    icon: LayoutDashboard },
-  { path: '/delivery/queue',   label: 'Ready to Send',icon: Package, badge: 2 },
-  { path: '/delivery/sent',    label: 'Delivered',    icon: CheckCircle },
-]
 
 function DeliveryModal({ order, onClose }) {
   const { completeStep } = useOrders()
@@ -22,6 +17,7 @@ function DeliveryModal({ order, onClose }) {
   const [note, setNote]           = useState('')
 
   function handleComplete() {
+    if (!user) return
     completeStep(order.id, 'delivery', user.name, note)
     onClose()
   }
@@ -201,8 +197,15 @@ function DeliverySent() {
 }
 
 export default function DeliveryDashboard() {
+  const { getOrdersForRole } = useOrders()
+  const queueCount = getOrdersForRole('delivery').length
+  const navItems = [
+    { path: '/delivery',         label: 'Dashboard',     icon: LayoutDashboard },
+    { path: '/delivery/queue',   label: 'Ready to Send', icon: Package, badge: queueCount },
+    { path: '/delivery/sent',    label: 'Delivered',     icon: CheckCircle },
+  ]
   return (
-    <Layout navItems={NAV} role="delivery" roleColor={ROLE_COLOR}>
+    <Layout navItems={navItems} role="delivery" roleColor={ROLE_COLOR}>
       <Routes>
         <Route index element={<DeliveryHome />} />
         <Route path="queue" element={<DeliveryQueue />} />
