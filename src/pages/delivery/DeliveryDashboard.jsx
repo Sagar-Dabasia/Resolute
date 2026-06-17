@@ -4,7 +4,8 @@ import { motion } from 'framer-motion'
 import Layout from '../../components/Layout'
 import OrdersTable from '../../components/OrdersTable'
 import { LayoutDashboard, Truck, Package, CheckCircle, Clock, Download, Send, X, ChevronRight } from 'lucide-react'
-import { ORDERS } from '../../data/mockData'
+import { useOrders } from '../../context/OrderContext'
+import { useAuth } from '../../context/AuthContext'
 
 const ROLE_COLOR = '#c4783e'
 const NAV = [
@@ -12,13 +13,19 @@ const NAV = [
   { path: '/delivery/queue',   label: 'Ready to Send',icon: Package, badge: 2 },
   { path: '/delivery/sent',    label: 'Delivered',    icon: CheckCircle },
 ]
-const readyOrders     = ORDERS.filter(o => ['examining','searching'].includes(o.status))
-const deliveredOrders = ORDERS.filter(o => o.status === 'delivered')
 
 function DeliveryModal({ order, onClose }) {
-  const [method, setMethod] = useState('email')
+  const { completeStep } = useOrders()
+  const { user }         = useAuth()
+  const [method, setMethod]       = useState('email')
   const [recipient, setRecipient] = useState('')
-  const [note, setNote] = useState('')
+  const [note, setNote]           = useState('')
+
+  function handleComplete() {
+    completeStep(order.id, 'delivery', user.name, note)
+    onClose()
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background:'rgba(0,0,0,0.65)' }} onClick={onClose}>
@@ -70,8 +77,9 @@ function DeliveryModal({ order, onClose }) {
             placeholder="Notes for the client…" rows={3} className="input-field text-sm resize-none" />
         </div>
         <div className="flex gap-3">
-          <button className="flex-1 btn-primary text-sm py-2.5 flex items-center justify-center gap-2" onClick={onClose}>
-            <Send className="w-4 h-4" /> Deliver Report
+          <button className="flex-1 btn-primary text-sm py-2.5 flex items-center justify-center gap-2"
+            onClick={handleComplete}>
+            <Send className="w-4 h-4" /> Complete & Submit to Admin
           </button>
           <button className="btn-secondary text-sm py-2.5 px-4 flex items-center gap-2" onClick={onClose}>
             <Download className="w-4 h-4" /> Preview
@@ -83,6 +91,9 @@ function DeliveryModal({ order, onClose }) {
 }
 
 function DeliveryHome() {
+  const { getOrdersForRole, orders } = useOrders()
+  const readyOrders     = getOrdersForRole('delivery')
+  const deliveredOrders = orders.filter(o => o.status === 'delivered')
   const [selected, setSelected] = useState(null)
   return (
     <div className="space-y-6">
@@ -93,10 +104,10 @@ function DeliveryHome() {
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon:Package,     label:'Ready to Deliver', value:'2',  color:ROLE_COLOR },
-          { icon:Truck,       label:'Sent Today',       value:'3',  color:'#8ab868' },
-          { icon:CheckCircle, label:'Delivered (MTD)',  value:'79', color:'#6dbc78' },
-          { icon:Clock,       label:'Avg Delivery',     value:'22m',color:'#c4a44e' },
+          { icon:Package,     label:'Ready to Deliver', value: String(readyOrders.length),     color:ROLE_COLOR },
+          { icon:Truck,       label:'Sent Today',       value:'3',                              color:'#8ab868' },
+          { icon:CheckCircle, label:'Delivered (MTD)',  value: String(deliveredOrders.length),  color:'#6dbc78' },
+          { icon:Clock,       label:'Avg Delivery',     value:'22m',                            color:'#c4a44e' },
         ].map(s => (
           <motion.div key={s.label} initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} className="stat-card">
             <div className="w-9 h-9 rounded-xl mb-3 flex items-center justify-center" style={{ background:`${s.color}22` }}>
@@ -110,6 +121,11 @@ function DeliveryHome() {
       <div className="glass-card p-5">
         <h2 className="font-semibold mb-4" style={{ color:'#f5ede0' }}>Ready to Deliver</h2>
         <div className="space-y-3">
+          {readyOrders.length === 0 && (
+            <p style={{ color:'rgba(245,237,224,0.35)', fontSize:13, textAlign:'center', padding:'24px 0' }}>
+              No orders assigned to you
+            </p>
+          )}
           {readyOrders.map((o,i) => (
             <motion.div key={o.id} initial={{ opacity:0, x:-8 }} animate={{ opacity:1, x:0 }}
               transition={{ delay:i*0.07 }}
@@ -162,19 +178,35 @@ function DeliveryHome() {
   )
 }
 
+function DeliveryQueue() {
+  const { getOrdersForRole } = useOrders()
+  const readyOrders = getOrdersForRole('delivery')
+  return (
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>Ready to Send</h1>
+      <div className="glass-card p-5"><OrdersTable orders={readyOrders} /></div>
+    </div>
+  )
+}
+
+function DeliverySent() {
+  const { orders } = useOrders()
+  const deliveredOrders = orders.filter(o => o.status === 'delivered')
+  return (
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>Delivered Orders</h1>
+      <div className="glass-card p-5"><OrdersTable orders={deliveredOrders} /></div>
+    </div>
+  )
+}
+
 export default function DeliveryDashboard() {
   return (
     <Layout navItems={NAV} role="delivery" roleColor={ROLE_COLOR}>
       <Routes>
         <Route index element={<DeliveryHome />} />
-        <Route path="queue" element={<div className="space-y-6">
-          <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>Ready to Send</h1>
-          <div className="glass-card p-5"><OrdersTable orders={readyOrders} /></div>
-        </div>} />
-        <Route path="sent" element={<div className="space-y-6">
-          <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>Delivered Orders</h1>
-          <div className="glass-card p-5"><OrdersTable orders={deliveredOrders} /></div>
-        </div>} />
+        <Route path="queue" element={<DeliveryQueue />} />
+        <Route path="sent"  element={<DeliverySent />} />
       </Routes>
     </Layout>
   )
