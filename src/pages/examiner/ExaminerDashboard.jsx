@@ -3,8 +3,9 @@ import { Routes, Route } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Layout from '../../components/Layout'
 import OrdersTable from '../../components/OrdersTable'
-import { LayoutDashboard, FileSearch, CheckCircle, Clock, AlertCircle, ChevronRight, X } from 'lucide-react'
-import { ORDERS } from '../../data/mockData'
+import { LayoutDashboard, FileSearch, CheckCircle, Clock, AlertCircle, ChevronRight, X, Send } from 'lucide-react'
+import { useOrders } from '../../context/OrderContext'
+import { useAuth } from '../../context/AuthContext'
 
 const ROLE_COLOR = '#c4a44e'
 const NAV = [
@@ -12,12 +13,19 @@ const NAV = [
   { path: '/examiner/examine',   label: 'To Examine', icon: FileSearch, badge: 2 },
   { path: '/examiner/completed', label: 'Completed',  icon: CheckCircle },
 ]
-const myOrders = ORDERS.filter(o => ['searching','examining'].includes(o.status))
 
 function ExamineModal({ order, onClose }) {
-  const [findings, setFindings] = useState('')
-  const [liens, setLiens] = useState(false)
+  const { completeStep } = useOrders()
+  const { user }         = useAuth()
+  const [findings, setFindings]         = useState('')
+  const [liens, setLiens]               = useState(false)
   const [encumbrances, setEncumbrances] = useState(false)
+
+  function handleComplete() {
+    completeStep(order.id, 'examiner', user.name, findings)
+    onClose()
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: 'rgba(0,0,0,0.65)' }} onClick={onClose}>
@@ -79,7 +87,10 @@ function ExamineModal({ order, onClose }) {
           </div>
         </div>
         <div className="flex gap-3">
-          <button className="btn-primary flex-1 text-sm py-2.5" onClick={onClose}>Complete & Send to Delivery</button>
+          <button className="btn-primary flex-1 text-sm py-2.5 flex items-center justify-center gap-2"
+            onClick={handleComplete}>
+            <Send className="w-4 h-4" /> Complete & Submit to Admin
+          </button>
           <button className="btn-secondary text-sm py-2.5 px-4" onClick={onClose}>Save Draft</button>
         </div>
       </motion.div>
@@ -88,6 +99,8 @@ function ExamineModal({ order, onClose }) {
 }
 
 function ExaminerHome() {
+  const { getOrdersForRole } = useOrders()
+  const myOrders = getOrdersForRole('examiner')
   const [selected, setSelected] = useState(null)
   return (
     <div className="space-y-6">
@@ -98,10 +111,10 @@ function ExaminerHome() {
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon:FileSearch,  label:'Awaiting Exam',   value:'2',  color:'#8ab0e8' },
-          { icon:Clock,       label:'In Progress',     value:'1',  color:ROLE_COLOR },
-          { icon:CheckCircle, label:'Completed Today', value:'4',  color:'#6dbc78' },
-          { icon:AlertCircle, label:'Issues Found',    value:'1',  color:'#e08080' },
+          { icon:FileSearch,  label:'Awaiting Exam',   value: String(myOrders.length), color:'#8ab0e8' },
+          { icon:Clock,       label:'In Progress',     value: String(myOrders.filter(o=>o.status==='examining').length), color:ROLE_COLOR },
+          { icon:CheckCircle, label:'Completed Today', value:'4', color:'#6dbc78' },
+          { icon:AlertCircle, label:'Issues Found',    value:'1', color:'#e08080' },
         ].map(s => (
           <motion.div key={s.label} initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} className="stat-card">
             <div className="w-9 h-9 rounded-xl mb-3 flex items-center justify-center" style={{ background:`${s.color}22` }}>
@@ -115,6 +128,11 @@ function ExaminerHome() {
       <div className="glass-card p-5">
         <h2 className="font-semibold mb-4" style={{ color:'#f5ede0' }}>Examination Queue</h2>
         <div className="space-y-3">
+          {myOrders.length === 0 && (
+            <p style={{ color:'rgba(245,237,224,0.35)', fontSize:13, textAlign:'center', padding:'24px 0' }}>
+              No orders assigned to you
+            </p>
+          )}
           {myOrders.map((o,i) => (
             <motion.div key={o.id} initial={{ opacity:0, x:-8 }} animate={{ opacity:1, x:0 }}
               transition={{ delay:i*0.07 }}
@@ -152,19 +170,35 @@ function ExaminerHome() {
   )
 }
 
+function ExaminerQueue() {
+  const { getOrdersForRole } = useOrders()
+  const myOrders = getOrdersForRole('examiner')
+  return (
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>To Examine</h1>
+      <div className="glass-card p-5"><OrdersTable orders={myOrders} /></div>
+    </div>
+  )
+}
+
+function ExaminerCompleted() {
+  const { orders } = useOrders()
+  const completed = orders.filter(o => o.status === 'delivered')
+  return (
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>Completed</h1>
+      <div className="glass-card p-5"><OrdersTable orders={completed} /></div>
+    </div>
+  )
+}
+
 export default function ExaminerDashboard() {
   return (
     <Layout navItems={NAV} role="examiner" roleColor={ROLE_COLOR}>
       <Routes>
         <Route index element={<ExaminerHome />} />
-        <Route path="examine" element={<div className="space-y-6">
-          <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>To Examine</h1>
-          <div className="glass-card p-5"><OrdersTable orders={myOrders} /></div>
-        </div>} />
-        <Route path="completed" element={<div className="space-y-6">
-          <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>Completed</h1>
-          <div className="glass-card p-5"><OrdersTable orders={ORDERS.filter(o=>o.status==='delivered')} /></div>
-        </div>} />
+        <Route path="examine"   element={<ExaminerQueue />} />
+        <Route path="completed" element={<ExaminerCompleted />} />
       </Routes>
     </Layout>
   )
