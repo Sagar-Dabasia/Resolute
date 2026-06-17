@@ -79,7 +79,6 @@ function StatCard({ icon: Icon, label, value, sub, color = ROLE_COLOR, trend, de
 }
 
 function OrdersPipeline({ orders }) {
-  const { assignOrder } = useOrders()
   const [search, setSearch]         = useState('')
   const [activeTab, setActiveTab]   = useState('all')
   const [showMap, setShowMap]       = useState(false)
@@ -159,7 +158,7 @@ function OrdersPipeline({ orders }) {
               borderBottomColor: activeTab === t.key
                 ? (t.key === 'unassigned' ? '#d97706' : ROLE_COLOR)
                 : 'transparent',
-              marginBottom: -1, background:'transparent', border:'none',
+              marginBottom: -1, background:'transparent',
               cursor:'pointer', transition:'color 0.15s',
             }}>
             {t.label}
@@ -232,8 +231,8 @@ function OrdersPipeline({ orders }) {
                     </div>
                   </td>
                   <td style={{ padding:'10px 16px', color:Q.muted, fontSize:12, whiteSpace:'nowrap' }}>
-                    {o.assignedTo
-                      ? <span style={{ textTransform:'capitalize', fontWeight:500 }}>{o[o.assignedTo] || o.assignedTo}</span>
+                    {o.assignedTo && o[o.assignedTo]
+                      ? <span style={{ textTransform:'capitalize', fontWeight:500 }}>{o[o.assignedTo]}</span>
                       : <span style={{ color:Q.faint }}>—</span>}
                   </td>
                   <td style={{ padding:'10px 16px', color:Q.faint, fontSize:12, whiteSpace:'nowrap' }}>
@@ -326,7 +325,7 @@ function AdminHome() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={Package}     label="Active Orders"   value={String(orders.filter(o=>o.status!=='delivered').length)} sub="2 rush priority"    color={ROLE_COLOR}  trend="+12%" delay={0}    />
+        <StatCard icon={Package}     label="Active Orders"   value={String(orders.filter(o=>o.status!=='delivered').length)} sub={String(orders.filter(o=>o.priority==='rush'&&o.status!=='delivered').length) + ' rush priority'}    color={ROLE_COLOR}  trend="+12%" delay={0}    />
         <StatCard icon={CheckCircle} label="Delivered Today" value={String(orders.filter(o=>o.status==='delivered').length)} sub="98.4% on-time"       color="#16a34a"     trend="+5%"  delay={0.05} />
         <StatCard icon={Clock}       label="Avg Turnaround"  value="1.8d" sub="Rush: 18 hrs"         color="#d97706"                  delay={0.10} />
         <StatCard icon={Users}       label="Active Clients"  value="24"   sub="6 new this month"    color="#7c3aed"     trend="+8%"  delay={0.15} />
@@ -357,7 +356,7 @@ function AdminHome() {
           <h2 className="text-sm font-semibold mb-4" style={{ color: Q.text }}>Recent Activity</h2>
           <div className="space-y-3">
             {activityLog.slice(0, 5).map((a, i) => (
-              <div key={i} style={{ display:'flex', gap:10 }}>
+              <div key={a.id ?? ('static-' + i)} style={{ display:'flex', gap:10 }}>
                 <div style={{
                   width:8, height:8, borderRadius:99, flexShrink:0, marginTop:5,
                   background: a.type==='new' ? ROLE_COLOR : a.type==='delivered' ? '#16a34a'

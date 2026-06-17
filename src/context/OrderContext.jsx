@@ -18,7 +18,7 @@ export function OrderProvider({ children }) {
     setOrders(prev => prev.map(o => {
       if (o.id !== orderId) return o
       const update = { assignedTo: queue }
-      if (personName) update[queue] = personName
+      update[queue] = personName || null
       return { ...o, ...update }
     }))
   }
