@@ -3,8 +3,9 @@ import { Routes, Route } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import Layout from '../../components/Layout'
 import OrdersTable from '../../components/OrdersTable'
-import { LayoutDashboard, ClipboardList, CheckCircle, Clock, AlertTriangle, Search, ChevronRight, X } from 'lucide-react'
-import { ORDERS } from '../../data/mockData'
+import { LayoutDashboard, ClipboardList, CheckCircle, Clock, AlertTriangle, Search, ChevronRight, X, Send } from 'lucide-react'
+import { useOrders } from '../../context/OrderContext'
+import { useAuth } from '../../context/AuthContext'
 
 const ROLE_COLOR = '#8ab868'
 const NAV = [
@@ -12,7 +13,6 @@ const NAV = [
   { path: '/screener/queue',     label: 'Screening Queue', icon: ClipboardList, badge: 3 },
   { path: '/screener/completed', label: 'Completed',       icon: CheckCircle },
 ]
-const myOrders = ORDERS.filter(o => ['received','screening'].includes(o.status))
 
 const STATUS_DOT = {
   received:  '#8ab0e8', screening: '#d4b450', searching: '#8ab868',
@@ -20,8 +20,16 @@ const STATUS_DOT = {
 }
 
 function OrderModal({ order, onClose }) {
+  const { completeStep } = useOrders()
+  const { user }         = useAuth()
   const [status, setStatus] = useState(order.status)
   const [notes, setNotes]   = useState('')
+
+  function handleComplete() {
+    completeStep(order.id, 'screener', user.name, notes)
+    onClose()
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: 'rgba(0,0,0,0.65)' }} onClick={onClose}>
@@ -61,7 +69,10 @@ function OrderModal({ order, onClose }) {
         <textarea value={notes} onChange={e => setNotes(e.target.value)}
           placeholder="Add screening notes…" rows={3} className="input-field text-sm mb-4 resize-none" />
         <div className="flex gap-3">
-          <button className="btn-primary flex-1 text-sm py-2.5" onClick={onClose}>Save & Advance to Search</button>
+          <button className="btn-primary flex-1 text-sm py-2.5 flex items-center justify-center gap-2"
+            onClick={handleComplete}>
+            <Send className="w-4 h-4" /> Complete & Submit to Admin
+          </button>
           <button className="btn-secondary text-sm py-2.5 px-4" onClick={onClose}>Hold</button>
         </div>
       </motion.div>
@@ -70,6 +81,8 @@ function OrderModal({ order, onClose }) {
 }
 
 function ScreenerHome() {
+  const { getOrdersForRole } = useOrders()
+  const myOrders = getOrdersForRole('screener')
   const [selected, setSelected] = useState(null)
   return (
     <div className="space-y-6">
@@ -80,8 +93,8 @@ function ScreenerHome() {
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon: AlertTriangle, label: 'Awaiting Screening', value: '2', color: '#d4b450' },
-          { icon: Search,        label: 'In Screening',       value: '1', color: ROLE_COLOR },
+          { icon: AlertTriangle, label: 'Awaiting Screening', value: String(myOrders.filter(o=>o.status==='received').length), color: '#d4b450' },
+          { icon: Search,        label: 'In Screening',       value: String(myOrders.filter(o=>o.status==='screening').length), color: ROLE_COLOR },
           { icon: CheckCircle,   label: 'Passed Today',       value: '5', color: '#6dbc78' },
           { icon: Clock,         label: 'Avg Screen Time',    value: '18m', color: '#c4a44e' },
         ].map(s => (
@@ -97,6 +110,11 @@ function ScreenerHome() {
       <div className="glass-card p-5">
         <h2 className="font-semibold mb-4" style={{ color: '#f5ede0' }}>My Screening Queue</h2>
         <div className="space-y-3">
+          {myOrders.length === 0 && (
+            <p style={{ color:'rgba(245,237,224,0.35)', fontSize:13, textAlign:'center', padding:'24px 0' }}>
+              No orders assigned to you
+            </p>
+          )}
           {myOrders.map((o, i) => (
             <motion.div key={o.id} initial={{ opacity:0, x:-8 }} animate={{ opacity:1, x:0 }}
               transition={{ delay: i * 0.07 }}
@@ -133,19 +151,35 @@ function ScreenerHome() {
   )
 }
 
+function ScreenerQueue() {
+  const { getOrdersForRole } = useOrders()
+  const myOrders = getOrdersForRole('screener')
+  return (
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>Screening Queue</h1>
+      <div className="glass-card p-5"><OrdersTable orders={myOrders} /></div>
+    </div>
+  )
+}
+
+function ScreenerCompleted() {
+  const { orders } = useOrders()
+  const completed = orders.filter(o => o.status === 'delivered')
+  return (
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>Completed Screenings</h1>
+      <div className="glass-card p-5"><OrdersTable orders={completed} /></div>
+    </div>
+  )
+}
+
 export default function ScreenerDashboard() {
   return (
     <Layout navItems={NAV} role="screener" roleColor={ROLE_COLOR}>
       <Routes>
         <Route index element={<ScreenerHome />} />
-        <Route path="queue" element={<div className="space-y-6">
-          <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>Screening Queue</h1>
-          <div className="glass-card p-5"><OrdersTable orders={myOrders} /></div>
-        </div>} />
-        <Route path="completed" element={<div className="space-y-6">
-          <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>Completed Screenings</h1>
-          <div className="glass-card p-5"><OrdersTable orders={ORDERS.filter(o=>o.status==='delivered')} /></div>
-        </div>} />
+        <Route path="queue"     element={<ScreenerQueue />} />
+        <Route path="completed" element={<ScreenerCompleted />} />
       </Routes>
     </Layout>
   )
