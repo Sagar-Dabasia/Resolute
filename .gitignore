@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Vite cache
+.vite/
+
+# Logs
+vite-dev.log
+*.log
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+
+# Playwright test artifacts
+.playwright-mcp/
+
+# Local env files (never commit secrets)
+.env
+.env.local
+.env.*.local
