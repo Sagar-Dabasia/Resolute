@@ -6,9 +6,11 @@ import USAMap from '../../components/USAMap'
 import {
   LayoutDashboard, ClipboardList, Users, BarChart3, Settings, MapPin,
   Package, CheckCircle, Clock, Search, Plus, Filter, Eye, MoreHorizontal,
-  ChevronDown, ChevronUp, FileText, ArrowUpRight,
+  ChevronDown, ChevronUp, FileText, ArrowUpRight, UserCheck,
 } from 'lucide-react'
-import { ORDERS, USERS, ACTIVITY, MONTHLY_STATS } from '../../data/mockData'
+import { USERS, MONTHLY_STATS } from '../../data/mockData'
+import { useOrders } from '../../context/OrderContext'
+import AssignModal from '../../components/AssignModal'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
 const ROLE_COLOR  = '#3d7020'
@@ -77,30 +79,40 @@ function StatCard({ icon: Icon, label, value, sub, color = ROLE_COLOR, trend, de
 }
 
 function OrdersPipeline({ orders }) {
-  const [search, setSearch]   = useState('')
-  const [activeTab, setActiveTab] = useState('all')
-  const [showMap, setShowMap] = useState(false)
+  const { assignOrder } = useOrders()
+  const [search, setSearch]         = useState('')
+  const [activeTab, setActiveTab]   = useState('all')
+  const [showMap, setShowMap]       = useState(false)
+  const [assignTarget, setAssignTarget] = useState(null)
+
+  const unassignedOrders = orders.filter(o => o.assignedTo === null && o.status !== 'delivered')
 
   const tabs = [
-    { key: 'all',       label: 'All Orders',  count: orders.length },
-    { key: 'progress',  label: 'In Progress', count: orders.filter(o => ['searching','examining','screening'].includes(o.status)).length },
-    { key: 'rush',      label: 'Rush',        count: orders.filter(o => o.priority === 'rush').length },
-    { key: 'delivered', label: 'Delivered',   count: orders.filter(o => o.status === 'delivered').length },
+    { key: 'all',        label: 'All Orders',  count: orders.length },
+    { key: 'progress',   label: 'In Progress', count: orders.filter(o => ['searching','examining','screening'].includes(o.status)).length },
+    { key: 'rush',       label: 'Rush',        count: orders.filter(o => o.priority === 'rush').length },
+    { key: 'delivered',  label: 'Delivered',   count: orders.filter(o => o.status === 'delivered').length },
+    { key: 'unassigned', label: 'Unassigned',  count: unassignedOrders.length },
   ]
 
   const filtered = orders.filter(o => {
     const q = search.toLowerCase()
     const matchSearch = !q || o.client.toLowerCase().includes(q) || o.id.toLowerCase().includes(q)
     const matchTab =
-      activeTab === 'all'       ? true :
-      activeTab === 'rush'      ? o.priority === 'rush' :
-      activeTab === 'progress'  ? ['searching','examining','screening'].includes(o.status) :
-      activeTab === 'delivered' ? o.status === 'delivered' : true
+      activeTab === 'all'        ? true :
+      activeTab === 'rush'       ? o.priority === 'rush' :
+      activeTab === 'progress'   ? ['searching','examining','screening'].includes(o.status) :
+      activeTab === 'delivered'  ? o.status === 'delivered' :
+      activeTab === 'unassigned' ? (o.assignedTo === null && o.status !== 'delivered') : true
     return matchSearch && matchTab
   })
 
   return (
     <div className="space-y-4">
+      {assignTarget && (
+        <AssignModal order={assignTarget} onClose={() => setAssignTarget(null)} />
+      )}
+
       {/* Toolbar */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative" style={{ minWidth: 240 }}>
@@ -142,18 +154,23 @@ function OrdersPipeline({ orders }) {
             style={{
               display:'flex', alignItems:'center', gap:6,
               padding:'10px 16px', fontSize:13, fontWeight:500,
-              color: activeTab === t.key ? ROLE_COLOR : Q.muted,
-              borderBottom: activeTab === t.key ? `2px solid ${ROLE_COLOR}` : '2px solid transparent',
+              color: activeTab === t.key ? (t.key === 'unassigned' ? '#d97706' : ROLE_COLOR) : Q.muted,
+              borderBottomWidth: 2, borderBottomStyle: 'solid',
+              borderBottomColor: activeTab === t.key
+                ? (t.key === 'unassigned' ? '#d97706' : ROLE_COLOR)
+                : 'transparent',
               marginBottom: -1, background:'transparent', border:'none',
-              borderBottomWidth:2, borderBottomStyle:'solid',
-              borderBottomColor: activeTab === t.key ? ROLE_COLOR : 'transparent',
               cursor:'pointer', transition:'color 0.15s',
             }}>
             {t.label}
             <span style={{
               padding:'1px 7px', borderRadius:99, fontSize:11, fontWeight:700,
-              background: activeTab === t.key ? `${ROLE_COLOR}18` : Q.bg,
-              color: activeTab === t.key ? ROLE_COLOR : Q.faint,
+              background: activeTab === t.key
+                ? (t.key === 'unassigned' ? '#fffbeb' : `${ROLE_COLOR}18`)
+                : Q.bg,
+              color: activeTab === t.key
+                ? (t.key === 'unassigned' ? '#d97706' : ROLE_COLOR)
+                : Q.faint,
             }}>
               {t.count}
             </span>
@@ -166,7 +183,7 @@ function OrdersPipeline({ orders }) {
         <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
           <thead>
             <tr style={{ background:'#f8fafc', borderBottom:`1px solid ${Q.border}` }}>
-              {['File #','Client','Location','Type','Status','Assigned To','ETA',''].map(h => (
+              {['File #','Client','Location','Type','Status','Assigned To','Completed','ETA',''].map(h => (
                 <th key={h} style={{
                   padding:'10px 16px', textAlign:'left', fontSize:11,
                   fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em',
@@ -178,6 +195,10 @@ function OrdersPipeline({ orders }) {
           <tbody>
             {filtered.map((o, i) => {
               const s = STATUS_MAP[o.status] || STATUS_MAP.received
+              const isUnassigned = o.assignedTo === null && o.status !== 'delivered'
+              const lastCompleted = ['examiner','delivery','screener']
+                .map(r => o.completedDates?.[r])
+                .find(d => d != null) || null
               return (
                 <motion.tr key={o.id}
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }}
@@ -197,15 +218,43 @@ function OrdersPipeline({ orders }) {
                   <td style={{ padding:'10px 16px', color:Q.muted, whiteSpace:'nowrap' }}>{o.county}, {o.state}</td>
                   <td style={{ padding:'10px 16px', color:Q.muted, whiteSpace:'nowrap', fontSize:12 }}>{o.type}</td>
                   <td style={{ padding:'10px 16px', whiteSpace:'nowrap' }}>
-                    <span style={{
-                      padding:'3px 10px', borderRadius:99, fontSize:12, fontWeight:600,
-                      background:s.bg, color:s.color,
-                    }}>{s.label}</span>
+                    <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                      <span style={{
+                        padding:'3px 10px', borderRadius:99, fontSize:12, fontWeight:600,
+                        background:s.bg, color:s.color,
+                      }}>{s.label}</span>
+                      {isUnassigned && (
+                        <span style={{
+                          padding:'2px 8px', borderRadius:99, fontSize:11, fontWeight:600,
+                          background:'#fffbeb', color:'#d97706', border:'1px solid #fde68a',
+                        }}>Unassigned</span>
+                      )}
+                    </div>
                   </td>
-                  <td style={{ padding:'10px 16px', color:Q.muted, fontSize:12, whiteSpace:'nowrap' }}>{o.screener}</td>
+                  <td style={{ padding:'10px 16px', color:Q.muted, fontSize:12, whiteSpace:'nowrap' }}>
+                    {o.assignedTo
+                      ? <span style={{ textTransform:'capitalize', fontWeight:500 }}>{o[o.assignedTo] || o.assignedTo}</span>
+                      : <span style={{ color:Q.faint }}>—</span>}
+                  </td>
+                  <td style={{ padding:'10px 16px', color:Q.faint, fontSize:12, whiteSpace:'nowrap' }}>
+                    {lastCompleted || '—'}
+                  </td>
                   <td style={{ padding:'10px 16px', color:Q.faint, fontSize:12, whiteSpace:'nowrap' }}>{o.eta}</td>
                   <td style={{ padding:'10px 16px' }}>
                     <div style={{ display:'flex', alignItems:'center', gap:2 }}>
+                      <button title="Assign" onClick={e => { e.stopPropagation(); setAssignTarget(o) }}
+                        style={{
+                          display:'flex', alignItems:'center', gap:5, padding:'5px 10px',
+                          borderRadius:6, background: isUnassigned ? '#fffbeb' : 'transparent',
+                          border: isUnassigned ? '1px solid #fde68a' : '1px solid transparent',
+                          cursor:'pointer', color: isUnassigned ? '#d97706' : Q.faint,
+                          fontSize:11, fontWeight:600,
+                        }}
+                        onMouseOver={e => { if (!isUnassigned) e.currentTarget.style.background = '#f1f5f9' }}
+                        onMouseOut={e => { if (!isUnassigned) e.currentTarget.style.background = 'transparent' }}>
+                        <UserCheck style={{ width:13, height:13 }} />
+                        {isUnassigned ? 'Assign' : ''}
+                      </button>
                       <button title="View" style={{ padding:6, borderRadius:6, background:'transparent', border:'none', cursor:'pointer', color:Q.faint }}
                         onMouseOver={e => e.currentTarget.style.background = '#f1f5f9'}
                         onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
@@ -260,6 +309,7 @@ function OrdersPipeline({ orders }) {
 }
 
 function AdminHome() {
+  const { orders, activityLog } = useOrders()
   return (
     <div className="space-y-5">
       {/* Header */}
@@ -276,8 +326,8 @@ function AdminHome() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={Package}     label="Active Orders"   value="8"    sub="2 rush priority"    color={ROLE_COLOR}  trend="+12%" delay={0}    />
-        <StatCard icon={CheckCircle} label="Delivered Today" value="3"    sub="98.4% on-time"       color="#16a34a"     trend="+5%"  delay={0.05} />
+        <StatCard icon={Package}     label="Active Orders"   value={String(orders.filter(o=>o.status!=='delivered').length)} sub="2 rush priority"    color={ROLE_COLOR}  trend="+12%" delay={0}    />
+        <StatCard icon={CheckCircle} label="Delivered Today" value={String(orders.filter(o=>o.status==='delivered').length)} sub="98.4% on-time"       color="#16a34a"     trend="+5%"  delay={0.05} />
         <StatCard icon={Clock}       label="Avg Turnaround"  value="1.8d" sub="Rush: 18 hrs"         color="#d97706"                  delay={0.10} />
         <StatCard icon={Users}       label="Active Clients"  value="24"   sub="6 new this month"    color="#7c3aed"     trend="+8%"  delay={0.15} />
       </div>
@@ -306,7 +356,7 @@ function AdminHome() {
         <QCard className="p-5">
           <h2 className="text-sm font-semibold mb-4" style={{ color: Q.text }}>Recent Activity</h2>
           <div className="space-y-3">
-            {ACTIVITY.slice(0, 5).map((a, i) => (
+            {activityLog.slice(0, 5).map((a, i) => (
               <div key={i} style={{ display:'flex', gap:10 }}>
                 <div style={{
                   width:8, height:8, borderRadius:99, flexShrink:0, marginTop:5,
@@ -323,20 +373,21 @@ function AdminHome() {
         </QCard>
       </div>
 
-      {/* Qualia-like orders pipeline */}
-      <OrdersPipeline orders={ORDERS} />
+      {/* Orders pipeline */}
+      <OrdersPipeline orders={orders} />
     </div>
   )
 }
 
 function AdminOrders() {
+  const { orders } = useOrders()
   return (
     <div className="space-y-5">
       <div>
         <h1 className="text-xl font-bold" style={{ color: Q.text }}>Order Management</h1>
         <p className="text-sm" style={{ color: Q.muted }}>All active and completed title search orders</p>
       </div>
-      <OrdersPipeline orders={ORDERS} />
+      <OrdersPipeline orders={orders} />
     </div>
   )
 }
