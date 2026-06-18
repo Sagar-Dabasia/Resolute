@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Layout from '../../components/Layout'
 import OrdersTable from '../../components/OrdersTable'
 import { LayoutDashboard, ClipboardList, CheckCircle, Clock, AlertTriangle, Search, ChevronRight, X } from 'lucide-react'
-import { ORDERS } from '../../data/mockData'
+import { ORDERS, displayClient } from '../../data/mockData'
+import { useAuth } from '../../context/AuthContext'
 
 const ROLE_COLOR = '#8ab868'
 const NAV = [
@@ -16,10 +17,11 @@ const myOrders = ORDERS.filter(o => ['received','screening'].includes(o.status))
 
 const STATUS_DOT = {
   received:  '#8ab0e8', screening: '#d4b450', searching: '#8ab868',
-  examining: '#c4a44e', delivered: '#6dbc78',
+  examining: '#c4a44e', typing: '#5ab6d0', delivered: '#6dbc78',
 }
 
 function OrderModal({ order, onClose }) {
+  const { user } = useAuth()
   const [status, setStatus] = useState(order.status)
   const [notes, setNotes]   = useState('')
   return (
@@ -30,7 +32,7 @@ function OrderModal({ order, onClose }) {
         <div className="flex items-start justify-between mb-6">
           <div>
             <div className="font-mono font-semibold text-sm" style={{ color: ROLE_COLOR }}>{order.id}</div>
-            <div className="text-xl font-bold mt-0.5" style={{ color: '#f5ede0' }}>{order.client}</div>
+            <div className="text-xl font-bold mt-0.5" style={{ color: '#f5ede0' }}>{displayClient(order.client, user)}</div>
           </div>
           <button onClick={onClose} style={{ color: 'rgba(245,237,224,0.30)' }}><X className="w-5 h-5" /></button>
         </div>
@@ -70,6 +72,7 @@ function OrderModal({ order, onClose }) {
 }
 
 function ScreenerHome() {
+  const { user } = useAuth()
   const [selected, setSelected] = useState(null)
   return (
     <div className="space-y-6">
@@ -114,7 +117,7 @@ function ScreenerHome() {
                       style={{ background:'rgba(220,80,60,0.18)', color:'#e08080' }}>RUSH</span>
                   )}
                 </div>
-                <div className="font-medium text-sm mt-0.5 truncate" style={{ color:'#f5ede0' }}>{o.client}</div>
+                <div className="font-medium text-sm mt-0.5 truncate" style={{ color:'#f5ede0' }}>{displayClient(o.client, user)}</div>
                 <div className="text-xs" style={{ color:'rgba(245,237,224,0.42)' }}>{o.type} · {o.state}, {o.county}</div>
               </div>
               <div className="text-right flex-shrink-0">

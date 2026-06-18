@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Search, MoreHorizontal } from 'lucide-react'
-import { STATUS_COLORS } from '../data/mockData'
+import { displayClient } from '../data/mockData'
+import { useAuth } from '../context/AuthContext'
 
-const STEP_LABELS = ['Received','Screening','Searching','Examining','Delivered']
-const STEP_KEYS   = ['received','screening','searching','examining','delivered']
+const STEP_LABELS = ['Received','Screening','Searching','Examining','Typing','Delivered']
+const STEP_KEYS   = ['received','screening','searching','examining','typing','delivered']
 
 function ProgressBar({ status, progress }) {
   const idx = STEP_KEYS.indexOf(status)
@@ -37,18 +38,20 @@ const STATUS_STYLES = {
   screening: { bg: 'rgba(212,180,80,0.18)',  text: '#d4b450', dot: '#d4b450' },
   searching: { bg: 'rgba(138,194,104,0.18)', text: '#8fc268', dot: '#8fc268' },
   examining: { bg: 'rgba(196,164,78,0.18)',  text: '#c4a44e', dot: '#c4a44e' },
+  typing:    { bg: 'rgba(62,158,196,0.18)',  text: '#5ab6d0', dot: '#5ab6d0' },
   delivered: { bg: 'rgba(80,180,100,0.18)',  text: '#6dbc78', dot: '#6dbc78' },
   onhold:    { bg: 'rgba(220,80,80,0.18)',   text: '#e07878', dot: '#e07878' },
 }
 
 export default function OrdersTable({ orders, showAssignees = false, onOrderClick }) {
+  const { user } = useAuth()
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('all')
 
   const filtered = orders.filter(o => {
     const s = search.toLowerCase()
     const matchSearch = !s || o.id.toLowerCase().includes(s) ||
-      o.client.toLowerCase().includes(s) || o.state.toLowerCase().includes(s)
+      displayClient(o.client, user).toLowerCase().includes(s) || o.state.toLowerCase().includes(s)
     const matchFilter = filter === 'all' || o.status === filter
     return matchSearch && matchFilter
   })
@@ -64,7 +67,7 @@ export default function OrdersTable({ orders, showAssignees = false, onOrderClic
             placeholder="Search orders…" className="input-field pl-9 py-2 text-sm" />
         </div>
         <div className="flex items-center gap-1.5 flex-wrap">
-          {['all','received','screening','searching','examining','delivered'].map(s => (
+          {['all','received','screening','searching','examining','typing','delivered'].map(s => (
             <button key={s} onClick={() => setFilter(s)}
               className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 capitalize"
               style={{
@@ -107,7 +110,7 @@ export default function OrdersTable({ orders, showAssignees = false, onOrderClic
                     {order.id}
                   </td>
                   <td className="px-4 py-3 font-medium whitespace-nowrap" style={{ color: '#f5ede0' }}>
-                    {order.client}
+                    {displayClient(order.client, user)}
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'rgba(245,237,224,0.52)' }}>
                     {order.state} · {order.county}

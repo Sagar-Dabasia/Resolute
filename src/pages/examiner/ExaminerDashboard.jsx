@@ -4,7 +4,8 @@ import { motion } from 'framer-motion'
 import Layout from '../../components/Layout'
 import OrdersTable from '../../components/OrdersTable'
 import { LayoutDashboard, FileSearch, CheckCircle, Clock, AlertCircle, ChevronRight, X } from 'lucide-react'
-import { ORDERS } from '../../data/mockData'
+import { ORDERS, displayClient } from '../../data/mockData'
+import { useAuth } from '../../context/AuthContext'
 
 const ROLE_COLOR = '#c4a44e'
 const NAV = [
@@ -15,6 +16,7 @@ const NAV = [
 const myOrders = ORDERS.filter(o => ['searching','examining'].includes(o.status))
 
 function ExamineModal({ order, onClose }) {
+  const { user } = useAuth()
   const [findings, setFindings] = useState('')
   const [liens, setLiens] = useState(false)
   const [encumbrances, setEncumbrances] = useState(false)
@@ -26,7 +28,7 @@ function ExamineModal({ order, onClose }) {
         <div className="flex items-start justify-between mb-6">
           <div>
             <div className="font-mono font-semibold text-sm" style={{ color: ROLE_COLOR }}>{order.id}</div>
-            <div className="text-xl font-bold" style={{ color:'#f5ede0' }}>{order.client}</div>
+            <div className="text-xl font-bold" style={{ color:'#f5ede0' }}>{displayClient(order.client, user)}</div>
             <div className="text-sm" style={{ color:'rgba(245,237,224,0.42)' }}>{order.type} · {order.state}, {order.county} County</div>
           </div>
           <button onClick={onClose} style={{ color:'rgba(245,237,224,0.30)' }}><X className="w-5 h-5" /></button>
@@ -79,7 +81,7 @@ function ExamineModal({ order, onClose }) {
           </div>
         </div>
         <div className="flex gap-3">
-          <button className="btn-primary flex-1 text-sm py-2.5" onClick={onClose}>Complete & Send to Delivery</button>
+          <button className="btn-primary flex-1 text-sm py-2.5" onClick={onClose}>Complete & Send to Typing</button>
           <button className="btn-secondary text-sm py-2.5 px-4" onClick={onClose}>Save Draft</button>
         </div>
       </motion.div>
@@ -88,6 +90,7 @@ function ExamineModal({ order, onClose }) {
 }
 
 function ExaminerHome() {
+  const { user } = useAuth()
   const [selected, setSelected] = useState(null)
   return (
     <div className="space-y-6">
@@ -131,7 +134,7 @@ function ExaminerHome() {
                       style={{ background:'rgba(220,80,60,0.18)', color:'#e08080' }}>RUSH</span>
                   )}
                 </div>
-                <div className="font-medium text-sm truncate" style={{ color:'#f5ede0' }}>{o.client}</div>
+                <div className="font-medium text-sm truncate" style={{ color:'#f5ede0' }}>{displayClient(o.client, user)}</div>
                 <div className="text-xs" style={{ color:'rgba(245,237,224,0.42)' }}>{o.type} · {o.state}, {o.county}</div>
                 <div className="mt-2 h-1.5 rounded-full overflow-hidden" style={{ background:'rgba(245,240,224,0.10)' }}>
                   <div className="h-full rounded-full transition-all"

@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:resolute-title-services.vercel.app)",
-      "WebFetch(domain:resolute-platform-website.vercel.app)"
+      "WebFetch(domain:resolute-platform-website.vercel.app)",
+      "mcp__visualize__read_me",
+      "mcp__visualize__show_widget"
     ]
   }
 }

@@ -6,10 +6,21 @@ import USAMap from '../../components/USAMap'
 import {
   LayoutDashboard, ClipboardList, Users, BarChart3, Settings, MapPin,
   Package, CheckCircle, Clock, Search, Plus, Filter, Eye, MoreHorizontal,
-  ChevronDown, ChevronUp, FileText, ArrowUpRight,
+  ChevronDown, ChevronUp, FileText, ArrowUpRight, X, Lock, ShieldCheck,
 } from 'lucide-react'
-import { ORDERS, USERS, ACTIVITY, MONTHLY_STATS } from '../../data/mockData'
+import {
+  ORDERS, USERS, ACTIVITY, MONTHLY_STATS, PAYMENT_METHODS,
+  STAGE_KEYS, STAGE_LABELS, displayClient, clientByName,
+} from '../../data/mockData'
+import { useAuth } from '../../context/AuthContext'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
+
+const TEAM = {
+  screener: USERS.filter(u => u.role === 'screener').map(u => u.name),
+  examiner: USERS.filter(u => u.role === 'examiner').map(u => u.name),
+  typer:    USERS.filter(u => u.role === 'typer').map(u => u.name),
+  delivery: USERS.filter(u => u.role === 'delivery').map(u => u.name),
+}
 
 const ROLE_COLOR  = '#3d7020'
 const ROLE_HOVER  = '#4d8c2a'
@@ -17,7 +28,7 @@ const ROLE_HOVER  = '#4d8c2a'
 const NAV = [
   { path: '/admin',          label: 'Dashboard',    icon: LayoutDashboard },
   { path: '/admin/orders',   label: 'Orders',       icon: ClipboardList, badge: 8 },
-  { path: '/admin/users',    label: 'Users',        icon: Users,         badge: 6 },
+  { path: '/admin/users',    label: 'Users',        icon: Users,         badge: 9 },
   { path: '/admin/map',      label: 'Coverage Map', icon: MapPin },
   { path: '/admin/reports',  label: 'Reports',      icon: BarChart3 },
   { path: '/admin/settings', label: 'Settings',     icon: Settings },
@@ -40,6 +51,7 @@ const STATUS_MAP = {
   screening: { label:'Screening', color:'#d97706', bg:'#fffbeb' },
   searching: { label:'Searching', color:'#2563eb', bg:'#eff6ff' },
   examining: { label:'Examining', color:'#7c3aed', bg:'#f5f3ff' },
+  typing:    { label:'Typing',    color:'#0891b2', bg:'#ecfeff' },
   delivered: { label:'Delivered', color:'#16a34a', bg:'#f0fdf4' },
 }
 
@@ -76,10 +88,145 @@ function StatCard({ icon: Icon, label, value, sub, color = ROLE_COLOR, trend, de
   )
 }
 
-function OrdersPipeline({ orders }) {
+function Field({ label, children }) {
+  return (
+    <div>
+      <label style={{ display:'block', fontSize:11, fontWeight:600, textTransform:'uppercase',
+        letterSpacing:'0.05em', color:Q.faint, marginBottom:6 }}>{label}</label>
+      {children}
+    </div>
+  )
+}
+
+const selectStyle = {
+  width:'100%', padding:'8px 10px', borderRadius:8, border:`1px solid ${Q.border}`,
+  background:Q.bg, color:Q.text, fontSize:13, outline:'none',
+}
+
+function AssignModal({ order, user, onClose, onSave }) {
+  const cli = clientByName(order.client)
+  const [form, setForm] = useState({
+    screener: order.screener, examiner: order.examiner, typer: order.typer,
+    delivery: order.delivery, payment: order.payment, status: order.status,
+  })
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
+  const save = () => {
+    const completed = form.status === 'delivered'
+      ? (order.completed || order.eta)
+      : null
+    onSave({ ...order, ...form, completed })
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background:'rgba(15,23,42,0.45)' }} onClick={onClose}>
+      <motion.div initial={{ scale:0.96, opacity:0 }} animate={{ scale:1, opacity:1 }}
+        onClick={e => e.stopPropagation()}
+        style={{ background:Q.card, borderRadius:12, width:'100%', maxWidth:560,
+          maxHeight:'88vh', overflowY:'auto', boxShadow:'0 20px 50px rgba(0,0,0,0.25)' }}>
+        <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between',
+          padding:'18px 22px', borderBottom:`1px solid ${Q.border}` }}>
+          <div>
+            <div style={{ fontFamily:'monospace', fontWeight:700, fontSize:13, color:ROLE_COLOR }}>{order.id}</div>
+            <div style={{ fontSize:18, fontWeight:700, color:Q.text }}>{displayClient(order.client, user)}</div>
+            <div style={{ fontSize:12, color:Q.muted }}>{order.type} · {order.county}, {order.state}</div>
+          </div>
+          <button onClick={onClose} style={{ background:'transparent', border:'none', cursor:'pointer', color:Q.faint }}>
+            <X style={{ width:18, height:18 }} />
+          </button>
+        </div>
+
+        {/* Detailed client info — super admin only */}
+        <div style={{ padding:'16px 22px', borderBottom:`1px solid ${Q.border}` }}>
+          {user?.superAdmin && cli ? (
+            <div style={{ background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:10, padding:'12px 14px' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:11, fontWeight:700,
+                textTransform:'uppercase', letterSpacing:'0.05em', color:'#16a34a', marginBottom:8 }}>
+                <ShieldCheck style={{ width:13, height:13 }} /> Client details ({cli.code})
+              </div>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'6px 16px', fontSize:13 }}>
+                <div><span style={{ color:Q.faint }}>Name: </span><span style={{ color:Q.text, fontWeight:500 }}>{cli.name}</span></div>
+                <div><span style={{ color:Q.faint }}>Contact: </span><span style={{ color:Q.text }}>{cli.contact}</span></div>
+                <div><span style={{ color:Q.faint }}>Email: </span><span style={{ color:Q.text }}>{cli.email}</span></div>
+                <div><span style={{ color:Q.faint }}>Phone: </span><span style={{ color:Q.text }}>{cli.phone}</span></div>
+              </div>
+            </div>
+          ) : (
+            <div style={{ display:'flex', alignItems:'center', gap:8, background:Q.bg,
+              border:`1px solid ${Q.border}`, borderRadius:10, padding:'12px 14px', color:Q.muted, fontSize:13 }}>
+              <Lock style={{ width:14, height:14, color:Q.faint }} />
+              Client <strong style={{ color:Q.text }}>{cli?.code || displayClient(order.client, user)}</strong> — detailed info restricted to super admins.
+            </div>
+          )}
+        </div>
+
+        {/* Assignment grid */}
+        <div style={{ padding:'18px 22px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
+          <Field label="Screener">
+            <select style={selectStyle} value={form.screener} onChange={e => set('screener', e.target.value)}>
+              {TEAM.screener.map(n => <option key={n} value={n}>{n}</option>)}
+            </select>
+          </Field>
+          <Field label="Examiner">
+            <select style={selectStyle} value={form.examiner} onChange={e => set('examiner', e.target.value)}>
+              {TEAM.examiner.map(n => <option key={n} value={n}>{n}</option>)}
+            </select>
+          </Field>
+          <Field label="Typer">
+            <select style={selectStyle} value={form.typer} onChange={e => set('typer', e.target.value)}>
+              {TEAM.typer.map(n => <option key={n} value={n}>{n}</option>)}
+            </select>
+          </Field>
+          <Field label="Delivery">
+            <select style={selectStyle} value={form.delivery} onChange={e => set('delivery', e.target.value)}>
+              {TEAM.delivery.map(n => <option key={n} value={n}>{n}</option>)}
+            </select>
+          </Field>
+          <Field label="Mode of Payment">
+            <select style={selectStyle} value={form.payment} onChange={e => set('payment', e.target.value)}>
+              {PAYMENT_METHODS.map(p => <option key={p} value={p}>{p}</option>)}
+            </select>
+          </Field>
+          <Field label="Status">
+            <select style={selectStyle} value={form.status} onChange={e => set('status', e.target.value)}>
+              {STAGE_KEYS.map((k, i) => <option key={k} value={k}>{STAGE_LABELS[i]}</option>)}
+            </select>
+          </Field>
+          <Field label="Created">
+            <div style={{ ...selectStyle, background:'#f8fafc', color:Q.muted }}>{order.created}</div>
+          </Field>
+          <Field label="Completed">
+            <div style={{ ...selectStyle, background:'#f8fafc',
+              color: form.status === 'delivered' ? '#16a34a' : Q.faint }}>
+              {form.status === 'delivered' ? (order.completed || order.eta) : 'Pending'}
+            </div>
+          </Field>
+        </div>
+
+        <div style={{ display:'flex', gap:10, padding:'0 22px 20px' }}>
+          <button onClick={save} style={{ flex:1, padding:'10px', background:ROLE_COLOR, border:'none',
+            borderRadius:8, color:'#fff', fontSize:13, fontWeight:600, cursor:'pointer' }}>
+            Save Assignment
+          </button>
+          <button onClick={onClose} style={{ padding:'10px 18px', background:Q.bg,
+            border:`1px solid ${Q.border}`, borderRadius:8, color:Q.muted, fontSize:13, fontWeight:600, cursor:'pointer' }}>
+            Cancel
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+function OrdersPipeline({ orders: initialOrders }) {
+  const { user } = useAuth()
+  const [orders, setOrders]   = useState(initialOrders)
+  const [editing, setEditing] = useState(null)
   const [search, setSearch]   = useState('')
   const [activeTab, setActiveTab] = useState('all')
   const [showMap, setShowMap] = useState(false)
+  const saveOrder = (updated) => setOrders(os => os.map(o => o.id === updated.id ? updated : o))
 
   const tabs = [
     { key: 'all',       label: 'All Orders',  count: orders.length },
@@ -90,7 +237,7 @@ function OrdersPipeline({ orders }) {
 
   const filtered = orders.filter(o => {
     const q = search.toLowerCase()
-    const matchSearch = !q || o.client.toLowerCase().includes(q) || o.id.toLowerCase().includes(q)
+    const matchSearch = !q || displayClient(o.client, user).toLowerCase().includes(q) || o.id.toLowerCase().includes(q)
     const matchTab =
       activeTab === 'all'       ? true :
       activeTab === 'rush'      ? o.priority === 'rush' :
@@ -101,6 +248,7 @@ function OrdersPipeline({ orders }) {
 
   return (
     <div className="space-y-4">
+      {editing && <AssignModal order={editing} user={user} onClose={() => setEditing(null)} onSave={saveOrder} />}
       {/* Toolbar */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative" style={{ minWidth: 240 }}>
@@ -166,7 +314,7 @@ function OrdersPipeline({ orders }) {
         <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
           <thead>
             <tr style={{ background:'#f8fafc', borderBottom:`1px solid ${Q.border}` }}>
-              {['File #','Client','Location','Type','Status','Assigned To','ETA',''].map(h => (
+              {['File #','Client','Location','Type','Status','Payment','Assigned','ETA / Done',''].map(h => (
                 <th key={h} style={{
                   padding:'10px 16px', textAlign:'left', fontSize:11,
                   fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em',
@@ -183,7 +331,8 @@ function OrdersPipeline({ orders }) {
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }}
                   style={{ borderBottom:`1px solid ${Q.border}`, cursor:'pointer' }}
                   onMouseOver={e => e.currentTarget.style.background = Q.rowHover}
-                  onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
+                  onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                  onClick={() => setEditing(o)}>
                   <td style={{ padding:'10px 16px', whiteSpace:'nowrap' }}>
                     <div style={{ display:'flex', alignItems:'center', gap:6 }}>
                       <span style={{ fontFamily:'monospace', fontWeight:700, fontSize:12, color:ROLE_COLOR }}>{o.id}</span>
@@ -193,7 +342,7 @@ function OrdersPipeline({ orders }) {
                       )}
                     </div>
                   </td>
-                  <td style={{ padding:'10px 16px', fontWeight:500, color:Q.text, whiteSpace:'nowrap' }}>{o.client}</td>
+                  <td style={{ padding:'10px 16px', fontWeight:500, color:Q.text, whiteSpace:'nowrap' }}>{displayClient(o.client, user)}</td>
                   <td style={{ padding:'10px 16px', color:Q.muted, whiteSpace:'nowrap' }}>{o.county}, {o.state}</td>
                   <td style={{ padding:'10px 16px', color:Q.muted, whiteSpace:'nowrap', fontSize:12 }}>{o.type}</td>
                   <td style={{ padding:'10px 16px', whiteSpace:'nowrap' }}>
@@ -202,11 +351,16 @@ function OrdersPipeline({ orders }) {
                       background:s.bg, color:s.color,
                     }}>{s.label}</span>
                   </td>
+                  <td style={{ padding:'10px 16px', color:Q.muted, fontSize:12, whiteSpace:'nowrap' }}>{o.payment}</td>
                   <td style={{ padding:'10px 16px', color:Q.muted, fontSize:12, whiteSpace:'nowrap' }}>{o.screener}</td>
-                  <td style={{ padding:'10px 16px', color:Q.faint, fontSize:12, whiteSpace:'nowrap' }}>{o.eta}</td>
+                  <td style={{ padding:'10px 16px', fontSize:12, whiteSpace:'nowrap',
+                    color: o.completed ? '#16a34a' : Q.faint }}>
+                    {o.completed ? `Done ${o.completed}` : o.eta}
+                  </td>
                   <td style={{ padding:'10px 16px' }}>
                     <div style={{ display:'flex', alignItems:'center', gap:2 }}>
-                      <button title="View" style={{ padding:6, borderRadius:6, background:'transparent', border:'none', cursor:'pointer', color:Q.faint }}
+                      <button title="Assign / edit" onClick={e => { e.stopPropagation(); setEditing(o) }}
+                        style={{ padding:6, borderRadius:6, background:'transparent', border:'none', cursor:'pointer', color:Q.faint }}
                         onMouseOver={e => e.currentTarget.style.background = '#f1f5f9'}
                         onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
                         <Eye style={{ width:14, height:14 }} />
@@ -360,12 +514,14 @@ function AdminUsers() {
         </button>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         {[
-          { role:'Screeners', count:2, color:'#4d8c2a' },
-          { role:'Examiners', count:1, color:'#d97706' },
-          { role:'Delivery',  count:1, color:'#7c3aed' },
-          { role:'Clients',   count:8, color:'#2563eb' },
+          { role:'Super Admins', count: USERS.filter(u=>u.role==='admin').length,    color:'#5a8c3e' },
+          { role:'Screeners',    count: USERS.filter(u=>u.role==='screener').length, color:'#4d8c2a' },
+          { role:'Examiners',    count: USERS.filter(u=>u.role==='examiner').length, color:'#d97706' },
+          { role:'Typers',       count: USERS.filter(u=>u.role==='typer').length,    color:'#0891b2' },
+          { role:'Delivery',     count: USERS.filter(u=>u.role==='delivery').length, color:'#7c3aed' },
+          { role:'Clients',      count: USERS.filter(u=>u.role==='client').length,   color:'#2563eb' },
         ].map(r => (
           <div key={r.role}
             style={{ background:Q.card, border:`1px solid ${Q.border}`, borderRadius:10, boxShadow:Q.shadow, padding:'16px 20px' }}>
@@ -458,6 +614,87 @@ function AdminMap() {
   )
 }
 
+function AdminReports() {
+  const { user } = useAuth()
+  const [dim, setDim] = useState('state')
+  const DIMS = [
+    { key:'state',   label:'By State' },
+    { key:'status',  label:'By Status' },
+    { key:'type',    label:'By Search Type' },
+    { key:'client',  label:'By Client' },
+    { key:'payment', label:'By Payment Mode' },
+  ]
+  const keyFn = {
+    state:   o => o.state,
+    status:  o => STATUS_MAP[o.status]?.label || o.status,
+    type:    o => o.type,
+    client:  o => displayClient(o.client, user),
+    payment: o => o.payment,
+  }[dim]
+  const counts = {}
+  ORDERS.forEach(o => { const k = keyFn(o); counts[k] = (counts[k] || 0) + 1 })
+  const rows = Object.entries(counts).sort((a, b) => b[1] - a[1])
+  const max  = Math.max(...rows.map(r => r[1]), 1)
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-xl font-bold" style={{ color: Q.text }}>Reports</h1>
+          <p className="text-sm" style={{ color: Q.muted }}>Order breakdown and monthly volume</p>
+        </div>
+        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+          <span style={{ fontSize:13, color:Q.muted }}>Group by</span>
+          <select value={dim} onChange={e => setDim(e.target.value)}
+            style={{ padding:'8px 12px', borderRadius:8, border:`1px solid ${Q.border}`,
+              background:Q.card, color:Q.text, fontSize:13, fontWeight:600, outline:'none', cursor:'pointer',
+              boxShadow:Q.shadow }}>
+            {DIMS.map(d => <option key={d.key} value={d.key}>{d.label}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <QCard className="p-5">
+        <h2 className="text-sm font-semibold mb-4" style={{ color: Q.text }}>Monthly Order Volume</h2>
+        <ResponsiveContainer width="100%" height={180}>
+          <AreaChart data={MONTHLY_STATS}>
+            <defs>
+              <linearGradient id="rptGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%"  stopColor={ROLE_COLOR} stopOpacity={0.22}/>
+                <stop offset="95%" stopColor={ROLE_COLOR} stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <XAxis dataKey="month" tick={{ fill:Q.faint, fontSize:11 }} axisLine={false} tickLine={false}/>
+            <YAxis tick={{ fill:Q.faint, fontSize:11 }} axisLine={false} tickLine={false}/>
+            <Tooltip contentStyle={{ background:'#fff', border:`1px solid ${Q.border}`, borderRadius:8, fontSize:12, boxShadow:Q.shadow }}/>
+            <Area type="monotone" dataKey="orders"    stroke={ROLE_COLOR} fill="url(#rptGrad)" strokeWidth={2} name="Orders"/>
+            <Area type="monotone" dataKey="delivered" stroke="#16a34a"    fill="none"          strokeWidth={2} strokeDasharray="4 4" name="Delivered"/>
+          </AreaChart>
+        </ResponsiveContainer>
+      </QCard>
+
+      <QCard className="p-5">
+        <h2 className="text-sm font-semibold mb-4" style={{ color: Q.text }}>
+          Active Orders {DIMS.find(d => d.key === dim).label}
+        </h2>
+        <div className="space-y-2.5">
+          {rows.map(([label, count]) => (
+            <div key={label} style={{ display:'flex', alignItems:'center', gap:12 }}>
+              <div style={{ width:140, fontSize:13, color:Q.muted, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{label}</div>
+              <div style={{ flex:1, height:22, background:Q.bg, borderRadius:6, overflow:'hidden' }}>
+                <motion.div initial={{ width:0 }} animate={{ width:`${(count/max)*100}%` }}
+                  transition={{ duration:0.6 }}
+                  style={{ height:'100%', background:`${ROLE_COLOR}`, borderRadius:6, opacity:0.85 }} />
+              </div>
+              <div style={{ width:28, textAlign:'right', fontSize:13, fontWeight:700, color:Q.text }}>{count}</div>
+            </div>
+          ))}
+        </div>
+      </QCard>
+    </div>
+  )
+}
+
 export default function AdminDashboard() {
   return (
     <Layout navItems={NAV} role="admin" roleColor={ROLE_COLOR} lightTheme>
@@ -466,7 +703,7 @@ export default function AdminDashboard() {
         <Route path="orders"   element={<AdminOrders />} />
         <Route path="users"    element={<AdminUsers />} />
         <Route path="map"      element={<AdminMap />} />
-        <Route path="reports"  element={<AdminHome />} />
+        <Route path="reports"  element={<AdminReports />} />
         <Route path="settings" element={
           <div style={{ padding:48, textAlign:'center', color:Q.faint, fontSize:14 }}>
             Settings coming soon

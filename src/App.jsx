@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import ScreenerDashboard from './pages/screener/ScreenerDashboard'
 import ExaminerDashboard from './pages/examiner/ExaminerDashboard'
+import TyperDashboard from './pages/typer/TyperDashboard'
 import DeliveryDashboard from './pages/delivery/DeliveryDashboard'
 import ClientDashboard from './pages/client/ClientDashboard'
 
@@ -36,6 +37,9 @@ export default function App() {
           } />
           <Route path="/examiner/*" element={
             <ProtectedRoute allowedRole="examiner"><ExaminerDashboard /></ProtectedRoute>
+          } />
+          <Route path="/typer/*" element={
+            <ProtectedRoute allowedRole="typer"><TyperDashboard /></ProtectedRoute>
           } />
           <Route path="/delivery/*" element={
             <ProtectedRoute allowedRole="delivery"><DeliveryDashboard /></ProtectedRoute>

@@ -28,15 +28,20 @@ const US_STATES = [
   'Washington','West Virginia','Wisconsin','Wyoming',
 ]
 
-const STEP_KEYS = ['received','screening','searching','examining','delivered']
-const STEP_LABELS = ['Received','Screening','Searching','Examining','Delivered']
-const STATUS_COLOR = {
-  received:'#8ab0e8', screening:'#d4b450', searching:'#8ab868', examining:'#c4a44e', delivered:'#6dbc78',
+// Client-facing stages — internal stages (screening/searching/examining/typing) collapse into "In Progress"
+const CLIENT_STEPS = ['Received','In Progress','Clarification Responded','Delivered']
+function clientStage(order) {
+  if (order.status === 'delivered')          return { idx: 3, label: 'Delivered',               color: '#6dbc78' }
+  if (order.clarification === 'responded')   return { idx: 2, label: 'Clarification Responded',  color: '#8ab0e8' }
+  if (['screening','searching','examining','typing'].includes(order.status))
+                                             return { idx: 1, label: 'In Progress',              color: '#d4b450' }
+  return { idx: 0, label: 'Received', color: '#8ab868' }
 }
 
 function TrackOrder({ order }) {
-  const idx = STEP_KEYS.indexOf(order.status)
-  const sc  = STATUS_COLOR[order.status] || ROLE_COLOR
+  const stage = clientStage(order)
+  const idx = stage.idx
+  const sc  = stage.color
   return (
     <div className="glass-card p-5">
       <div className="flex items-center justify-between mb-4">
@@ -45,12 +50,12 @@ function TrackOrder({ order }) {
           <div className="font-bold" style={{ color:'#f5ede0' }}>{order.client}</div>
           <div className="text-xs" style={{ color:'rgba(245,237,224,0.42)' }}>{order.type} · {order.state}</div>
         </div>
-        <span className="text-xs font-semibold px-3 py-1.5 rounded-full capitalize"
-          style={{ background:`${sc}1e`, color:sc }}>{order.status}</span>
+        <span className="text-xs font-semibold px-3 py-1.5 rounded-full"
+          style={{ background:`${sc}1e`, color:sc }}>{stage.label}</span>
       </div>
       {/* Step tracker */}
       <div className="flex items-center gap-1 my-4">
-        {STEP_LABELS.map((step,i) => (
+        {CLIENT_STEPS.map((step,i) => (
           <React.Fragment key={step}>
             <div className="flex flex-col items-center gap-1.5">
               <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all"
@@ -66,7 +71,7 @@ function TrackOrder({ order }) {
                 {step}
               </span>
             </div>
-            {i < STEP_LABELS.length - 1 && (
+            {i < CLIENT_STEPS.length - 1 && (
               <div className="flex-1 h-0.5 rounded-full mb-5"
                 style={{ background: i < idx ? '#4d8c2a' : 'rgba(245,240,224,0.10)' }} />
             )}

@@ -3,22 +3,31 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import {
-  ShieldCheck, Users, Search, FileSearch, Truck, Building2,
+  ShieldCheck, Users, Search, FileSearch, Truck, Building2, Keyboard,
   Eye, EyeOff, ArrowRight, MapPin, CheckCircle2, AlertCircle
 } from 'lucide-react'
 
 const ROLES = [
-  { key: 'admin',    label: 'Admin',    icon: ShieldCheck, color: '#5a8c3e', desc: 'Full system control',        demo: 'admin@resolute.com',    pass: 'admin123'    },
+  { key: 'admin',    label: 'Admin',    icon: ShieldCheck, color: '#5a8c3e', desc: 'Full system control',        demo: 'rajni@resolute.com',    pass: 'admin123'    },
   { key: 'screener', label: 'Screener', icon: Search,      color: '#8ab868', desc: 'Review incoming orders',     demo: 'screener@resolute.com', pass: 'screener123' },
   { key: 'examiner', label: 'Examiner', icon: FileSearch,  color: '#c4a44e', desc: 'Examine title documents',    demo: 'examiner@resolute.com', pass: 'examiner123' },
+  { key: 'typer',    label: 'Typer',    icon: Keyboard,    color: '#3e9ec4', desc: 'Type final reports',         demo: 'typer@resolute.com',    pass: 'typer123'    },
   { key: 'delivery', label: 'Delivery', icon: Truck,       color: '#c4783e', desc: 'Deliver completed searches', demo: 'delivery@resolute.com', pass: 'delivery123' },
   { key: 'client',   label: 'Client',   icon: Building2,   color: '#a0c070', desc: 'Place & track orders',       demo: 'client@resolute.com',   pass: 'client123'   },
+]
+
+// Admin tier accounts — super admins see full client detail, members see client codes only.
+const ADMIN_ACCOUNTS = [
+  { key: 'rajni',     label: 'Rajni',     tier: 'Super admin', email: 'rajni@resolute.com',     pass: 'admin123' },
+  { key: 'saravanan', label: 'Saravanan', tier: 'Super admin', email: 'saravanan@resolute.com', pass: 'admin123' },
+  { key: 'member',    label: 'Member',    tier: 'Client codes only', email: 'admin@resolute.com', pass: 'admin123' },
 ]
 
 export default function LoginPage() {
   const navigate = useNavigate()
   const { login } = useAuth()
   const [selectedRole, setSelectedRole] = useState(null)
+  const [adminAccount, setAdminAccount] = useState('rajni')
   const [email, setEmail]     = useState('')
   const [password, setPassword] = useState('')
   const [showPass, setShowPass]  = useState(false)
@@ -29,6 +38,14 @@ export default function LoginPage() {
     setSelectedRole(role)
     setEmail(role.demo)
     setPassword(role.pass)
+    if (role.key === 'admin') setAdminAccount('rajni')
+    setError('')
+  }
+
+  const handleAdminAccount = (acct) => {
+    setAdminAccount(acct.key)
+    setEmail(acct.email)
+    setPassword(acct.pass)
     setError('')
   }
 
@@ -115,7 +132,7 @@ export default function LoginPage() {
             <p className="text-sm mb-8" style={{ color: 'rgba(245,237,224,0.38)' }}>Select your role to continue</p>
 
             {/* Role grid */}
-            <div className="grid grid-cols-5 gap-2 mb-8">
+            <div className="grid grid-cols-3 gap-2 mb-8">
               {ROLES.map(role => {
                 const Icon   = role.icon
                 const active = selectedRole?.key === role.key
@@ -152,6 +169,35 @@ export default function LoginPage() {
                     <span className="text-xs ml-auto" style={{ color: 'rgba(245,237,224,0.38)' }}>
                       {selectedRole.desc}
                     </span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Admin tier sub-picker */}
+            <AnimatePresence>
+              {selectedRole?.key === 'admin' && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }} className="overflow-hidden mb-5">
+                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
+                    style={{ color: 'rgba(245,237,224,0.42)' }}>Admin account</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {ADMIN_ACCOUNTS.map(acct => {
+                      const active = adminAccount === acct.key
+                      return (
+                        <button key={acct.key} type="button" onClick={() => handleAdminAccount(acct)}
+                          className="px-2 py-2 rounded-xl border text-left transition-all"
+                          style={{
+                            background: active ? 'rgba(90,140,62,0.16)' : 'rgba(245,240,224,0.04)',
+                            borderColor: active ? 'rgba(90,140,62,0.45)' : 'rgba(245,240,224,0.08)',
+                          }}>
+                          <div className="text-xs font-semibold"
+                            style={{ color: active ? '#f5ede0' : 'rgba(245,237,224,0.55)' }}>{acct.label}</div>
+                          <div className="text-[10px] leading-tight mt-0.5"
+                            style={{ color: active ? '#8fc268' : 'rgba(245,237,224,0.30)' }}>{acct.tier}</div>
+                        </button>
+                      )
+                    })}
                   </div>
                 </motion.div>
               )}

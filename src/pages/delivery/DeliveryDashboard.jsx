@@ -3,8 +3,9 @@ import { Routes, Route } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Layout from '../../components/Layout'
 import OrdersTable from '../../components/OrdersTable'
-import { LayoutDashboard, Truck, Package, CheckCircle, Clock, Download, Send, X, ChevronRight } from 'lucide-react'
-import { ORDERS } from '../../data/mockData'
+import { LayoutDashboard, Truck, Package, CheckCircle, Clock, Download, Send, Mail, X, ChevronRight } from 'lucide-react'
+import { ORDERS, displayClient, clientByName } from '../../data/mockData'
+import { useAuth } from '../../context/AuthContext'
 
 const ROLE_COLOR = '#c4783e'
 const NAV = [
@@ -12,12 +13,14 @@ const NAV = [
   { path: '/delivery/queue',   label: 'Ready to Send',icon: Package, badge: 2 },
   { path: '/delivery/sent',    label: 'Delivered',    icon: CheckCircle },
 ]
-const readyOrders     = ORDERS.filter(o => ['examining','searching'].includes(o.status))
+const readyOrders     = ORDERS.filter(o => ['typing','examining'].includes(o.status))
 const deliveredOrders = ORDERS.filter(o => o.status === 'delivered')
 
 function DeliveryModal({ order, onClose }) {
+  const { user } = useAuth()
+  const cli = clientByName(order.client)
   const [method, setMethod] = useState('email')
-  const [recipient, setRecipient] = useState('')
+  const [recipient, setRecipient] = useState(user?.superAdmin && cli ? cli.email : '')
   const [note, setNote] = useState('')
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -27,7 +30,7 @@ function DeliveryModal({ order, onClose }) {
         <div className="flex items-start justify-between mb-6">
           <div>
             <div className="font-mono font-semibold text-sm" style={{ color:ROLE_COLOR }}>{order.id}</div>
-            <div className="text-xl font-bold" style={{ color:'#f5ede0' }}>{order.client}</div>
+            <div className="text-xl font-bold" style={{ color:'#f5ede0' }}>{displayClient(order.client, user)}</div>
           </div>
           <button onClick={onClose} style={{ color:'rgba(245,237,224,0.30)' }}><X className="w-5 h-5" /></button>
         </div>
@@ -83,7 +86,9 @@ function DeliveryModal({ order, onClose }) {
 }
 
 function DeliveryHome() {
+  const { user } = useAuth()
   const [selected, setSelected] = useState(null)
+  const [emailed, setEmailed]   = useState([])
   return (
     <div className="space-y-6">
       {selected && <DeliveryModal order={selected} onClose={() => setSelected(null)} />}
@@ -130,7 +135,13 @@ function DeliveryHome() {
                       style={{ background:'rgba(220,80,60,0.18)', color:'#e08080' }}>RUSH</span>
                   )}
                 </div>
-                <div className="font-medium text-sm mt-0.5 truncate" style={{ color:'#f5ede0' }}>{o.client}</div>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="font-medium text-sm truncate" style={{ color:'#f5ede0' }}>{displayClient(o.client, user)}</span>
+                  {clientByName(o.client)?.activity === 'low' && (
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md flex-shrink-0"
+                      style={{ background:'rgba(196,120,62,0.18)', color:'#d99a6c' }}>LOW ACTIVITY</span>
+                  )}
+                </div>
                 <div className="text-xs" style={{ color:'rgba(245,237,224,0.42)' }}>{o.type} · {o.state}</div>
               </div>
               <div className="text-right flex-shrink-0">
@@ -138,6 +149,16 @@ function DeliveryHome() {
                   style={{ background:`${ROLE_COLOR}22`, color:ROLE_COLOR }}>{o.status}</span>
                 <div className="text-xs mt-1" style={{ color:'rgba(245,237,224,0.28)' }}>ETA {o.eta}</div>
               </div>
+              <button
+                onClick={e => { e.stopPropagation(); setEmailed(ids => ids.includes(o.id) ? ids : [...ids, o.id]) }}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold flex-shrink-0 transition-all border"
+                style={emailed.includes(o.id)
+                  ? { background:'rgba(109,188,120,0.16)', borderColor:'rgba(109,188,120,0.35)', color:'#6dbc78' }
+                  : { background:`${ROLE_COLOR}1a`, borderColor:`${ROLE_COLOR}40`, color:'#d99a6c' }}>
+                {emailed.includes(o.id)
+                  ? <><CheckCircle className="w-3.5 h-3.5" /> Emailed</>
+                  : <><Mail className="w-3.5 h-3.5" /> Send by email</>}
+              </button>
               <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color:'rgba(245,237,224,0.18)' }} />
             </motion.div>
           ))}
@@ -152,8 +173,8 @@ function DeliveryHome() {
               onMouseOut={e=>e.currentTarget.style.background='transparent'}>
               <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color:'#6dbc78' }} />
               <span className="font-mono text-xs flex-shrink-0" style={{ color:'rgba(245,237,224,0.55)' }}>{o.id}</span>
-              <span className="text-xs flex-1 truncate" style={{ color:'rgba(245,237,224,0.45)' }}>{o.client}</span>
-              <span className="text-xs flex-shrink-0" style={{ color:'rgba(245,237,224,0.28)' }}>{o.eta}</span>
+              <span className="text-xs flex-1 truncate" style={{ color:'rgba(245,237,224,0.45)' }}>{displayClient(o.client, user)}</span>
+              <span className="text-xs flex-shrink-0" style={{ color:'rgba(245,237,224,0.28)' }}>Completed {o.completed || o.eta}</span>
             </div>
           ))}
         </div>
