@@ -3,9 +3,10 @@ import { Routes, Route } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Layout from '../../components/Layout'
 import OrdersTable from '../../components/OrdersTable'
-import { LayoutDashboard, FileSearch, CheckCircle, Clock, AlertCircle, ChevronRight, X } from 'lucide-react'
-import { ORDERS, displayClient } from '../../data/mockData'
+import { LayoutDashboard, FileSearch, CheckCircle, Clock, AlertCircle, ChevronRight, X, Send } from 'lucide-react'
+import { displayClient } from '../../data/mockData'
 import { useAuth } from '../../context/AuthContext'
+import { useOrders } from '../../context/OrderContext'
 
 const ROLE_COLOR = '#c4a44e'
 const NAV = [
@@ -13,13 +14,14 @@ const NAV = [
   { path: '/examiner/examine',   label: 'To Examine', icon: FileSearch, badge: 2 },
   { path: '/examiner/completed', label: 'Completed',  icon: CheckCircle },
 ]
-const myOrders = ORDERS.filter(o => ['searching','examining'].includes(o.status))
 
 function ExamineModal({ order, onClose }) {
   const { user } = useAuth()
+  const { completeStep } = useOrders()
   const [findings, setFindings] = useState('')
   const [liens, setLiens] = useState(false)
   const [encumbrances, setEncumbrances] = useState(false)
+  const submit = () => { completeStep(order.id, 'examiner', user?.name, findings); onClose() }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: 'rgba(0,0,0,0.65)' }} onClick={onClose}>
@@ -81,7 +83,9 @@ function ExamineModal({ order, onClose }) {
           </div>
         </div>
         <div className="flex gap-3">
-          <button className="btn-primary flex-1 text-sm py-2.5" onClick={onClose}>Complete & Send to Typing</button>
+          <button className="btn-primary flex-1 text-sm py-2.5 flex items-center justify-center gap-2" onClick={submit}>
+            <Send className="w-4 h-4" /> Complete &amp; Submit to Admin
+          </button>
           <button className="btn-secondary text-sm py-2.5 px-4" onClick={onClose}>Save Draft</button>
         </div>
       </motion.div>
@@ -91,6 +95,8 @@ function ExamineModal({ order, onClose }) {
 
 function ExaminerHome() {
   const { user } = useAuth()
+  const { getOrdersForRole } = useOrders()
+  const myOrders = getOrdersForRole('examiner')
   const [selected, setSelected] = useState(null)
   return (
     <div className="space-y-6">
@@ -156,6 +162,9 @@ function ExaminerHome() {
 }
 
 export default function ExaminerDashboard() {
+  const { getOrdersForRole, orders } = useOrders()
+  const myOrders  = getOrdersForRole('examiner')
+  const completed = orders.filter(o => o.completedDates?.examiner)
   return (
     <Layout navItems={NAV} role="examiner" roleColor={ROLE_COLOR}>
       <Routes>
@@ -166,7 +175,7 @@ export default function ExaminerDashboard() {
         </div>} />
         <Route path="completed" element={<div className="space-y-6">
           <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>Completed</h1>
-          <div className="glass-card p-5"><OrdersTable orders={ORDERS.filter(o=>o.status==='delivered')} /></div>
+          <div className="glass-card p-5"><OrdersTable orders={completed} /></div>
         </div>} />
       </Routes>
     </Layout>
