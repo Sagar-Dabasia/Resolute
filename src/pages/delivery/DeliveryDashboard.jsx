@@ -4,8 +4,9 @@ import { motion } from 'framer-motion'
 import Layout from '../../components/Layout'
 import OrdersTable from '../../components/OrdersTable'
 import { LayoutDashboard, Truck, Package, CheckCircle, Clock, Download, Send, Mail, X, ChevronRight } from 'lucide-react'
-import { ORDERS, displayClient, clientByName } from '../../data/mockData'
+import { displayClient, clientByName } from '../../data/mockData'
 import { useAuth } from '../../context/AuthContext'
+import { useOrders } from '../../context/OrderContext'
 
 const ROLE_COLOR = '#c4783e'
 const NAV = [
@@ -13,15 +14,15 @@ const NAV = [
   { path: '/delivery/queue',   label: 'Ready to Send',icon: Package, badge: 2 },
   { path: '/delivery/sent',    label: 'Delivered',    icon: CheckCircle },
 ]
-const readyOrders     = ORDERS.filter(o => ['typing','examining'].includes(o.status))
-const deliveredOrders = ORDERS.filter(o => o.status === 'delivered')
 
 function DeliveryModal({ order, onClose }) {
   const { user } = useAuth()
+  const { completeStep } = useOrders()
   const cli = clientByName(order.client)
   const [method, setMethod] = useState('email')
   const [recipient, setRecipient] = useState(user?.superAdmin && cli ? cli.email : '')
   const [note, setNote] = useState('')
+  const submit = () => { completeStep(order.id, 'delivery', user?.name, note); onClose() }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background:'rgba(0,0,0,0.65)' }} onClick={onClose}>
@@ -73,8 +74,8 @@ function DeliveryModal({ order, onClose }) {
             placeholder="Notes for the client…" rows={3} className="input-field text-sm resize-none" />
         </div>
         <div className="flex gap-3">
-          <button className="flex-1 btn-primary text-sm py-2.5 flex items-center justify-center gap-2" onClick={onClose}>
-            <Send className="w-4 h-4" /> Deliver Report
+          <button className="flex-1 btn-primary text-sm py-2.5 flex items-center justify-center gap-2" onClick={submit}>
+            <Send className="w-4 h-4" /> Deliver &amp; Submit to Admin
           </button>
           <button className="btn-secondary text-sm py-2.5 px-4 flex items-center gap-2" onClick={onClose}>
             <Download className="w-4 h-4" /> Preview
@@ -87,6 +88,9 @@ function DeliveryModal({ order, onClose }) {
 
 function DeliveryHome() {
   const { user } = useAuth()
+  const { getOrdersForRole, orders } = useOrders()
+  const readyOrders     = getOrdersForRole('delivery')
+  const deliveredOrders = orders.filter(o => o.status === 'delivered')
   const [selected, setSelected] = useState(null)
   const [emailed, setEmailed]   = useState([])
   return (
@@ -184,6 +188,9 @@ function DeliveryHome() {
 }
 
 export default function DeliveryDashboard() {
+  const { getOrdersForRole, orders } = useOrders()
+  const readyOrders     = getOrdersForRole('delivery')
+  const deliveredOrders = orders.filter(o => o.status === 'delivered')
   return (
     <Layout navItems={NAV} role="delivery" roleColor={ROLE_COLOR}>
       <Routes>

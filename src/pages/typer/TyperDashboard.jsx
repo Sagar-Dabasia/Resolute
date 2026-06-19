@@ -4,8 +4,9 @@ import { motion } from 'framer-motion'
 import Layout from '../../components/Layout'
 import OrdersTable from '../../components/OrdersTable'
 import { useAuth } from '../../context/AuthContext'
-import { LayoutDashboard, Keyboard, CheckCircle, Clock, FileText, ChevronRight, X } from 'lucide-react'
-import { ORDERS, displayClient } from '../../data/mockData'
+import { useOrders } from '../../context/OrderContext'
+import { LayoutDashboard, Keyboard, CheckCircle, Clock, FileText, ChevronRight, X, Send } from 'lucide-react'
+import { displayClient } from '../../data/mockData'
 
 const ROLE_COLOR = '#3e9ec4'
 const NAV = [
@@ -13,15 +14,16 @@ const NAV = [
   { path: '/typer/queue',     label: 'To Type',   icon: Keyboard, badge: 2 },
   { path: '/typer/completed', label: 'Completed', icon: CheckCircle },
 ]
-const myOrders = ORDERS.filter(o => ['examining','typing'].includes(o.status))
 
 const TEMPLATES = ['Standard Title Report', 'Commitment for Title Insurance', 'Lien & Judgment Report', 'Tax Certificate Summary', 'Two-Owner Search Report']
 
 function TypeModal({ order, onClose }) {
   const { user } = useAuth()
+  const { completeStep } = useOrders()
   const [template, setTemplate] = useState(TEMPLATES[0])
   const [body, setBody] = useState('')
   const [proofed, setProofed] = useState(false)
+  const submit = () => { completeStep(order.id, 'typer', user?.name, body); onClose() }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: 'rgba(0,0,0,0.65)' }} onClick={onClose}>
@@ -65,7 +67,9 @@ function TypeModal({ order, onClose }) {
           <span className="text-sm" style={{ color:'rgba(245,237,224,0.65)' }}>Proofread &amp; formatting verified</span>
         </label>
         <div className="flex gap-3">
-          <button className="btn-primary flex-1 text-sm py-2.5" onClick={onClose}>Complete &amp; Send to Delivery</button>
+          <button className="btn-primary flex-1 text-sm py-2.5 flex items-center justify-center gap-2" onClick={submit}>
+            <Send className="w-4 h-4" /> Complete &amp; Submit to Admin
+          </button>
           <button className="btn-secondary text-sm py-2.5 px-4" onClick={onClose}>Save Draft</button>
         </div>
       </motion.div>
@@ -75,6 +79,8 @@ function TypeModal({ order, onClose }) {
 
 function TyperHome() {
   const { user } = useAuth()
+  const { getOrdersForRole } = useOrders()
+  const myOrders = getOrdersForRole('typer')
   const [selected, setSelected] = useState(null)
   return (
     <div className="space-y-6">
@@ -140,6 +146,9 @@ function TyperHome() {
 }
 
 export default function TyperDashboard() {
+  const { getOrdersForRole, orders } = useOrders()
+  const myOrders  = getOrdersForRole('typer')
+  const completed = orders.filter(o => o.completedDates?.typer)
   return (
     <Layout navItems={NAV} role="typer" roleColor={ROLE_COLOR}>
       <Routes>
@@ -150,7 +159,7 @@ export default function TyperDashboard() {
         </div>} />
         <Route path="completed" element={<div className="space-y-6">
           <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>Completed</h1>
-          <div className="glass-card p-5"><OrdersTable orders={ORDERS.filter(o=>o.status==='delivered')} /></div>
+          <div className="glass-card p-5"><OrdersTable orders={completed} /></div>
         </div>} />
       </Routes>
     </Layout>

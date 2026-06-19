@@ -3,16 +3,18 @@ import { Routes, Route } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Layout from '../../components/Layout'
 import USAMap from '../../components/USAMap'
+import AssignModal from '../../components/AssignModal'
 import {
   LayoutDashboard, ClipboardList, Users, BarChart3, Settings, MapPin,
-  Package, CheckCircle, Clock, Search, Plus, Filter, Eye, MoreHorizontal,
-  ChevronDown, ChevronUp, FileText, ArrowUpRight, X, Lock, ShieldCheck,
+  Package, CheckCircle, Clock, Search, Plus, Filter, Eye,
+  ChevronDown, ChevronUp, FileText, ArrowUpRight, X, Lock, ShieldCheck, UserPlus,
 } from 'lucide-react'
 import {
-  ORDERS, USERS, ACTIVITY, MONTHLY_STATS, PAYMENT_METHODS,
+  USERS, MONTHLY_STATS, PAYMENT_METHODS,
   STAGE_KEYS, STAGE_LABELS, displayClient, clientByName,
 } from '../../data/mockData'
 import { useAuth } from '../../context/AuthContext'
+import { useOrders } from '../../context/OrderContext'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
 const TEAM = {
@@ -103,7 +105,7 @@ const selectStyle = {
   background:Q.bg, color:Q.text, fontSize:13, outline:'none',
 }
 
-function AssignModal({ order, user, onClose, onSave }) {
+function OrderEditModal({ order, user, onClose, onSave }) {
   const cli = clientByName(order.client)
   const [form, setForm] = useState({
     screener: order.screener, examiner: order.examiner, typer: order.typer,
@@ -219,36 +221,46 @@ function AssignModal({ order, user, onClose, onSave }) {
   )
 }
 
-function OrdersPipeline({ orders: initialOrders }) {
+// Most recent non-null per-stage completion date, for the Completed column.
+const lastCompleted = (o) => {
+  const dates = Object.values(o.completedDates || {}).filter(Boolean)
+  return dates.length ? dates.sort().slice(-1)[0] : null
+}
+
+function OrdersPipeline() {
   const { user } = useAuth()
-  const [orders, setOrders]   = useState(initialOrders)
-  const [editing, setEditing] = useState(null)
-  const [search, setSearch]   = useState('')
+  const { orders, updateOrder } = useOrders()
+  const [editing, setEditing]   = useState(null)   // full edit/detail modal
+  const [assigning, setAssigning] = useState(null)  // focused assign modal
+  const [search, setSearch]     = useState('')
   const [activeTab, setActiveTab] = useState('all')
-  const [showMap, setShowMap] = useState(false)
-  const saveOrder = (updated) => setOrders(os => os.map(o => o.id === updated.id ? updated : o))
+  const [showMap, setShowMap]   = useState(false)
+  const saveOrder = (updated) => updateOrder(updated)
 
   const tabs = [
-    { key: 'all',       label: 'All Orders',  count: orders.length },
-    { key: 'progress',  label: 'In Progress', count: orders.filter(o => ['searching','examining','screening'].includes(o.status)).length },
-    { key: 'rush',      label: 'Rush',        count: orders.filter(o => o.priority === 'rush').length },
-    { key: 'delivered', label: 'Delivered',   count: orders.filter(o => o.status === 'delivered').length },
+    { key: 'all',        label: 'All Orders',  count: orders.length },
+    { key: 'progress',   label: 'In Progress', count: orders.filter(o => ['searching','examining','screening','typing'].includes(o.status)).length },
+    { key: 'rush',       label: 'Rush',        count: orders.filter(o => o.priority === 'rush').length },
+    { key: 'delivered',  label: 'Delivered',   count: orders.filter(o => o.status === 'delivered').length },
+    { key: 'unassigned', label: 'Unassigned',  count: orders.filter(o => o.assignedTo == null).length },
   ]
 
   const filtered = orders.filter(o => {
     const q = search.toLowerCase()
     const matchSearch = !q || displayClient(o.client, user).toLowerCase().includes(q) || o.id.toLowerCase().includes(q)
     const matchTab =
-      activeTab === 'all'       ? true :
-      activeTab === 'rush'      ? o.priority === 'rush' :
-      activeTab === 'progress'  ? ['searching','examining','screening'].includes(o.status) :
-      activeTab === 'delivered' ? o.status === 'delivered' : true
+      activeTab === 'all'        ? true :
+      activeTab === 'rush'       ? o.priority === 'rush' :
+      activeTab === 'progress'   ? ['searching','examining','screening','typing'].includes(o.status) :
+      activeTab === 'delivered'  ? o.status === 'delivered' :
+      activeTab === 'unassigned' ? o.assignedTo == null : true
     return matchSearch && matchTab
   })
 
   return (
     <div className="space-y-4">
-      {editing && <AssignModal order={editing} user={user} onClose={() => setEditing(null)} onSave={saveOrder} />}
+      {editing && <OrderEditModal order={editing} user={user} onClose={() => setEditing(null)} onSave={saveOrder} />}
+      {assigning && <AssignModal order={assigning} user={user} onClose={() => setAssigning(null)} />}
       {/* Toolbar */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative" style={{ minWidth: 240 }}>
@@ -314,7 +326,7 @@ function OrdersPipeline({ orders: initialOrders }) {
         <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
           <thead>
             <tr style={{ background:'#f8fafc', borderBottom:`1px solid ${Q.border}` }}>
-              {['File #','Client','Location','Type','Status','Payment','Assigned','ETA / Done',''].map(h => (
+              {['File #','Client','Location','Type','Status','Payment','Assigned','Completed','ETA / Done',''].map(h => (
                 <th key={h} style={{
                   padding:'10px 16px', textAlign:'left', fontSize:11,
                   fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em',
@@ -346,29 +358,45 @@ function OrdersPipeline({ orders: initialOrders }) {
                   <td style={{ padding:'10px 16px', color:Q.muted, whiteSpace:'nowrap' }}>{o.county}, {o.state}</td>
                   <td style={{ padding:'10px 16px', color:Q.muted, whiteSpace:'nowrap', fontSize:12 }}>{o.type}</td>
                   <td style={{ padding:'10px 16px', whiteSpace:'nowrap' }}>
-                    <span style={{
-                      padding:'3px 10px', borderRadius:99, fontSize:12, fontWeight:600,
-                      background:s.bg, color:s.color,
-                    }}>{s.label}</span>
+                    <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                      <span style={{
+                        padding:'3px 10px', borderRadius:99, fontSize:12, fontWeight:600,
+                        background:s.bg, color:s.color,
+                      }}>{s.label}</span>
+                      {o.assignedTo == null && (
+                        <span style={{ padding:'3px 9px', borderRadius:99, fontSize:11, fontWeight:700,
+                          background:'#fffbeb', color:'#d97706', border:'1px solid #fde68a' }}>Unassigned</span>
+                      )}
+                    </div>
                   </td>
                   <td style={{ padding:'10px 16px', color:Q.muted, fontSize:12, whiteSpace:'nowrap' }}>{o.payment}</td>
-                  <td style={{ padding:'10px 16px', color:Q.muted, fontSize:12, whiteSpace:'nowrap' }}>{o.screener}</td>
+                  <td style={{ padding:'10px 16px', fontSize:12, whiteSpace:'nowrap',
+                    color: o.assignedTo ? Q.text : Q.faint, textTransform:'capitalize' }}>
+                    {o.assignedTo ? `${o.assignedTo} · ${o[o.assignedTo]}` : '—'}
+                  </td>
+                  <td style={{ padding:'10px 16px', fontSize:12, whiteSpace:'nowrap',
+                    color: lastCompleted(o) ? '#16a34a' : Q.faint }}>
+                    {lastCompleted(o) || '—'}
+                  </td>
                   <td style={{ padding:'10px 16px', fontSize:12, whiteSpace:'nowrap',
                     color: o.completed ? '#16a34a' : Q.faint }}>
                     {o.completed ? `Done ${o.completed}` : o.eta}
                   </td>
                   <td style={{ padding:'10px 16px' }}>
-                    <div style={{ display:'flex', alignItems:'center', gap:2 }}>
-                      <button title="Assign / edit" onClick={e => { e.stopPropagation(); setEditing(o) }}
+                    <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                      <button onClick={e => { e.stopPropagation(); setAssigning(o) }}
+                        style={{ display:'flex', alignItems:'center', gap:5, padding:'6px 12px', borderRadius:7,
+                          background:`${ROLE_COLOR}12`, border:`1px solid ${ROLE_COLOR}40`, cursor:'pointer',
+                          color:ROLE_COLOR, fontSize:12, fontWeight:600, whiteSpace:'nowrap' }}
+                        onMouseOver={e => e.currentTarget.style.background = `${ROLE_COLOR}22`}
+                        onMouseOut={e => e.currentTarget.style.background = `${ROLE_COLOR}12`}>
+                        <UserPlus style={{ width:13, height:13 }} /> Assign
+                      </button>
+                      <button title="View details" onClick={e => { e.stopPropagation(); setEditing(o) }}
                         style={{ padding:6, borderRadius:6, background:'transparent', border:'none', cursor:'pointer', color:Q.faint }}
                         onMouseOver={e => e.currentTarget.style.background = '#f1f5f9'}
                         onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
                         <Eye style={{ width:14, height:14 }} />
-                      </button>
-                      <button title="More" style={{ padding:6, borderRadius:6, background:'transparent', border:'none', cursor:'pointer', color:Q.faint }}
-                        onMouseOver={e => e.currentTarget.style.background = '#f1f5f9'}
-                        onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
-                        <MoreHorizontal style={{ width:14, height:14 }} />
                       </button>
                     </div>
                   </td>
@@ -414,6 +442,7 @@ function OrdersPipeline({ orders: initialOrders }) {
 }
 
 function AdminHome() {
+  const { activityLog } = useOrders()
   return (
     <div className="space-y-5">
       {/* Header */}
@@ -460,8 +489,8 @@ function AdminHome() {
         <QCard className="p-5">
           <h2 className="text-sm font-semibold mb-4" style={{ color: Q.text }}>Recent Activity</h2>
           <div className="space-y-3">
-            {ACTIVITY.slice(0, 5).map((a, i) => (
-              <div key={i} style={{ display:'flex', gap:10 }}>
+            {activityLog.slice(0, 5).map((a, i) => (
+              <div key={a.id ?? i} style={{ display:'flex', gap:10 }}>
                 <div style={{
                   width:8, height:8, borderRadius:99, flexShrink:0, marginTop:5,
                   background: a.type==='new' ? ROLE_COLOR : a.type==='delivered' ? '#16a34a'
@@ -478,7 +507,7 @@ function AdminHome() {
       </div>
 
       {/* Qualia-like orders pipeline */}
-      <OrdersPipeline orders={ORDERS} />
+      <OrdersPipeline />
     </div>
   )
 }
@@ -490,7 +519,7 @@ function AdminOrders() {
         <h1 className="text-xl font-bold" style={{ color: Q.text }}>Order Management</h1>
         <p className="text-sm" style={{ color: Q.muted }}>All active and completed title search orders</p>
       </div>
-      <OrdersPipeline orders={ORDERS} />
+      <OrdersPipeline />
     </div>
   )
 }
@@ -616,6 +645,7 @@ function AdminMap() {
 
 function AdminReports() {
   const { user } = useAuth()
+  const { orders } = useOrders()
   const [dim, setDim] = useState('state')
   const DIMS = [
     { key:'state',   label:'By State' },
@@ -632,7 +662,7 @@ function AdminReports() {
     payment: o => o.payment,
   }[dim]
   const counts = {}
-  ORDERS.forEach(o => { const k = keyFn(o); counts[k] = (counts[k] || 0) + 1 })
+  orders.forEach(o => { const k = keyFn(o); counts[k] = (counts[k] || 0) + 1 })
   const rows = Object.entries(counts).sort((a, b) => b[1] - a[1])
   const max  = Math.max(...rows.map(r => r[1]), 1)
 

@@ -3,9 +3,10 @@ import { Routes, Route } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import Layout from '../../components/Layout'
 import OrdersTable from '../../components/OrdersTable'
-import { LayoutDashboard, ClipboardList, CheckCircle, Clock, AlertTriangle, Search, ChevronRight, X } from 'lucide-react'
-import { ORDERS, displayClient } from '../../data/mockData'
+import { LayoutDashboard, ClipboardList, CheckCircle, Clock, AlertTriangle, Search, ChevronRight, X, Send } from 'lucide-react'
+import { displayClient } from '../../data/mockData'
 import { useAuth } from '../../context/AuthContext'
+import { useOrders } from '../../context/OrderContext'
 
 const ROLE_COLOR = '#8ab868'
 const NAV = [
@@ -13,7 +14,6 @@ const NAV = [
   { path: '/screener/queue',     label: 'Screening Queue', icon: ClipboardList, badge: 3 },
   { path: '/screener/completed', label: 'Completed',       icon: CheckCircle },
 ]
-const myOrders = ORDERS.filter(o => ['received','screening'].includes(o.status))
 
 const STATUS_DOT = {
   received:  '#8ab0e8', screening: '#d4b450', searching: '#8ab868',
@@ -22,8 +22,10 @@ const STATUS_DOT = {
 
 function OrderModal({ order, onClose }) {
   const { user } = useAuth()
+  const { completeStep } = useOrders()
   const [status, setStatus] = useState(order.status)
   const [notes, setNotes]   = useState('')
+  const submit = () => { completeStep(order.id, 'screener', user?.name, notes); onClose() }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: 'rgba(0,0,0,0.65)' }} onClick={onClose}>
@@ -63,7 +65,9 @@ function OrderModal({ order, onClose }) {
         <textarea value={notes} onChange={e => setNotes(e.target.value)}
           placeholder="Add screening notes…" rows={3} className="input-field text-sm mb-4 resize-none" />
         <div className="flex gap-3">
-          <button className="btn-primary flex-1 text-sm py-2.5" onClick={onClose}>Save & Advance to Search</button>
+          <button className="btn-primary flex-1 text-sm py-2.5 flex items-center justify-center gap-2" onClick={submit}>
+            <Send className="w-4 h-4" /> Complete &amp; Submit to Admin
+          </button>
           <button className="btn-secondary text-sm py-2.5 px-4" onClick={onClose}>Hold</button>
         </div>
       </motion.div>
@@ -73,6 +77,8 @@ function OrderModal({ order, onClose }) {
 
 function ScreenerHome() {
   const { user } = useAuth()
+  const { getOrdersForRole } = useOrders()
+  const myOrders = getOrdersForRole('screener')
   const [selected, setSelected] = useState(null)
   return (
     <div className="space-y-6">
@@ -137,6 +143,9 @@ function ScreenerHome() {
 }
 
 export default function ScreenerDashboard() {
+  const { getOrdersForRole, orders } = useOrders()
+  const myOrders  = getOrdersForRole('screener')
+  const completed = orders.filter(o => o.completedDates?.screener)
   return (
     <Layout navItems={NAV} role="screener" roleColor={ROLE_COLOR}>
       <Routes>
@@ -147,7 +156,7 @@ export default function ScreenerDashboard() {
         </div>} />
         <Route path="completed" element={<div className="space-y-6">
           <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>Completed Screenings</h1>
-          <div className="glass-card p-5"><OrdersTable orders={ORDERS.filter(o=>o.status==='delivered')} /></div>
+          <div className="glass-card p-5"><OrdersTable orders={completed} /></div>
         </div>} />
       </Routes>
     </Layout>
