@@ -131,13 +131,14 @@ function OrderEditModal({ order, user, onClose, onSave }) {
   const [form, setForm] = useState({
     screener: order.screener, examiner: order.examiner, typer: order.typer,
     delivery: order.delivery, payment: order.payment, status: order.status,
+    assignedTo: order.assignedTo || '',
   })
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
   const save = () => {
     const completed = form.status === 'delivered'
       ? (order.completed || order.eta)
       : null
-    onSave({ ...order, ...form, completed })
+    onSave({ ...order, ...form, assignedTo: form.assignedTo || null, completed })
     onClose()
   }
 
@@ -208,7 +209,27 @@ function OrderEditModal({ order, user, onClose, onSave }) {
             )}
           </div>
 
-          <div style={{ padding:'18px 22px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
+          {/* Assignment — drives the Assigned/Unassigned state */}
+          <div style={{ padding:'16px 22px 0' }}>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
+              <Field label="Assigned To (current owner)">
+                <select style={selectStyle} value={form.assignedTo} onChange={e => set('assignedTo', e.target.value)}>
+                  <option value="">Unassigned</option>
+                  <option value="screener">Screener</option>
+                  <option value="examiner">Examiner</option>
+                  <option value="typer">Typer</option>
+                  <option value="delivery">Delivery</option>
+                </select>
+              </Field>
+              <Field label="Status">
+                <select style={selectStyle} value={form.status} onChange={e => set('status', e.target.value)}>
+                  {STAGE_KEYS.map((k, i) => <option key={k} value={k}>{STAGE_LABELS[i]}</option>)}
+                </select>
+              </Field>
+            </div>
+          </div>
+
+          <div style={{ padding:'14px 22px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
             <Field label="Screener">
               <select style={selectStyle} value={form.screener} onChange={e => set('screener', e.target.value)}>
                 {TEAM.screener.map(n => <option key={n} value={n}>{n}</option>)}
@@ -232,11 +253,6 @@ function OrderEditModal({ order, user, onClose, onSave }) {
             <Field label="Mode of Payment">
               <select style={selectStyle} value={form.payment} onChange={e => set('payment', e.target.value)}>
                 {PAYMENT_METHODS.map(p => <option key={p} value={p}>{p}</option>)}
-              </select>
-            </Field>
-            <Field label="Status">
-              <select style={selectStyle} value={form.status} onChange={e => set('status', e.target.value)}>
-                {STAGE_KEYS.map((k, i) => <option key={k} value={k}>{STAGE_LABELS[i]}</option>)}
               </select>
             </Field>
           </div>
@@ -423,32 +439,56 @@ function OrdersPipeline() {
   // Reset to first page whenever the filter set changes.
   useEffect(() => { setPage(1) }, [activeTab, search, region, stateF, countyF, dateRange, rushOnly])
 
+  const CHEVRON = "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>\")"
   const filterSelectStyle = {
-    padding:'8px 10px', borderRadius:8, border:`1px solid ${Q.border}`,
-    background:Q.bg, color:Q.text, fontSize:13, fontWeight:500, outline:'none', cursor:'pointer',
+    appearance:'none', WebkitAppearance:'none', MozAppearance:'none',
+    height:38, padding:'0 30px 0 12px', borderRadius:8, border:`1px solid ${Q.border}`,
+    background:`${Q.card} ${CHEVRON} no-repeat right 10px center`, backgroundSize:'12px',
+    color:Q.text, fontSize:13, fontWeight:500, outline:'none', cursor:'pointer',
+  }
+  const ctlBtn = {
+    height:38, display:'flex', alignItems:'center', gap:6, padding:'0 14px',
+    borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer',
   }
 
   return (
     <div className="space-y-4">
       {editing && <OrderEditModal order={editing} user={user} onClose={() => setEditing(null)} onSave={saveOrder} />}
       {assigning && <AssignModal order={assigning} user={user} onClose={() => setAssigning(null)} />}
-      {/* Toolbar */}
+      {/* Toolbar — row 1: search · date range · new order */}
       <div className="flex items-center gap-3 flex-wrap">
-        <div className="relative" style={{ minWidth: 240 }}>
-          <Search style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', width:15, height:15, color:Q.faint }} />
+        <div className="relative" style={{ flex:'1 1 260px', minWidth: 240 }}>
+          <Search style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', width:15, height:15, color:Q.faint }} />
           <input
             value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Search by client or file #..."
             style={{
-              width:'100%', paddingLeft:32, paddingRight:12, paddingTop:8, paddingBottom:8,
-              background:Q.bg, border:`1px solid ${Q.border}`, borderRadius:8,
+              width:'100%', height:38, paddingLeft:34, paddingRight:12,
+              background:Q.card, border:`1px solid ${Q.border}`, borderRadius:8,
               color:Q.text, fontSize:13, outline:'none',
             }}
             onFocus={e => e.target.style.borderColor = ROLE_COLOR}
             onBlur={e => e.target.style.borderColor = Q.border}
           />
         </div>
+        <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+          <span style={{ fontSize:13, color:Q.muted, whiteSpace:'nowrap' }}>Ordered within</span>
+          <select value={dateRange} onChange={e => setDateRange(e.target.value)} style={filterSelectStyle} title="Ordered within">
+            {DATE_RANGES.map(d => <option key={d.key} value={d.key}>{d.label}</option>)}
+          </select>
+        </div>
+        <button style={{ ...ctlBtn, background:ROLE_COLOR, border:'none', color:'#fff' }}
+          onMouseOver={e => e.currentTarget.style.background = ROLE_HOVER}
+          onMouseOut={e => e.currentTarget.style.background = ROLE_COLOR}>
+          <Plus style={{ width:15, height:15 }} /> New Order
+        </button>
+      </div>
+
+      {/* Toolbar — row 2: filter chips */}
+      <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap',
+        background:Q.card, border:`1px solid ${Q.border}`, borderRadius:10, padding:'8px 12px' }}>
         <Filter style={{ width:15, height:15, color:Q.faint }} />
+        <span style={{ fontSize:12, fontWeight:600, color:Q.faint, textTransform:'uppercase', letterSpacing:'0.05em', marginRight:2 }}>Filters</span>
         <select value={region} onChange={e => pickRegion(e.target.value)} style={filterSelectStyle} title="Region">
           <option value="all">All regions</option>
           {REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
@@ -461,38 +501,22 @@ function OrdersPipeline() {
           <option value="all">All counties</option>
           {countiesAvail.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
-        {geoActive && (
-          <button onClick={resetGeo} style={{
-            display:'flex', alignItems:'center', gap:5, padding:'7px 12px',
-            background:'transparent', border:`1px solid ${Q.border}`, borderRadius:8,
-            color:Q.muted, fontSize:13, fontWeight:500, cursor:'pointer',
-          }}>
-            <X style={{ width:13, height:13 }} /> Clear
-          </button>
-        )}
-        <button onClick={() => setRushOnly(v => !v)} title="Rush only" style={{
-          padding:'7px 12px', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer',
-          background: rushOnly ? '#fef2f2' : 'transparent',
+        <button onClick={() => setRushOnly(v => !v)} title="Show rush-priority orders only" style={{
+          ...ctlBtn,
+          background: rushOnly ? '#fef2f2' : Q.card,
           color:      rushOnly ? '#dc2626' : Q.muted,
           border: `1px solid ${rushOnly ? '#fecaca' : Q.border}`,
         }}>
-          Rush
+          <span style={{ width:7, height:7, borderRadius:99, background: rushOnly ? '#dc2626' : Q.faint }} />
+          Rush only
         </button>
-        <div style={{ display:'flex', alignItems:'center', gap:6, marginLeft:'auto' }}>
-          <span style={{ fontSize:13, color:Q.muted, whiteSpace:'nowrap' }}>Ordered within</span>
-          <select value={dateRange} onChange={e => setDateRange(e.target.value)} style={filterSelectStyle} title="Ordered within">
-            {DATE_RANGES.map(d => <option key={d.key} value={d.key}>{d.label}</option>)}
-          </select>
-        </div>
-        <button style={{
-          display:'flex', alignItems:'center', gap:6, padding:'7px 16px',
-          background:ROLE_COLOR, border:'none', borderRadius:8,
-          color:'#fff', fontSize:13, fontWeight:600, cursor:'pointer',
-        }}
-          onMouseOver={e => e.currentTarget.style.background = ROLE_HOVER}
-          onMouseOut={e => e.currentTarget.style.background = ROLE_COLOR}>
-          <Plus style={{ width:15, height:15 }} /> New Order
-        </button>
+        {(geoActive || rushOnly) && (
+          <button onClick={() => { resetGeo(); setRushOnly(false) }} style={{
+            ...ctlBtn, background:'transparent', border:`1px solid ${Q.border}`, color:Q.muted, marginLeft:'auto',
+          }}>
+            <X style={{ width:13, height:13 }} /> Clear filters
+          </button>
+        )}
       </div>
 
       {/* Tab bar */}
