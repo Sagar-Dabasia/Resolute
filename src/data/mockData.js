@@ -41,6 +41,21 @@ export const STATE_ORDERS = {
   SD:1, TN:11, TX:35, UT:7, VT:1, VA:16, WA:13, WV:3, WI:8, WY:1,
 }
 
+// US Census regions — used for "area-wise" filtering across dashboards.
+export const REGIONS = ['Northeast', 'Midwest', 'South', 'West']
+const REGION_BY_STATE = {
+  CT:'Northeast', ME:'Northeast', MA:'Northeast', NH:'Northeast', RI:'Northeast',
+  VT:'Northeast', NJ:'Northeast', NY:'Northeast', PA:'Northeast',
+  IL:'Midwest', IN:'Midwest', MI:'Midwest', OH:'Midwest', WI:'Midwest', IA:'Midwest',
+  KS:'Midwest', MN:'Midwest', MO:'Midwest', NE:'Midwest', ND:'Midwest', SD:'Midwest',
+  DE:'South', FL:'South', GA:'South', MD:'South', NC:'South', SC:'South', VA:'South',
+  DC:'South', WV:'South', AL:'South', KY:'South', MS:'South', TN:'South', AR:'South',
+  LA:'South', OK:'South', TX:'South',
+  AZ:'West', CO:'West', ID:'West', MT:'West', NV:'West', NM:'West', UT:'West',
+  WY:'West', AK:'West', CA:'West', HI:'West', OR:'West', WA:'West',
+}
+export const regionOf = (state) => REGION_BY_STATE[state] || '—'
+
 export const USERS = [
   { id: 1, name: 'Sam Carter',     email: 'screener@resolute.com',   role: 'screener', status: 'active',   orders: 47, joined: '2025-01-15' },
   { id: 2, name: 'Jordan Lee',     email: 'examiner@resolute.com',   role: 'examiner', status: 'active',   orders: 63, joined: '2025-02-20' },
