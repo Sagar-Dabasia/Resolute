@@ -58,6 +58,7 @@ export function OrderProvider({ children }) {
         progress:       Math.round((newIdx / (PIPELINE.length - 1)) * 100),
         completed:      nextStatus === 'delivered' ? (o.completed || todayISO()) : o.completed,
         completedDates: { ...o.completedDates, [role]: todayISO() },
+        completedBy:    { ...o.completedBy, [role]: userName },
       }
     }))
     log({

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { X, UserCheck } from 'lucide-react'
-import { USERS, displayClient } from '../data/mockData'
+import { USERS, displayClient, nextRoleFor } from '../data/mockData'
 import { useOrders } from '../context/OrderContext'
 
 const ROLE_COLOR = '#3d7020'
@@ -27,11 +27,13 @@ const defaultStageFor = (status) => ({
 
 export default function AssignModal({ order, user, onClose }) {
   const { assignOrder } = useOrders()
-  const [queue, setQueue]           = useState(order.assignedTo || defaultStageFor(order.status))
+  // Default to the next role that still needs to act; fall back to the status-based guess.
+  const [queue, setQueue]           = useState(order.assignedTo || nextRoleFor(order) || defaultStageFor(order.status))
   const [personName, setPersonName] = useState('')
 
   const people = USERS.filter(u => u.role === queue)
   const cd = order.completedDates || {}
+  const cb = order.completedBy || {}
 
   const pickQueue = (key) => { setQueue(key); setPersonName('') }   // reset pin on stage change
 
@@ -105,7 +107,7 @@ export default function AssignModal({ order, user, onClose }) {
                 <div key={s.key}>
                   <span style={{ color:Q.faint }}>{s.label}: </span>
                   <span style={{ color: cd[s.key] ? '#16a34a' : Q.muted, fontWeight: cd[s.key] ? 600 : 400 }}>
-                    {cd[s.key] || 'Pending'}
+                    {cd[s.key] ? `${cd[s.key]}${cb[s.key] ? ` · ${cb[s.key]}` : ''}` : 'Pending'}
                   </span>
                 </div>
               ))}

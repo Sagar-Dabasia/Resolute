@@ -12,7 +12,7 @@ import {
 import {
   USERS, MONTHLY_STATS, PAYMENT_METHODS,
   STAGE_KEYS, STAGE_LABELS, displayClient, clientByName,
-  REGIONS, regionOf,
+  REGIONS, regionOf, nextRoleFor,
 } from '../../data/mockData'
 import { useAuth } from '../../context/AuthContext'
 import { useOrders } from '../../context/OrderContext'
@@ -228,6 +228,20 @@ const lastCompleted = (o) => {
   return dates.length ? dates.sort().slice(-1)[0] : null
 }
 
+const cap = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : s
+
+// Derive the order's routing state for the admin view:
+//   delivered   – pipeline finished
+//   inprogress  – a role currently holds it (assignedTo set)
+//   new         – never assigned, nothing completed yet
+//   ready       – between stages, waiting for admin to route the next role
+const routingState = (o) => {
+  if (o.status === 'delivered') return { kind: 'delivered' }
+  if (o.assignedTo)             return { kind: 'inprogress', role: o.assignedTo, person: o[o.assignedTo] }
+  const anyDone = Object.values(o.completedDates || {}).some(Boolean)
+  return { kind: anyDone ? 'ready' : 'new', next: nextRoleFor(o) }
+}
+
 function OrdersPipeline() {
   const { user } = useAuth()
   const { orders, updateOrder } = useOrders()
@@ -257,7 +271,7 @@ function OrdersPipeline() {
     { key: 'progress',   label: 'In Progress', count: orders.filter(o => ['searching','examining','screening','typing'].includes(o.status)).length },
     { key: 'rush',       label: 'Rush',        count: orders.filter(o => o.priority === 'rush').length },
     { key: 'delivered',  label: 'Delivered',   count: orders.filter(o => o.status === 'delivered').length },
-    { key: 'unassigned', label: 'Unassigned',  count: orders.filter(o => o.assignedTo == null).length },
+    { key: 'unassigned', label: 'To Assign',   count: orders.filter(o => o.assignedTo == null && o.status !== 'delivered').length },
   ]
 
   const filtered = orders.filter(o => {
@@ -268,7 +282,7 @@ function OrdersPipeline() {
       activeTab === 'rush'       ? o.priority === 'rush' :
       activeTab === 'progress'   ? ['searching','examining','screening','typing'].includes(o.status) :
       activeTab === 'delivered'  ? o.status === 'delivered' :
-      activeTab === 'unassigned' ? o.assignedTo == null : true
+      activeTab === 'unassigned' ? (o.assignedTo == null && o.status !== 'delivered') : true
     const matchRegion = region === 'all'  || regionOf(o.state) === region
     const matchState  = stateF === 'all'  || o.state === stateF
     const matchCounty = countyF === 'all' || o.county === countyF
@@ -376,6 +390,7 @@ function OrdersPipeline() {
           <tbody>
             {filtered.map((o, i) => {
               const s = STATUS_MAP[o.status] || STATUS_MAP.received
+              const r = routingState(o)
               return (
                 <motion.tr key={o.id}
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }}
@@ -401,9 +416,19 @@ function OrdersPipeline() {
                         padding:'3px 10px', borderRadius:99, fontSize:12, fontWeight:600,
                         background:s.bg, color:s.color,
                       }}>{s.label}</span>
-                      {o.assignedTo == null && (
+                      {r.kind === 'new' && (
                         <span style={{ padding:'3px 9px', borderRadius:99, fontSize:11, fontWeight:700,
-                          background:'#fffbeb', color:'#d97706', border:'1px solid #fde68a' }}>Unassigned</span>
+                          background:'#eff6ff', color:'#2563eb', border:'1px solid #bfdbfe' }}>New</span>
+                      )}
+                      {r.kind === 'ready' && (
+                        <span style={{ padding:'3px 9px', borderRadius:99, fontSize:11, fontWeight:700,
+                          background:'#fffbeb', color:'#d97706', border:'1px solid #fde68a' }}>
+                          Ready · {cap(r.next)} next
+                        </span>
+                      )}
+                      {r.kind === 'inprogress' && (
+                        <span style={{ padding:'3px 9px', borderRadius:99, fontSize:11, fontWeight:700,
+                          background:'#f0fdf4', color:'#16a34a', border:'1px solid #bbf7d0' }}>Assigned</span>
                       )}
                     </div>
                   </td>
@@ -422,14 +447,17 @@ function OrdersPipeline() {
                   </td>
                   <td style={{ padding:'10px 16px' }}>
                     <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                      <button onClick={e => { e.stopPropagation(); setAssigning(o) }}
-                        style={{ display:'flex', alignItems:'center', gap:5, padding:'6px 12px', borderRadius:7,
-                          background:`${ROLE_COLOR}12`, border:`1px solid ${ROLE_COLOR}40`, cursor:'pointer',
-                          color:ROLE_COLOR, fontSize:12, fontWeight:600, whiteSpace:'nowrap' }}
-                        onMouseOver={e => e.currentTarget.style.background = `${ROLE_COLOR}22`}
-                        onMouseOut={e => e.currentTarget.style.background = `${ROLE_COLOR}12`}>
-                        <UserPlus style={{ width:13, height:13 }} /> Assign
-                      </button>
+                      {r.kind !== 'delivered' && (
+                        <button onClick={e => { e.stopPropagation(); setAssigning(o) }}
+                          style={{ display:'flex', alignItems:'center', gap:5, padding:'6px 12px', borderRadius:7,
+                            background:`${ROLE_COLOR}12`, border:`1px solid ${ROLE_COLOR}40`, cursor:'pointer',
+                            color:ROLE_COLOR, fontSize:12, fontWeight:600, whiteSpace:'nowrap' }}
+                          onMouseOver={e => e.currentTarget.style.background = `${ROLE_COLOR}22`}
+                          onMouseOut={e => e.currentTarget.style.background = `${ROLE_COLOR}12`}>
+                          <UserPlus style={{ width:13, height:13 }} />
+                          {r.kind === 'inprogress' ? 'Reassign' : `Assign ${cap(r.next)}`}
+                        </button>
+                      )}
                       <button title="View details" onClick={e => { e.stopPropagation(); setEditing(o) }}
                         style={{ padding:6, borderRadius:6, background:'transparent', border:'none', cursor:'pointer', color:Q.faint }}
                         onMouseOver={e => e.currentTarget.style.background = '#f1f5f9'}
