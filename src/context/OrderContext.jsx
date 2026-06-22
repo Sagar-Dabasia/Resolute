@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react'
-import { ORDERS, ACTIVITY } from '../data/mockData'
+import { ORDERS, ACTIVITY, nextRoleFor } from '../data/mockData'
 
 const OrderContext = createContext(null)
 
@@ -43,27 +43,38 @@ export function OrderProvider({ children }) {
     })
   }
 
-  // A role reports completion back to Admin: advance one stage, drop out of the
-  // queue (assignedTo → null), stamp the stage's completion date, and log it.
+  // A role reports completion: stamp the stage, then AUTO-ADVANCE the order into
+  // the next role's queue so it shows up in that role's portal immediately. When
+  // every role is done it's marked delivered. Admin can still reassign who works
+  // the next stage via the Assign / detail modal.
+  let advancedTo = null
   const completeStep = (orderId, role, userName, notes) => {
+    advancedTo = null
     setOrders(os => os.map(o => {
       if (o.id !== orderId) return o
+      const newDates = { ...o.completedDates, [role]: todayISO() }
+      const nextRole = nextRoleFor({ completedDates: newDates })   // first role still to act
+      advancedTo = nextRole
+      const allDone = nextRole === null
       const idx        = PIPELINE.indexOf(o.status)
-      const nextStatus = idx >= 0 && idx < PIPELINE.length - 1 ? PIPELINE[idx + 1] : o.status
+      const nextStatus = allDone ? 'delivered'
+        : (idx >= 0 && idx < PIPELINE.length - 1 ? PIPELINE[idx + 1] : o.status)
       const newIdx     = PIPELINE.indexOf(nextStatus)
       return {
         ...o,
         status:         nextStatus,
-        assignedTo:     null,
-        progress:       Math.round((newIdx / (PIPELINE.length - 1)) * 100),
-        completed:      nextStatus === 'delivered' ? (o.completed || todayISO()) : o.completed,
-        completedDates: { ...o.completedDates, [role]: todayISO() },
+        assignedTo:     nextRole,            // hand straight to the next role (null when finished)
+        progress:       allDone ? 100 : Math.round((newIdx / (PIPELINE.length - 1)) * 100),
+        completed:      allDone ? (o.completed || todayISO()) : o.completed,
+        completedDates: newDates,
         completedBy:    { ...o.completedBy, [role]: userName },
       }
     }))
     log({
       id: Date.now(),
-      action: `${userName} completed ${STAGE_BY_ROLE[role] || role} on ${orderId}${notes ? ` — ${notes}` : ''}`,
+      action: `${userName} completed ${STAGE_BY_ROLE[role] || role} on ${orderId}`
+        + (advancedTo ? ` → handed to ${advancedTo}` : ' → delivered')
+        + (notes ? ` (${notes})` : ''),
       time: 'Just now',
       type: 'progress',
     })

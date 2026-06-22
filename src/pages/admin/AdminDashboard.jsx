@@ -547,7 +547,8 @@ function OrdersPipeline() {
 
       {/* Orders table */}
       <div style={{ background:Q.card, border:`1px solid ${Q.border}`, borderRadius:10, boxShadow:Q.shadow, overflow:'hidden' }}>
-        <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
+        <div style={{ overflowX:'auto' }}>
+        <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13, minWidth:920 }}>
           <thead>
             <tr style={{ background:'#f8fafc', borderBottom:`1px solid ${Q.border}` }}>
               {['File #','Client','Location','Type','Status','Payment','Assignee','Completed','ETA / Done',''].map(h => (
@@ -643,6 +644,7 @@ function OrdersPipeline() {
             })}
           </tbody>
         </table>
+        </div>
         {filtered.length === 0 && (
           <div style={{ padding:'48px 16px', textAlign:'center', color:Q.faint }}>
             <FileText style={{ width:32, height:32, margin:'0 auto 8px', opacity:0.4 }} />
