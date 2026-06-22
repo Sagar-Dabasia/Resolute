@@ -91,6 +91,15 @@ export const ACTIVITY = [
   { time: '09:12 AM', action: 'RTS-10048 examination started by Jordan Lee', type: 'status' },
 ]
 
+// Client/customer messages per order — surfaced in the order detail Inbox tab.
+export const MESSAGES = [
+  { id: 'msg1', orderId: 'RTS-10044', from: 'Pinnacle Real Estate', preview: 'Good morning — any update on the lien search? Closing is tight.', date: 'Jun 18, 10:40 AM' },
+  { id: 'msg2', orderId: 'RTS-10044', from: 'Pinnacle Real Estate', preview: 'Please prioritize, this is a rush file. Thank you!',               date: 'Jun 18, 11:02 AM' },
+  { id: 'msg3', orderId: 'RTS-10041', from: 'Lakewood Title Group',  preview: 'Confirming the property is Miami-Dade county, correct?',          date: 'Jun 17, 3:15 PM' },
+  { id: 'msg4', orderId: 'RTS-10043', from: 'Sterling Law Firm',     preview: 'We responded to the clarification request — let us know if you need more.', date: 'Jun 17, 9:20 AM' },
+  { id: 'msg5', orderId: 'RTS-10048', from: 'Lakewood Title Group',  preview: 'Following up on the typed report for Maricopa.',                  date: 'Jun 19, 8:53 AM' },
+]
+
 export const MONTHLY_STATS = [
   { month: 'Jan', orders: 142, delivered: 138 },
   { month: 'Feb', orders: 168, delivered: 161 },

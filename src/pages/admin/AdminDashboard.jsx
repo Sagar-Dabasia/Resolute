@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Layout from '../../components/Layout'
@@ -10,7 +10,7 @@ import {
   ChevronDown, ChevronUp, FileText, ArrowUpRight, X, Lock, ShieldCheck, UserPlus,
 } from 'lucide-react'
 import {
-  USERS, MONTHLY_STATS, PAYMENT_METHODS,
+  USERS, MONTHLY_STATS, PAYMENT_METHODS, MESSAGES,
   STAGE_KEYS, STAGE_LABELS, displayClient, clientByName,
   REGIONS, regionOf, nextRoleFor,
 } from '../../data/mockData'
@@ -106,8 +106,28 @@ const selectStyle = {
   background:Q.bg, color:Q.text, fontSize:13, outline:'none',
 }
 
+const STAGE_FIELDS = [
+  { key:'screener', label:'Screener' },
+  { key:'examiner', label:'Examiner' },
+  { key:'typer',    label:'Typer' },
+  { key:'delivery', label:'Delivery' },
+]
+const DETAIL_TABS = [
+  { key:'overview', label:'Overview' },
+  { key:'activity', label:'Activity' },
+  { key:'inbox',    label:'Inbox' },
+  { key:'files',    label:'Files' },
+]
+const MOCK_FILES = [
+  { name:'Title Search Report.pdf', size:'248 KB', stage:'Examination' },
+  { name:'Property Deed.pdf',       size:'1.2 MB', stage:'Search' },
+  { name:'Tax Certificate.pdf',     size:'96 KB',  stage:'Screening' },
+]
+
 function OrderEditModal({ order, user, onClose, onSave }) {
+  const { activityLog } = useOrders()
   const cli = clientByName(order.client)
+  const [tab, setTab] = useState('overview')
   const [form, setForm] = useState({
     screener: order.screener, examiner: order.examiner, typer: order.typer,
     delivery: order.delivery, payment: order.payment, status: order.status,
@@ -121,15 +141,20 @@ function OrderEditModal({ order, user, onClose, onSave }) {
     onClose()
   }
 
+  const cd = order.completedDates || {}
+  const cb = order.completedBy || {}
+  const orderActivity = activityLog.filter(a => a.action && a.action.includes(order.id))
+  const orderMessages = MESSAGES.filter(m => m.orderId === order.id)
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background:'rgba(15,23,42,0.45)' }} onClick={onClose}>
       <motion.div initial={{ scale:0.96, opacity:0 }} animate={{ scale:1, opacity:1 }}
         onClick={e => e.stopPropagation()}
-        style={{ background:Q.card, borderRadius:12, width:'100%', maxWidth:560,
-          maxHeight:'88vh', overflowY:'auto', boxShadow:'0 20px 50px rgba(0,0,0,0.25)' }}>
+        style={{ background:Q.card, borderRadius:12, width:'100%', maxWidth:620,
+          maxHeight:'90vh', overflowY:'auto', boxShadow:'0 20px 50px rgba(0,0,0,0.25)' }}>
         <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between',
-          padding:'18px 22px', borderBottom:`1px solid ${Q.border}` }}>
+          padding:'18px 22px' }}>
           <div>
             <div style={{ fontFamily:'monospace', fontWeight:700, fontSize:13, color:ROLE_COLOR }}>{order.id}</div>
             <div style={{ fontSize:18, fontWeight:700, color:Q.text }}>{displayClient(order.client, user)}</div>
@@ -140,83 +165,167 @@ function OrderEditModal({ order, user, onClose, onSave }) {
           </button>
         </div>
 
-        {/* Detailed client info — super admin only */}
-        <div style={{ padding:'16px 22px', borderBottom:`1px solid ${Q.border}` }}>
-          {user?.superAdmin && cli ? (
-            <div style={{ background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:10, padding:'12px 14px' }}>
-              <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:11, fontWeight:700,
-                textTransform:'uppercase', letterSpacing:'0.05em', color:'#16a34a', marginBottom:8 }}>
-                <ShieldCheck style={{ width:13, height:13 }} /> Client details ({cli.code})
+        {/* Detail tabs */}
+        <div style={{ display:'flex', gap:0, padding:'0 22px', borderBottom:`1px solid ${Q.border}` }}>
+          {DETAIL_TABS.map(t => {
+            const badge = t.key === 'inbox' ? orderMessages.length : t.key === 'files' ? MOCK_FILES.length : 0
+            return (
+              <button key={t.key} onClick={() => setTab(t.key)}
+                style={{ display:'flex', alignItems:'center', gap:6, padding:'10px 14px', fontSize:13, fontWeight:600,
+                  background:'transparent', border:'none', cursor:'pointer',
+                  color: tab === t.key ? ROLE_COLOR : Q.muted,
+                  borderBottom: tab === t.key ? `2px solid ${ROLE_COLOR}` : '2px solid transparent', marginBottom:-1 }}>
+                {t.label}
+                {badge > 0 && <span style={{ fontSize:10, fontWeight:700, padding:'1px 6px', borderRadius:99,
+                  background:`${ROLE_COLOR}18`, color:ROLE_COLOR }}>{badge}</span>}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* OVERVIEW */}
+        {tab === 'overview' && (<>
+          <div style={{ padding:'16px 22px', borderBottom:`1px solid ${Q.border}` }}>
+            {user?.superAdmin && cli ? (
+              <div style={{ background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:10, padding:'12px 14px' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:11, fontWeight:700,
+                  textTransform:'uppercase', letterSpacing:'0.05em', color:'#16a34a', marginBottom:8 }}>
+                  <ShieldCheck style={{ width:13, height:13 }} /> Client details ({cli.code})
+                </div>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'6px 16px', fontSize:13 }}>
+                  <div><span style={{ color:Q.faint }}>Name: </span><span style={{ color:Q.text, fontWeight:500 }}>{cli.name}</span></div>
+                  <div><span style={{ color:Q.faint }}>Contact: </span><span style={{ color:Q.text }}>{cli.contact}</span></div>
+                  <div><span style={{ color:Q.faint }}>Email: </span><span style={{ color:Q.text }}>{cli.email}</span></div>
+                  <div><span style={{ color:Q.faint }}>Phone: </span><span style={{ color:Q.text }}>{cli.phone}</span></div>
+                </div>
               </div>
+            ) : (
+              <div style={{ display:'flex', alignItems:'center', gap:8, background:Q.bg,
+                border:`1px solid ${Q.border}`, borderRadius:10, padding:'12px 14px', color:Q.muted, fontSize:13 }}>
+                <Lock style={{ width:14, height:14, color:Q.faint }} />
+                Client <strong style={{ color:Q.text }}>{cli?.code || displayClient(order.client, user)}</strong> — detailed info restricted to super admins.
+              </div>
+            )}
+          </div>
+
+          <div style={{ padding:'18px 22px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
+            <Field label="Screener">
+              <select style={selectStyle} value={form.screener} onChange={e => set('screener', e.target.value)}>
+                {TEAM.screener.map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </Field>
+            <Field label="Examiner">
+              <select style={selectStyle} value={form.examiner} onChange={e => set('examiner', e.target.value)}>
+                {TEAM.examiner.map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </Field>
+            <Field label="Typer">
+              <select style={selectStyle} value={form.typer} onChange={e => set('typer', e.target.value)}>
+                {TEAM.typer.map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </Field>
+            <Field label="Delivery">
+              <select style={selectStyle} value={form.delivery} onChange={e => set('delivery', e.target.value)}>
+                {TEAM.delivery.map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </Field>
+            <Field label="Mode of Payment">
+              <select style={selectStyle} value={form.payment} onChange={e => set('payment', e.target.value)}>
+                {PAYMENT_METHODS.map(p => <option key={p} value={p}>{p}</option>)}
+              </select>
+            </Field>
+            <Field label="Status">
+              <select style={selectStyle} value={form.status} onChange={e => set('status', e.target.value)}>
+                {STAGE_KEYS.map((k, i) => <option key={k} value={k}>{STAGE_LABELS[i]}</option>)}
+              </select>
+            </Field>
+          </div>
+
+          {/* Per-stage completion history */}
+          <div style={{ padding:'0 22px 18px' }}>
+            <div style={{ background:Q.bg, border:`1px solid ${Q.border}`, borderRadius:10, padding:'12px 14px' }}>
+              <div style={{ fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.05em',
+                color:Q.faint, marginBottom:8 }}>Stage history</div>
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'6px 16px', fontSize:13 }}>
-                <div><span style={{ color:Q.faint }}>Name: </span><span style={{ color:Q.text, fontWeight:500 }}>{cli.name}</span></div>
-                <div><span style={{ color:Q.faint }}>Contact: </span><span style={{ color:Q.text }}>{cli.contact}</span></div>
-                <div><span style={{ color:Q.faint }}>Email: </span><span style={{ color:Q.text }}>{cli.email}</span></div>
-                <div><span style={{ color:Q.faint }}>Phone: </span><span style={{ color:Q.text }}>{cli.phone}</span></div>
+                {STAGE_FIELDS.map(s => (
+                  <div key={s.key}>
+                    <span style={{ color:Q.faint }}>{s.label}: </span>
+                    <span style={{ color: cd[s.key] ? '#16a34a' : Q.muted, fontWeight: cd[s.key] ? 600 : 400 }}>
+                      {cd[s.key] ? `${cd[s.key]}${cb[s.key] ? ` · ${cb[s.key]}` : ''}` : 'Pending'}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
-          ) : (
-            <div style={{ display:'flex', alignItems:'center', gap:8, background:Q.bg,
-              border:`1px solid ${Q.border}`, borderRadius:10, padding:'12px 14px', color:Q.muted, fontSize:13 }}>
-              <Lock style={{ width:14, height:14, color:Q.faint }} />
-              Client <strong style={{ color:Q.text }}>{cli?.code || displayClient(order.client, user)}</strong> — detailed info restricted to super admins.
-            </div>
-          )}
-        </div>
+          </div>
 
-        {/* Assignment grid */}
-        <div style={{ padding:'18px 22px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
-          <Field label="Screener">
-            <select style={selectStyle} value={form.screener} onChange={e => set('screener', e.target.value)}>
-              {TEAM.screener.map(n => <option key={n} value={n}>{n}</option>)}
-            </select>
-          </Field>
-          <Field label="Examiner">
-            <select style={selectStyle} value={form.examiner} onChange={e => set('examiner', e.target.value)}>
-              {TEAM.examiner.map(n => <option key={n} value={n}>{n}</option>)}
-            </select>
-          </Field>
-          <Field label="Typer">
-            <select style={selectStyle} value={form.typer} onChange={e => set('typer', e.target.value)}>
-              {TEAM.typer.map(n => <option key={n} value={n}>{n}</option>)}
-            </select>
-          </Field>
-          <Field label="Delivery">
-            <select style={selectStyle} value={form.delivery} onChange={e => set('delivery', e.target.value)}>
-              {TEAM.delivery.map(n => <option key={n} value={n}>{n}</option>)}
-            </select>
-          </Field>
-          <Field label="Mode of Payment">
-            <select style={selectStyle} value={form.payment} onChange={e => set('payment', e.target.value)}>
-              {PAYMENT_METHODS.map(p => <option key={p} value={p}>{p}</option>)}
-            </select>
-          </Field>
-          <Field label="Status">
-            <select style={selectStyle} value={form.status} onChange={e => set('status', e.target.value)}>
-              {STAGE_KEYS.map((k, i) => <option key={k} value={k}>{STAGE_LABELS[i]}</option>)}
-            </select>
-          </Field>
-          <Field label="Created">
-            <div style={{ ...selectStyle, background:'#f8fafc', color:Q.muted }}>{order.created}</div>
-          </Field>
-          <Field label="Completed">
-            <div style={{ ...selectStyle, background:'#f8fafc',
-              color: form.status === 'delivered' ? '#16a34a' : Q.faint }}>
-              {form.status === 'delivered' ? (order.completed || order.eta) : 'Pending'}
-            </div>
-          </Field>
-        </div>
+          <div style={{ display:'flex', gap:10, padding:'0 22px 20px' }}>
+            <button onClick={save} style={{ flex:1, padding:'10px', background:ROLE_COLOR, border:'none',
+              borderRadius:8, color:'#fff', fontSize:13, fontWeight:600, cursor:'pointer' }}>
+              Save Changes
+            </button>
+            <button onClick={onClose} style={{ padding:'10px 18px', background:Q.bg,
+              border:`1px solid ${Q.border}`, borderRadius:8, color:Q.muted, fontSize:13, fontWeight:600, cursor:'pointer' }}>
+              Cancel
+            </button>
+          </div>
+        </>)}
 
-        <div style={{ display:'flex', gap:10, padding:'0 22px 20px' }}>
-          <button onClick={save} style={{ flex:1, padding:'10px', background:ROLE_COLOR, border:'none',
-            borderRadius:8, color:'#fff', fontSize:13, fontWeight:600, cursor:'pointer' }}>
-            Save Assignment
-          </button>
-          <button onClick={onClose} style={{ padding:'10px 18px', background:Q.bg,
-            border:`1px solid ${Q.border}`, borderRadius:8, color:Q.muted, fontSize:13, fontWeight:600, cursor:'pointer' }}>
-            Cancel
-          </button>
-        </div>
+        {/* ACTIVITY */}
+        {tab === 'activity' && (
+          <div style={{ padding:'18px 22px' }}>
+            {orderActivity.length === 0 && <div style={{ fontSize:13, color:Q.faint }}>No activity recorded for this order yet.</div>}
+            <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+              {orderActivity.map((a, i) => (
+                <div key={a.id ?? i} style={{ display:'flex', gap:10 }}>
+                  <div style={{ width:8, height:8, borderRadius:99, flexShrink:0, marginTop:5,
+                    background: a.type==='new' ? ROLE_COLOR : a.type==='delivered' ? '#16a34a'
+                      : a.type==='progress' ? '#d97706' : '#7c3aed' }} />
+                  <div>
+                    <p style={{ fontSize:13, lineHeight:'1.5', color:Q.text }}>{a.action}</p>
+                    <p style={{ fontSize:11, marginTop:2, color:Q.faint }}>{a.time}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* INBOX */}
+        {tab === 'inbox' && (
+          <div style={{ padding:'18px 22px' }}>
+            {orderMessages.length === 0 && <div style={{ fontSize:13, color:Q.faint }}>No messages on this order.</div>}
+            <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+              {orderMessages.map(m => (
+                <div key={m.id} style={{ border:`1px solid ${Q.border}`, borderRadius:10, padding:'12px 14px' }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
+                    <span style={{ fontSize:13, fontWeight:600, color:Q.text }}>{m.from}</span>
+                    <span style={{ fontSize:11, color:Q.faint }}>{m.date}</span>
+                  </div>
+                  <p style={{ fontSize:13, color:Q.muted, lineHeight:'1.5' }}>{m.preview}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* FILES */}
+        {tab === 'files' && (
+          <div style={{ padding:'18px 22px' }}>
+            <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+              {MOCK_FILES.map(f => (
+                <div key={f.name} style={{ display:'flex', alignItems:'center', gap:12,
+                  border:`1px solid ${Q.border}`, borderRadius:10, padding:'10px 14px' }}>
+                  <FileText style={{ width:18, height:18, color:ROLE_COLOR, flexShrink:0 }} />
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:13, fontWeight:500, color:Q.text }}>{f.name}</div>
+                    <div style={{ fontSize:11, color:Q.faint }}>{f.stage} · {f.size}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </motion.div>
     </div>
   )
@@ -248,11 +357,15 @@ function OrdersPipeline() {
   const [editing, setEditing]   = useState(null)   // full edit/detail modal
   const [assigning, setAssigning] = useState(null)  // focused assign modal
   const [search, setSearch]     = useState('')
-  const [activeTab, setActiveTab] = useState('all')
+  const [activeTab, setActiveTab] = useState('all')   // lifecycle tab
   const [showMap, setShowMap]   = useState(false)
   const [region, setRegion]     = useState('all')
   const [stateF, setStateF]     = useState('all')
   const [countyF, setCountyF]   = useState('all')
+  const [dateRange, setDateRange] = useState('365')   // "Ordered within" (days)
+  const [rushOnly, setRushOnly] = useState(false)
+  const [page, setPage]         = useState(1)
+  const PAGE_SIZE = 6
   const saveOrder = (updated) => updateOrder(updated)
 
   // Cascading geographic options: state list narrows by region, county by state.
@@ -266,28 +379,49 @@ function OrdersPipeline() {
   const resetGeo   = () => { setRegion('all'); setStateF('all'); setCountyF('all') }
   const geoActive  = region !== 'all' || stateF !== 'all' || countyF !== 'all'
 
+  // Lifecycle status (Qualia-style) derived from our pipeline + routing state.
+  const lifecycleOf = (o) => {
+    if (o.status === 'delivered') return 'complete'
+    if (o.assignedTo)             return 'open'
+    const anyDone = Object.values(o.completedDates || {}).some(Boolean)
+    return anyDone ? 'submitted' : 'pending'
+  }
   const tabs = [
-    { key: 'all',        label: 'All Orders',  count: orders.length },
-    { key: 'progress',   label: 'In Progress', count: orders.filter(o => ['searching','examining','screening','typing'].includes(o.status)).length },
-    { key: 'rush',       label: 'Rush',        count: orders.filter(o => o.priority === 'rush').length },
-    { key: 'delivered',  label: 'Delivered',   count: orders.filter(o => o.status === 'delivered').length },
-    { key: 'unassigned', label: 'To Assign',   count: orders.filter(o => o.assignedTo == null && o.status !== 'delivered').length },
+    { key: 'all',       label: 'All' },
+    { key: 'pending',   label: 'Pending' },
+    { key: 'open',      label: 'Open' },
+    { key: 'submitted', label: 'Submitted' },
+    { key: 'complete',  label: 'Complete' },
+    { key: 'cancelled', label: 'Cancelled' },
+  ].map(t => ({ ...t, count: t.key === 'all' ? orders.length : orders.filter(o => lifecycleOf(o) === t.key).length }))
+
+  const DATE_RANGES = [
+    { key: '30',  label: 'Last 30 Days' },
+    { key: '90',  label: 'Last 3 Months' },
+    { key: '365', label: 'Last 12 Months' },
+    { key: 'all', label: 'All Time' },
   ]
+  const cutoff = dateRange === 'all' ? null
+    : new Date(Date.now() - Number(dateRange) * 24 * 60 * 60 * 1000)
 
   const filtered = orders.filter(o => {
     const q = search.toLowerCase()
     const matchSearch = !q || displayClient(o.client, user).toLowerCase().includes(q) || o.id.toLowerCase().includes(q)
-    const matchTab =
-      activeTab === 'all'        ? true :
-      activeTab === 'rush'       ? o.priority === 'rush' :
-      activeTab === 'progress'   ? ['searching','examining','screening','typing'].includes(o.status) :
-      activeTab === 'delivered'  ? o.status === 'delivered' :
-      activeTab === 'unassigned' ? (o.assignedTo == null && o.status !== 'delivered') : true
+    const matchTab    = activeTab === 'all' || lifecycleOf(o) === activeTab
     const matchRegion = region === 'all'  || regionOf(o.state) === region
     const matchState  = stateF === 'all'  || o.state === stateF
     const matchCounty = countyF === 'all' || o.county === countyF
-    return matchSearch && matchTab && matchRegion && matchState && matchCounty
+    const matchRush   = !rushOnly || o.priority === 'rush'
+    const matchDate   = !cutoff || new Date(o.created) >= cutoff
+    return matchSearch && matchTab && matchRegion && matchState && matchCounty && matchRush && matchDate
   })
+
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const safePage   = Math.min(page, totalPages)
+  const paged      = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
+  // Reset to first page whenever the filter set changes.
+  useEffect(() => { setPage(1) }, [activeTab, search, region, stateF, countyF, dateRange, rushOnly])
 
   const filterSelectStyle = {
     padding:'8px 10px', borderRadius:8, border:`1px solid ${Q.border}`,
@@ -336,10 +470,24 @@ function OrdersPipeline() {
             <X style={{ width:13, height:13 }} /> Clear
           </button>
         )}
+        <button onClick={() => setRushOnly(v => !v)} title="Rush only" style={{
+          padding:'7px 12px', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer',
+          background: rushOnly ? '#fef2f2' : 'transparent',
+          color:      rushOnly ? '#dc2626' : Q.muted,
+          border: `1px solid ${rushOnly ? '#fecaca' : Q.border}`,
+        }}>
+          Rush
+        </button>
+        <div style={{ display:'flex', alignItems:'center', gap:6, marginLeft:'auto' }}>
+          <span style={{ fontSize:13, color:Q.muted, whiteSpace:'nowrap' }}>Ordered within</span>
+          <select value={dateRange} onChange={e => setDateRange(e.target.value)} style={filterSelectStyle} title="Ordered within">
+            {DATE_RANGES.map(d => <option key={d.key} value={d.key}>{d.label}</option>)}
+          </select>
+        </div>
         <button style={{
           display:'flex', alignItems:'center', gap:6, padding:'7px 16px',
           background:ROLE_COLOR, border:'none', borderRadius:8,
-          color:'#fff', fontSize:13, fontWeight:600, cursor:'pointer', marginLeft:'auto',
+          color:'#fff', fontSize:13, fontWeight:600, cursor:'pointer',
         }}
           onMouseOver={e => e.currentTarget.style.background = ROLE_HOVER}
           onMouseOut={e => e.currentTarget.style.background = ROLE_COLOR}>
@@ -378,7 +526,7 @@ function OrdersPipeline() {
         <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
           <thead>
             <tr style={{ background:'#f8fafc', borderBottom:`1px solid ${Q.border}` }}>
-              {['File #','Client','Location','Type','Status','Payment','Assigned','Completed','ETA / Done',''].map(h => (
+              {['File #','Client','Location','Type','Status','Payment','Assignee','Completed','ETA / Done',''].map(h => (
                 <th key={h} style={{
                   padding:'10px 16px', textAlign:'left', fontSize:11,
                   fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em',
@@ -388,7 +536,7 @@ function OrdersPipeline() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((o, i) => {
+            {paged.map((o, i) => {
               const s = STATUS_MAP[o.status] || STATUS_MAP.received
               const r = routingState(o)
               return (
@@ -477,6 +625,29 @@ function OrdersPipeline() {
             <p style={{ fontSize:13 }}>No orders match your filters</p>
           </div>
         )}
+        {filtered.length > 0 && (
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between',
+            padding:'10px 16px', borderTop:`1px solid ${Q.border}`, background:'#f8fafc' }}>
+            <span style={{ fontSize:12, color:Q.muted }}>
+              Showing <strong style={{ color:Q.text }}>{(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)}</strong> of <strong style={{ color:Q.text }}>{filtered.length}</strong> orders
+            </span>
+            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={safePage <= 1}
+                style={{ padding:'5px 12px', borderRadius:7, fontSize:12, fontWeight:600,
+                  border:`1px solid ${Q.border}`, background:Q.card,
+                  color: safePage <= 1 ? Q.faint : Q.text, cursor: safePage <= 1 ? 'not-allowed' : 'pointer' }}>
+                Prev
+              </button>
+              <span style={{ fontSize:12, color:Q.muted }}>Page {safePage} / {totalPages}</span>
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={safePage >= totalPages}
+                style={{ padding:'5px 12px', borderRadius:7, fontSize:12, fontWeight:600,
+                  border:`1px solid ${Q.border}`, background:Q.card,
+                  color: safePage >= totalPages ? Q.faint : Q.text, cursor: safePage >= totalPages ? 'not-allowed' : 'pointer' }}>
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Collapsible coverage map */}
@@ -508,7 +679,11 @@ function OrdersPipeline() {
 }
 
 function AdminHome() {
-  const { activityLog } = useOrders()
+  const { activityLog, orders } = useOrders()
+  const activeCount    = orders.filter(o => o.status !== 'delivered').length
+  const deliveredCount = orders.filter(o => o.status === 'delivered').length
+  const rushCount      = orders.filter(o => o.priority === 'rush' && o.status !== 'delivered').length
+  const toAssignCount  = orders.filter(o => o.assignedTo == null && o.status !== 'delivered').length
   return (
     <div className="space-y-5">
       {/* Header */}
@@ -523,12 +698,12 @@ function AdminHome() {
         </span>
       </div>
 
-      {/* Stats */}
+      {/* Stats — live from order data */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={Package}     label="Active Orders"   value="8"    sub="2 rush priority"    color={ROLE_COLOR}  trend="+12%" delay={0}    />
-        <StatCard icon={CheckCircle} label="Delivered Today" value="3"    sub="98.4% on-time"       color="#16a34a"     trend="+5%"  delay={0.05} />
-        <StatCard icon={Clock}       label="Avg Turnaround"  value="1.8d" sub="Rush: 18 hrs"         color="#d97706"                  delay={0.10} />
-        <StatCard icon={Users}       label="Active Clients"  value="24"   sub="6 new this month"    color="#7c3aed"     trend="+8%"  delay={0.15} />
+        <StatCard icon={Package}     label="Active Orders"     value={activeCount}    sub={`${rushCount} rush priority`}      color={ROLE_COLOR} delay={0}    />
+        <StatCard icon={CheckCircle} label="Delivered"         value={deliveredCount} sub="completed orders"                 color="#16a34a"    delay={0.05} />
+        <StatCard icon={Clock}       label="Awaiting Assignment" value={toAssignCount} sub="need routing"                    color="#d97706"    delay={0.10} />
+        <StatCard icon={Users}       label="Active Clients"    value="24"             sub="6 new this month"                 color="#7c3aed"    trend="+8%" delay={0.15} />
       </div>
 
       {/* Chart + Activity */}
