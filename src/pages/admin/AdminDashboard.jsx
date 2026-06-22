@@ -12,6 +12,7 @@ import {
 import {
   USERS, MONTHLY_STATS, PAYMENT_METHODS,
   STAGE_KEYS, STAGE_LABELS, displayClient, clientByName,
+  REGIONS, regionOf,
 } from '../../data/mockData'
 import { useAuth } from '../../context/AuthContext'
 import { useOrders } from '../../context/OrderContext'
@@ -235,7 +236,21 @@ function OrdersPipeline() {
   const [search, setSearch]     = useState('')
   const [activeTab, setActiveTab] = useState('all')
   const [showMap, setShowMap]   = useState(false)
+  const [region, setRegion]     = useState('all')
+  const [stateF, setStateF]     = useState('all')
+  const [countyF, setCountyF]   = useState('all')
   const saveOrder = (updated) => updateOrder(updated)
+
+  // Cascading geographic options: state list narrows by region, county by state.
+  const inRegion = (o) => region === 'all' || regionOf(o.state) === region
+  const statesAvail   = [...new Set(orders.filter(inRegion).map(o => o.state))].sort()
+  const countiesAvail = [...new Set(orders
+    .filter(o => inRegion(o) && (stateF === 'all' || o.state === stateF))
+    .map(o => o.county))].sort()
+  const pickRegion = (v) => { setRegion(v); setStateF('all'); setCountyF('all') }
+  const pickState  = (v) => { setStateF(v); setCountyF('all') }
+  const resetGeo   = () => { setRegion('all'); setStateF('all'); setCountyF('all') }
+  const geoActive  = region !== 'all' || stateF !== 'all' || countyF !== 'all'
 
   const tabs = [
     { key: 'all',        label: 'All Orders',  count: orders.length },
@@ -254,8 +269,16 @@ function OrdersPipeline() {
       activeTab === 'progress'   ? ['searching','examining','screening','typing'].includes(o.status) :
       activeTab === 'delivered'  ? o.status === 'delivered' :
       activeTab === 'unassigned' ? o.assignedTo == null : true
-    return matchSearch && matchTab
+    const matchRegion = region === 'all'  || regionOf(o.state) === region
+    const matchState  = stateF === 'all'  || o.state === stateF
+    const matchCounty = countyF === 'all' || o.county === countyF
+    return matchSearch && matchTab && matchRegion && matchState && matchCounty
   })
+
+  const filterSelectStyle = {
+    padding:'8px 10px', borderRadius:8, border:`1px solid ${Q.border}`,
+    background:Q.bg, color:Q.text, fontSize:13, fontWeight:500, outline:'none', cursor:'pointer',
+  }
 
   return (
     <div className="space-y-4">
@@ -277,13 +300,28 @@ function OrdersPipeline() {
             onBlur={e => e.target.style.borderColor = Q.border}
           />
         </div>
-        <button style={{
-          display:'flex', alignItems:'center', gap:6, padding:'7px 14px',
-          background:Q.bg, border:`1px solid ${Q.border}`, borderRadius:8,
-          color:Q.muted, fontSize:13, fontWeight:500, cursor:'pointer',
-        }}>
-          <Filter style={{ width:14, height:14 }} /> Filter
-        </button>
+        <Filter style={{ width:15, height:15, color:Q.faint }} />
+        <select value={region} onChange={e => pickRegion(e.target.value)} style={filterSelectStyle} title="Region">
+          <option value="all">All regions</option>
+          {REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
+        </select>
+        <select value={stateF} onChange={e => pickState(e.target.value)} style={filterSelectStyle} title="State">
+          <option value="all">All states</option>
+          {statesAvail.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+        <select value={countyF} onChange={e => setCountyF(e.target.value)} style={filterSelectStyle} title="County">
+          <option value="all">All counties</option>
+          {countiesAvail.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+        {geoActive && (
+          <button onClick={resetGeo} style={{
+            display:'flex', alignItems:'center', gap:5, padding:'7px 12px',
+            background:'transparent', border:`1px solid ${Q.border}`, borderRadius:8,
+            color:Q.muted, fontSize:13, fontWeight:500, cursor:'pointer',
+          }}>
+            <X style={{ width:13, height:13 }} /> Clear
+          </button>
+        )}
         <button style={{
           display:'flex', alignItems:'center', gap:6, padding:'7px 16px',
           background:ROLE_COLOR, border:'none', borderRadius:8,
@@ -647,8 +685,13 @@ function AdminReports() {
   const { user } = useAuth()
   const { orders } = useOrders()
   const [dim, setDim] = useState('state')
+  const [region, setRegion]   = useState('all')
+  const [stateF, setStateF]   = useState('all')
+  const [countyF, setCountyF] = useState('all')
   const DIMS = [
     { key:'state',   label:'By State' },
+    { key:'county',  label:'By County' },
+    { key:'region',  label:'By Region' },
     { key:'status',  label:'By Status' },
     { key:'type',    label:'By Search Type' },
     { key:'client',  label:'By Client' },
@@ -656,15 +699,40 @@ function AdminReports() {
   ]
   const keyFn = {
     state:   o => o.state,
+    county:  o => `${o.county}, ${o.state}`,
+    region:  o => regionOf(o.state),
     status:  o => STATUS_MAP[o.status]?.label || o.status,
     type:    o => o.type,
     client:  o => displayClient(o.client, user),
     payment: o => o.payment,
   }[dim]
+
+  // Geographic filters (cascading), applied before grouping.
+  const inRegion = (o) => region === 'all' || regionOf(o.state) === region
+  const statesAvail   = [...new Set(orders.filter(inRegion).map(o => o.state))].sort()
+  const countiesAvail = [...new Set(orders
+    .filter(o => inRegion(o) && (stateF === 'all' || o.state === stateF))
+    .map(o => o.county))].sort()
+  const pickRegion = (v) => { setRegion(v); setStateF('all'); setCountyF('all') }
+  const pickState  = (v) => { setStateF(v); setCountyF('all') }
+  const resetGeo   = () => { setRegion('all'); setStateF('all'); setCountyF('all') }
+  const geoActive  = region !== 'all' || stateF !== 'all' || countyF !== 'all'
+
+  const scoped = orders.filter(o =>
+    (region === 'all'  || regionOf(o.state) === region) &&
+    (stateF === 'all'  || o.state === stateF) &&
+    (countyF === 'all' || o.county === countyF)
+  )
   const counts = {}
-  orders.forEach(o => { const k = keyFn(o); counts[k] = (counts[k] || 0) + 1 })
+  scoped.forEach(o => { const k = keyFn(o); counts[k] = (counts[k] || 0) + 1 })
   const rows = Object.entries(counts).sort((a, b) => b[1] - a[1])
   const max  = Math.max(...rows.map(r => r[1]), 1)
+
+  const repSelect = {
+    padding:'8px 10px', borderRadius:8, border:`1px solid ${Q.border}`,
+    background:Q.card, color:Q.text, fontSize:13, fontWeight:500, outline:'none', cursor:'pointer',
+    boxShadow:Q.shadow,
+  }
 
   return (
     <div className="space-y-5">
@@ -676,12 +744,39 @@ function AdminReports() {
         <div style={{ display:'flex', alignItems:'center', gap:8 }}>
           <span style={{ fontSize:13, color:Q.muted }}>Group by</span>
           <select value={dim} onChange={e => setDim(e.target.value)}
-            style={{ padding:'8px 12px', borderRadius:8, border:`1px solid ${Q.border}`,
-              background:Q.card, color:Q.text, fontSize:13, fontWeight:600, outline:'none', cursor:'pointer',
-              boxShadow:Q.shadow }}>
+            style={{ ...repSelect, fontWeight:600 }}>
             {DIMS.map(d => <option key={d.key} value={d.key}>{d.label}</option>)}
           </select>
         </div>
+      </div>
+
+      {/* Geographic filter bar */}
+      <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap' }}>
+        <Filter style={{ width:15, height:15, color:Q.faint }} />
+        <select value={region} onChange={e => pickRegion(e.target.value)} style={repSelect} title="Region">
+          <option value="all">All regions</option>
+          {REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
+        </select>
+        <select value={stateF} onChange={e => pickState(e.target.value)} style={repSelect} title="State">
+          <option value="all">All states</option>
+          {statesAvail.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+        <select value={countyF} onChange={e => setCountyF(e.target.value)} style={repSelect} title="County">
+          <option value="all">All counties</option>
+          {countiesAvail.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+        {geoActive && (
+          <button onClick={resetGeo} style={{
+            display:'flex', alignItems:'center', gap:5, padding:'7px 12px',
+            background:'transparent', border:`1px solid ${Q.border}`, borderRadius:8,
+            color:Q.muted, fontSize:13, fontWeight:500, cursor:'pointer',
+          }}>
+            <X style={{ width:13, height:13 }} /> Clear
+          </button>
+        )}
+        <span style={{ fontSize:13, color:Q.faint, marginLeft:'auto' }}>
+          {scoped.length} of {orders.length} orders
+        </span>
       </div>
 
       <QCard className="p-5">
@@ -705,9 +800,13 @@ function AdminReports() {
 
       <QCard className="p-5">
         <h2 className="text-sm font-semibold mb-4" style={{ color: Q.text }}>
-          Active Orders {DIMS.find(d => d.key === dim).label}
+          Orders {DIMS.find(d => d.key === dim).label}
+          {geoActive && <span style={{ fontWeight:400, color:Q.faint }}> · filtered</span>}
         </h2>
         <div className="space-y-2.5">
+          {rows.length === 0 && (
+            <div style={{ fontSize:13, color:Q.faint, padding:'8px 0' }}>No orders match the current filters.</div>
+          )}
           {rows.map(([label, count]) => (
             <div key={label} style={{ display:'flex', alignItems:'center', gap:12 }}>
               <div style={{ width:140, fontSize:13, color:Q.muted, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{label}</div>
