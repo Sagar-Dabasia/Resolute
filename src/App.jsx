@@ -2,6 +2,7 @@ import React from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { OrderProvider } from './context/OrderContext'
+import { FulfillmentProvider } from './context/FulfillmentContext'
 import LoginPage from './pages/LoginPage'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import ScreenerDashboard from './pages/screener/ScreenerDashboard'
@@ -27,6 +28,7 @@ export default function App() {
   return (
     <AuthProvider>
       <OrderProvider>
+      <FulfillmentProvider>
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
@@ -52,6 +54,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
+      </FulfillmentProvider>
       </OrderProvider>
     </AuthProvider>
   )
