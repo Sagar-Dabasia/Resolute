@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Plus, X } from 'lucide-react'
 import { Label, TextInput, TextArea, DateInput, T } from './ui'
-import { makeDeed, deedLabel } from '../../../data/fulfillment'
+import { makeDeed, deedLabel, recInfo } from '../../../data/fulfillment'
 
 // Deeds as tabbed, add/remove records (hard requirement §2.4 item 3).
 // Tab 0 is always "Vesting"; switching tabs preserves all entry.
@@ -62,6 +62,10 @@ export default function DeedTabs({ deeds, onChange }) {
       <motion.div key={deed.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.15 }}
         className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
+          <div><Label>Deed Type</Label><TextInput value={deed.deedType} onChange={v => setField('deedType', v)} placeholder="e.g. Warranty Deed" /></div>
+          <div><Label>Consideration</Label><TextInput value={deed.consideration} onChange={v => setField('consideration', v)} placeholder="$0.00" numeric /></div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
           <div><Label>Grantor</Label><TextArea value={deed.grantor} onChange={v => setField('grantor', v)} rows={2} placeholder="Grantor name(s)" /></div>
           <div><Label>Grantee</Label><TextArea value={deed.grantee} onChange={v => setField('grantee', v)} rows={2} placeholder="Grantee name(s) … their heirs and assigns" /></div>
         </div>
@@ -74,6 +78,11 @@ export default function DeedTabs({ deeds, onChange }) {
           <div><Label>Page</Label><TextInput value={deed.page} onChange={v => setField('page', v)} numeric /></div>
           <div><Label>Instrument #</Label><TextInput value={deed.instrument} onChange={v => setField('instrument', v)} numeric /></div>
         </div>
+        {recInfo(deed) && (
+          <div className="text-[11px] tabular-nums" style={{ color: T.faint }}>
+            <span className="uppercase tracking-[0.1em]" style={{ color: T.dim }}>Rec Info · </span>{recInfo(deed)}
+          </div>
+        )}
 
         <div className="flex items-center gap-3 py-0.5">
           <div className="h-px flex-1" style={{ background: T.borderSoft }} />
@@ -84,6 +93,7 @@ export default function DeedTabs({ deeds, onChange }) {
           <div><Label>Cert. of Title #</Label><TextInput value={deed.certOfTitle} onChange={v => setField('certOfTitle', v)} numeric /></div>
           <div><Label>Document #</Label><TextInput value={deed.documentNo} onChange={v => setField('documentNo', v)} numeric /></div>
         </div>
+        <div><Label>Comments</Label><TextArea value={deed.comments} onChange={v => setField('comments', v)} rows={2} placeholder="Notes on this deed…" /></div>
       </motion.div>
     </div>
   )
