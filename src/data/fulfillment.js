@@ -37,23 +37,51 @@ const va  = (amt, label) => (amt != null && String(amt).trim() !== '' ? fmtMoney
 // ── Record factories ─────────────────────────────────────────────────────
 export const makeDeed = () => ({
   id: uid(),
+  deedType: '', consideration: '',
   grantor: '', grantee: '',
   dateOfDeed: '', recordedDate: '',
   book: '', page: '', instrument: '',
   certOfTitle: '', documentNo: '',
+  comments: '',
 })
 
+export const makeAssignment = () => ({ id: uid(), assignor: '', assignee: '', datedDate: '', recDate: '', book: '', page: '' })
+
 export const emptyLien = (county = '') => ({
-  lender: '', mortgagor: '',
+  borrower: '', trustee: '', lender: '', mortgagor: '',
+  instrumentName: '',
   dateOfMortgage: '', dateRecorded: '',
   amount: '', instrument: '',
   book: '', page: '',
   certOfTitle: '', docNo: '',
+  maturityDate: '', pudCondo: '',
   hyperlink: '',
   county,
-  assignments: [],     // { id, text }
+  assignments: [],     // makeAssignment()
   subordinations: [],  // { id, text }
 })
+
+export const makeJudgment = () => ({
+  id: uid(), instrumentName: '', caseNo: '', filedOn: '', recDate: '', book: '', page: '', amount: '', comments: '',
+})
+
+export const makeTax = () => ({
+  assessedLand: '', assessedBuilding: '', totalAssessed: '',
+  parcelNo: '', taxYear: '', status: '',
+  firstHalfAmount: '', firstHalfPaidDate: '',
+  secondHalfAmount: '', secondHalfPaidDate: '',
+  comments: '',
+})
+
+// Compose a single "REC INFO" string from the structured Book/Page/Instrument.
+export const recInfo = ({ book, page, instrument, documentNo, certOfTitle } = {}) => {
+  const parts = []
+  if (book || page) parts.push(`Book ${book || '—'}, Page ${page || '—'}`)
+  if (instrument) parts.push(`Instr. ${instrument}`)
+  if (documentNo) parts.push(`Doc ${documentNo}`)
+  if (certOfTitle) parts.push(`Cert. ${certOfTitle}`)
+  return parts.join(' · ')
+}
 
 // Label for a deed tab by its index — first is always "Vesting".
 export const deedLabel = (i) => (i === 0 ? 'Vesting' : `#${i + 1}`)
@@ -67,12 +95,24 @@ export function mortgageClause(lien = {}) {
     `${va(lien.amount, 'amount')} and recorded on ${vd(lien.dateRecorded, 'date recorded')} ` +
     `in Book ${v(lien.book, 'book')}, Page ${v(lien.page, 'page')} in the official records of ` +
     `${v(lien.county, 'county')} County Register of Deeds, to be paid with proceeds of loan and released.`
-  const asg = (lien.assignments || []).filter(a => a.text && a.text.trim())
+  const asg = (lien.assignments || []).filter(a => a.assignor || a.assignee)
   const sub = (lien.subordinations || []).filter(a => a.text && a.text.trim())
-  asg.forEach(a => { s += ` ${a.text.trim().replace(/\.?$/, '.')}` })
+  asg.forEach(a => { s += ` ${assignmentSentence(a)}` })
   sub.forEach(a => { s += ` ${a.text.trim().replace(/\.?$/, '.')}` })
   return s
 }
+
+export function assignmentSentence(a = {}) {
+  let s = `Assigned by ${v(a.assignor, 'assignor')} to ${v(a.assignee, 'assignee')}`
+  if (a.datedDate) s += ` dated ${fmtDate(a.datedDate)}`
+  if (a.recDate) s += ` and recorded on ${fmtDate(a.recDate)}`
+  if (a.book || a.page) s += ` in Book ${a.book || '—'}, Page ${a.page || '—'}`
+  return s + '.'
+}
+
+// Fixed disclaimer boilerplate that closes the Title Search Report.
+export const DISCLAIMER = `The search was not conducted in the General District court unless they are transferred to circuit court.
+This Title Search Report ("Report") is issued for the sole and exclusive use of the agent or company to whom it is addressed. This Report is to be used only by the agent or company for informational purposes only. If this Report is used for title insurance purposes, the agent or company reviewing this Report must follow all underwriting guidelines set forth in the underwriting Manual and Bulletins issued by the applicable insurance company. Matters affecting the above real estate, which do not appear among the land records, are not covered in this report. This report is not intended to be a commitment to insure nor is it intended to be a policy of title insurance. The tax information contained herein is for informational purposes only and is not to be relied upon as proof of payment and or status. Taxes are provided as a courtesy only.`
 
 export function platmapsClause(maps = []) {
   const head = 'Any rights, easements, interests, or claims that may exist by reason of or be ' +
@@ -154,14 +194,23 @@ export function makeDefaultFulfillment(order = {}) {
   const seller = 'the Seller of record'
   return {
     meta: {
-      address:     order.address || `Parcel in ${county} County, ${order.state || 'SC'}`,
-      purpose:     'Purchase / New Loan',
+      address:       order.address || `Parcel in ${county} County, ${order.state || 'SC'}`,
+      purpose:       'Purchase / New Loan',
       buyer, seller,
-      parcelId:    '',
-      underwriter: 'Old Republic National Title',
+      parcelId:      '',
+      underwriter:   'Old Republic National Title',
       county,
-      state:       order.state || 'SC',
+      state:         order.state || 'SC',
+      clientOrderNo: order.id || '',
+      productType:   order.type || '',
+      recordOwner:   '',
+      searchDate:    '',
     },
+    tax: makeTax(),
+    judgments: [],
+    namesSearched: [{ id: uid(), value: '' }],
+    additionalInfo: [{ id: uid(), value: '' }],
+    disclaimer: DISCLAIMER,
     parcels: [{ id: uid(), value: '' }],
     searchEffectiveAt: '',
     deeds: [makeDeed()],
