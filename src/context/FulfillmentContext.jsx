@@ -1,29 +1,47 @@
 import React, { createContext, useContext, useState, useRef, useCallback } from 'react'
 import { makeDefaultFulfillment } from '../data/fulfillment'
+import { isSupabaseConfigured, fetchFulfillment, saveFulfillment } from '../lib/backend'
 
 // Per-order Typer fulfillment state with a transient autosave indicator.
-// In-memory mock persistence — survives navigation within the session.
+// Persists to Supabase (fulfillments.data JSONB) when configured; otherwise
+// in-memory mock that survives navigation within the session.
 const FulfillmentContext = createContext(null)
 
 export function FulfillmentProvider({ children }) {
   const [byOrder, setByOrder] = useState({})       // { [orderId]: fulfillment }
   const [save, setSave]       = useState('idle')   // 'idle' | 'saving' | 'saved'
-  const timer = useRef(null)
+  const pulseTimer = useRef(null)
+  const saveTimers = useRef({})                    // per-order debounce for backend writes
+  const loaded     = useRef(new Set())             // orders already fetched/seeded
 
-  // Lazily seed an order's fulfillment from its order record.
   const ensure = useCallback((order) => {
-    setByOrder(s => (s[order.id] ? s : { ...s, [order.id]: makeDefaultFulfillment(order) }))
+    if (loaded.current.has(order.id)) return
+    loaded.current.add(order.id)
+    if (isSupabaseConfigured) {
+      fetchFulfillment(order.id).then(data => {
+        if (data) { setByOrder(s => ({ ...s, [order.id]: data })) }
+        else { const def = makeDefaultFulfillment(order); setByOrder(s => ({ ...s, [order.id]: def })); saveFulfillment(order.id, def) }
+      })
+    } else {
+      setByOrder(s => (s[order.id] ? s : { ...s, [order.id]: makeDefaultFulfillment(order) }))
+    }
   }, [])
 
   const pulse = useCallback(() => {
     setSave('saving')
-    clearTimeout(timer.current)
-    timer.current = setTimeout(() => setSave('saved'), 550)
+    clearTimeout(pulseTimer.current)
+    pulseTimer.current = setTimeout(() => setSave('saved'), 550)
   }, [])
 
-  // update(orderId, recipe) — recipe is (draft) => newFulfillment (immutable update).
   const update = useCallback((orderId, recipe) => {
-    setByOrder(s => ({ ...s, [orderId]: recipe(s[orderId]) }))
+    setByOrder(s => {
+      const next = recipe(s[orderId])
+      if (isSupabaseConfigured) {
+        clearTimeout(saveTimers.current[orderId])
+        saveTimers.current[orderId] = setTimeout(() => saveFulfillment(orderId, next), 700)
+      }
+      return { ...s, [orderId]: next }
+    })
     pulse()
   }, [pulse])
 
