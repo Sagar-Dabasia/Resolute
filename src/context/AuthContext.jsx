@@ -1,34 +1,49 @@
-import React, { createContext, useContext, useState } from 'react'
+import React, { createContext, useContext, useState, useEffect } from 'react'
+import { isSupabaseConfigured, getCurrentUser, signIn, signOut, onAuthChange } from '../lib/backend'
 
 const AuthContext = createContext(null)
 
 const MOCK_USERS = {
-  // Super admins — full access to detailed client info
-  'rajni@resolute.com':     { password: 'admin123',     role: 'admin',    name: 'Rajni',           avatar: 'RJ', superAdmin: true },
-  'saravanan@resolute.com': { password: 'admin123',     role: 'admin',    name: 'Saravanan',       avatar: 'SV', superAdmin: true },
-  // Member admin — sees client codes only
-  'admin@resolute.com':     { password: 'admin123',     role: 'admin',    name: 'Alex Morrison',   avatar: 'AM', superAdmin: false },
-  'screener@resolute.com':  { password: 'screener123',  role: 'screener', name: 'Sam Carter',      avatar: 'SC' },
-  'examiner@resolute.com':  { password: 'examiner123',  role: 'examiner', name: 'Jordan Lee',      avatar: 'JL' },
-  'typer@resolute.com':     { password: 'typer123',     role: 'typer',    name: 'Priya Nair',      avatar: 'PN' },
-  'delivery@resolute.com':  { password: 'delivery123',  role: 'delivery', name: 'Morgan Davis',    avatar: 'MD' },
-  'client@resolute.com':    { password: 'client123',    role: 'client',   name: 'Taylor Brooks',   avatar: 'TB' },
+  'rajni@resolute.com':     { password: 'admin123',     role: 'admin',    name: 'Rajni',         avatar: 'RJ', superAdmin: true },
+  'saravanan@resolute.com': { password: 'admin123',     role: 'admin',    name: 'Saravanan',     avatar: 'SV', superAdmin: true },
+  'admin@resolute.com':     { password: 'admin123',     role: 'admin',    name: 'Alex Morrison', avatar: 'AM', superAdmin: false },
+  'screener@resolute.com':  { password: 'screener123',  role: 'screener', name: 'Sam Carter',    avatar: 'SC' },
+  'examiner@resolute.com':  { password: 'examiner123',  role: 'examiner', name: 'Jordan Lee',    avatar: 'JL' },
+  'typer@resolute.com':     { password: 'typer123',     role: 'typer',    name: 'Priya Nair',    avatar: 'PN' },
+  'delivery@resolute.com':  { password: 'delivery123',  role: 'delivery', name: 'Morgan Davis',  avatar: 'MD' },
+  'client@resolute.com':    { password: 'client123',    role: 'client',   name: 'Taylor Brooks', avatar: 'TB' },
 }
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
 
-  const login = (email, password) => {
+  // With Supabase: restore the session on load and track auth changes.
+  useEffect(() => {
+    if (!isSupabaseConfigured) return
+    let unsub = () => {}
+    getCurrentUser().then(setUser)
+    unsub = onAuthChange(setUser)
+    return () => unsub()
+  }, [])
+
+  const login = async (email, password) => {
+    if (isSupabaseConfigured) {
+      const res = await signIn(email, password)
+      if (res.success) setUser(res.user)
+      return res
+    }
     const found = MOCK_USERS[email.toLowerCase()]
     if (found && found.password === password) {
-      const u = { email: email.toLowerCase(), role: found.role, name: found.name, avatar: found.avatar, superAdmin: !!found.superAdmin }
-      setUser(u)
+      setUser({ email: email.toLowerCase(), role: found.role, name: found.name, avatar: found.avatar, superAdmin: !!found.superAdmin })
       return { success: true, role: found.role }
     }
     return { success: false, error: 'Invalid credentials' }
   }
 
-  const logout = () => setUser(null)
+  const logout = async () => {
+    if (isSupabaseConfigured) await signOut()
+    setUser(null)
+  }
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>

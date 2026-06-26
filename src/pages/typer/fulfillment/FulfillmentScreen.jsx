@@ -19,6 +19,7 @@ import RequirementsSection from './RequirementsSection'
 import ExceptionsSection from './ExceptionsSection'
 import InvoiceBlock from './InvoiceBlock'
 import { SearchInformation, AssessmentTax, JudgmentsLiens, TextLineList, DisclaimerBlock } from './ReportSections'
+import { isSupabaseConfigured, uploadDocument } from '../../../lib/backend'
 
 const TABS = ['Overview', 'Fulfillment', 'Activity', 'Inbox', 'Files']
 
@@ -433,14 +434,18 @@ function useUploadSim(set) {
   }
 }
 
-function TitleSearchDoc({ f, set }) {
+function TitleSearchDoc({ order, f, set }) {
   const sim = useUploadSim(set)
-  const onFiles = (files) => {
+  const onFiles = async (files) => {
     const ref = makeFileRef(files[0])
     set(d => ({ ...d, titleSearchDoc: ref }))
-    sim(ref.id, (d, rid, prog, status) => ({
-      ...d, titleSearchDoc: d.titleSearchDoc?.id === rid ? { ...d.titleSearchDoc, progress: prog, status } : d.titleSearchDoc,
-    }))
+    const patch = (extra) => set(d => ({ ...d, titleSearchDoc: d.titleSearchDoc?.id === ref.id ? { ...d.titleSearchDoc, ...extra } : d.titleSearchDoc }))
+    if (isSupabaseConfigured) {
+      try { const { url, path } = await uploadDocument(order.id, files[0]); patch({ progress: 100, status: 'done', url, path }) }
+      catch { patch({ status: 'error' }) }
+    } else {
+      sim(ref.id, (d, rid, prog, status) => ({ ...d, titleSearchDoc: d.titleSearchDoc?.id === rid ? { ...d.titleSearchDoc, progress: prog, status } : d.titleSearchDoc }))
+    }
   }
   const doc = f.titleSearchDoc
   return doc ? (
@@ -456,14 +461,21 @@ function TitleSearchDoc({ f, set }) {
 }
 
 // ── Section 8: Supplementary documents (multi) ───────────────────────────────
-function Supplementary({ f, set }) {
+function Supplementary({ order, f, set }) {
   const sim = useUploadSim(set)
+  const patchFile = (rid, extra) => set(d => ({ ...d, supplementaryDocs: d.supplementaryDocs.map(x => x.file.id === rid ? { ...x, file: { ...x.file, ...extra } } : x) }))
   const onFiles = (files) => {
     const refs = files.map(makeFileRef)
     set(d => ({ ...d, supplementaryDocs: [...d.supplementaryDocs, ...refs.map(r => ({ file: r, sendToCustomer: true }))] }))
-    refs.forEach(ref => sim(ref.id, (d, rid, prog, status) => ({
-      ...d, supplementaryDocs: d.supplementaryDocs.map(x => x.file.id === rid ? { ...x, file: { ...x.file, progress: prog, status } } : x),
-    })))
+    refs.forEach((ref, i) => {
+      if (isSupabaseConfigured) {
+        uploadDocument(order.id, files[i])
+          .then(({ url, path }) => patchFile(ref.id, { progress: 100, status: 'done', url, path }))
+          .catch(() => patchFile(ref.id, { status: 'error' }))
+      } else {
+        sim(ref.id, (d, rid, prog, status) => ({ ...d, supplementaryDocs: d.supplementaryDocs.map(x => x.file.id === rid ? { ...x, file: { ...x.file, progress: prog, status } } : x) }))
+      }
+    })
   }
   const docs = f.supplementaryDocs
   const allOn = docs.length > 0 && docs.every(d => d.sendToCustomer)

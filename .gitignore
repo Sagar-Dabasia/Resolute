@@ -4,3 +4,9 @@ dist/
 *.local
 .vite/
 npm-debug.log*
+
+# Environment — never commit real keys (.env.example is the tracked template)
+.env
+.env.*
+!.env.example
+
