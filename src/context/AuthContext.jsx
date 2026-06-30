@@ -21,14 +21,19 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (!isSupabaseConfigured) return
     let unsub = () => {}
-    getCurrentUser().then(setUser)
-    unsub = onAuthChange(setUser)
+    // Only restore a session that has a resolved role; never auto-land on client.
+    getCurrentUser().then(u => setUser(u && u.role ? u : null))
+    unsub = onAuthChange(u => setUser(u && u.role ? u : null))
     return () => unsub()
   }, [])
 
   const login = async (email, password) => {
     if (isSupabaseConfigured) {
       const res = await signIn(email, password)
+      if (res.success && !res.user?.role) {
+        await signOut()
+        return { success: false, error: 'This account has no role assigned. In Supabase, set profiles.role for this user (see SUPABASE.md).' }
+      }
       if (res.success) setUser(res.user)
       return res
     }

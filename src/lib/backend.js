@@ -34,7 +34,7 @@ const toOrderRow = (o) => ({
 
 const mapUser = (authUser, prof) => ({
   email: authUser.email,
-  role: prof?.role || 'client',
+  role: prof?.role || null,        // null when no profile/role — caller must handle, never silently 'client'
   name: prof?.name || authUser.email,
   avatar: initials(prof?.name || authUser.email),
   superAdmin: !!prof?.super_admin,
@@ -45,7 +45,7 @@ const mapUser = (authUser, prof) => ({
 export async function getCurrentUser() {
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) return null
-  const { data: prof } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
+  const { data: prof } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
   return mapUser(session.user, prof)
 }
 
