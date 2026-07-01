@@ -5,10 +5,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Minus, X, GripVertical, ChevronUp, ChevronDown } from 'lucide-react'
 
 export const T = {
-  text:        '#f5ede0',
-  muted:       'rgba(245,237,224,0.55)',
-  faint:       'rgba(245,237,224,0.34)',
-  dim:         'rgba(245,237,224,0.20)',
+  text:        '#1e293b',
+  muted:       'rgba(30,41,59,0.55)',
+  faint:       'rgba(30,41,59,0.34)',
+  dim:         'rgba(30,41,59,0.20)',
   accent:      '#4d8c2a',
   accentDeep:  '#3d7020',
   accentBright:'#7cbf4e',
@@ -16,12 +16,12 @@ export const T = {
   border:      'rgba(138,194,104,0.14)',
   borderSoft:  'rgba(138,194,104,0.09)',
   borderStrong:'rgba(124,191,78,0.42)',
-  field:       'rgba(245,240,224,0.045)',
-  fieldFocus:  'rgba(245,240,224,0.08)',
-  card:        'rgba(245,240,224,0.035)',
-  rowHover:    'rgba(245,240,224,0.05)',
-  drawerBg:    '#070b04',
-  drawerField: 'rgba(245,240,224,0.06)',
+  field:       'rgba(30,41,59,0.045)',
+  fieldFocus:  'rgba(30,41,59,0.08)',
+  card:        'rgba(30,41,59,0.035)',
+  rowHover:    'rgba(30,41,59,0.05)',
+  drawerBg:    '#ffffff',
+  drawerField: 'rgba(30,41,59,0.06)',
 }
 
 // ── Label ────────────────────────────────────────────────────────────────
@@ -88,7 +88,7 @@ export function DateInput({ value, onChange, type = 'date', className = '', ...r
       onChange={e => onChange?.(e.target.value)}
       onFocus={focusOn} onBlur={focusOff}
       className={`px-2.5 py-1.5 text-[13px] tabular-nums transition-colors ${className}`}
-      style={{ ...baseInput, colorScheme: 'dark' }}
+      style={{ ...baseInput, colorScheme: 'light' }}
       {...rest}
     />
   )
@@ -130,7 +130,7 @@ export function AccentButton({ children, onClick, icon: Icon, disabled, classNam
   return (
     <button onClick={onClick} disabled={disabled}
       className={`inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-[13px] font-semibold transition-all ${className}`}
-      style={{ background: disabled ? 'rgba(61,112,32,0.35)' : T.accentDeep, color: disabled ? T.faint : T.text, cursor: disabled ? 'not-allowed' : 'pointer' }}
+      style={{ background: disabled ? 'rgba(61,112,32,0.35)' : T.accentDeep, color: disabled ? T.faint : '#f5f7f2', cursor: disabled ? 'not-allowed' : 'pointer' }}
       onMouseOver={e => { if (!disabled) e.currentTarget.style.background = T.accent }}
       onMouseOut={e => { if (!disabled) e.currentTarget.style.background = T.accentDeep }}
       {...rest}>

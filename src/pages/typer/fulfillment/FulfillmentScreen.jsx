@@ -44,7 +44,7 @@ export default function FulfillmentScreen() {
   return (
     <div className="-m-4 md:-m-6">
       {/* Order header */}
-      <div className="px-5 md:px-7 pt-4 pb-0 border-b" style={{ borderColor: T.borderSoft, background: 'rgba(10,14,6,0.4)' }}>
+      <div className="px-5 md:px-7 pt-4 pb-0 border-b" style={{ borderColor: T.borderSoft, background: 'rgba(255,255,255,0.4)' }}>
         <button onClick={() => navigate(-1)}
           className="inline-flex items-center gap-1.5 text-[12px] mb-3 transition-colors" style={{ color: T.faint }}
           onMouseOver={e => e.currentTarget.style.color = T.text} onMouseOut={e => e.currentTarget.style.color = T.faint}>
@@ -241,7 +241,7 @@ function CompletenessBar({ comp, address, save }) {
             <span className="text-[13px]" style={{ color: T.faint }}>sections complete for</span>
             <span className="text-[13px] font-medium truncate" style={{ color: T.muted }}>{address}</span>
           </div>
-          <div className="mt-1.5 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(245,240,224,0.08)' }}>
+          <div className="mt-1.5 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(30,41,59,0.08)' }}>
             <motion.div className="h-full rounded-full" style={{ background: T.accentBright }} animate={{ width: `${pct}%` }} transition={{ type: 'spring', stiffness: 200, damping: 28 }} />
           </div>
         </div>
@@ -258,7 +258,7 @@ function CompletenessBar({ comp, address, save }) {
                 <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
                 <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
                   className="absolute right-0 top-full mt-1.5 z-20 w-64 p-1.5 rounded-lg shadow-xl"
-                  style={{ background: '#0c1207', border: `1px solid ${T.border}` }}>
+                  style={{ background: '#ffffff', border: `1px solid ${T.border}` }}>
                   <div className="text-[10px] font-semibold uppercase tracking-[0.12em] px-2 py-1" style={{ color: T.dim }}>{missing.length} incomplete</div>
                   {missing.map(m => (
                     <button key={m.key}
@@ -329,7 +329,7 @@ function ImportControl({ order, set }) {
       <div className="relative flex-1 max-w-[260px]">
         <select value={pick} onChange={e => { setPick(e.target.value); const o = others.find(x => x.id === e.target.value); if (o) ensure(o) }}
           className="w-full appearance-none px-2.5 py-1.5 pr-8 text-[12.5px] rounded-md outline-none"
-          style={{ background: T.field, border: `1px solid ${T.border}`, color: T.text, colorScheme: 'dark' }}>
+          style={{ background: T.field, border: `1px solid ${T.border}`, color: T.text, colorScheme: 'light' }}>
           <option value="">Select an order…</option>
           {others.map(o => <option key={o.id} value={o.id}>{o.id} · {o.type}</option>)}
         </select>
@@ -348,10 +348,10 @@ function Section({ n, id, title, instruction, done, optional, children }) {
         <StatusMark done={done} optional={optional} />
         <span className="text-[11px] font-semibold tabular-nums" style={{ color: T.dim }}>{String(n).padStart(2, '0')}</span>
         <h2 className="text-[15px] font-semibold" style={{ color: T.text }}>{title}</h2>
-        {optional && <span className="text-[10px] uppercase tracking-[0.12em] px-1.5 py-0.5 rounded" style={{ color: T.dim, background: 'rgba(245,240,224,0.04)' }}>Optional</span>}
+        {optional && <span className="text-[10px] uppercase tracking-[0.12em] px-1.5 py-0.5 rounded" style={{ color: T.dim, background: 'rgba(30,41,59,0.04)' }}>Optional</span>}
       </div>
       {instruction && <p className="text-[12px] mb-3 -mt-1 ml-[26px]" style={{ color: T.faint }}>{instruction}</p>}
-      <div className="ml-[26px] rounded-xl p-4" style={{ background: 'rgba(245,240,224,0.02)', border: `1px solid ${T.borderSoft}` }}>
+      <div className="ml-[26px] rounded-xl p-4" style={{ background: 'rgba(30,41,59,0.02)', border: `1px solid ${T.borderSoft}` }}>
         {children}
       </div>
     </section>
@@ -611,7 +611,7 @@ function ActionsMenu() {
             <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
             <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
               className="absolute right-0 top-full mt-1.5 z-20 w-52 p-1 rounded-lg shadow-xl"
-              style={{ background: '#0c1207', border: `1px solid ${T.border}` }}>
+              style={{ background: '#ffffff', border: `1px solid ${T.border}` }}>
               {items.map(it => (
                 <button key={it} onClick={() => setOpen(false)}
                   className="w-full text-left px-2.5 py-2 rounded-md text-[12.5px] transition-colors" style={{ color: T.muted }}

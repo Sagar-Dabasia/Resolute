@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { MapPin, LogOut, Bell, ChevronDown, Menu } from 'lucide-react'
 
-export default function Layout({ children, navItems, role, roleColor = '#6aab42', lightTheme = false }) {
+export default function Layout({ children, navItems, role, roleColor = '#6aab42', lightTheme = true }) {
   const { user, logout } = useAuth()
   const navigate    = useNavigate()
   const location    = useLocation()
@@ -43,31 +43,31 @@ export default function Layout({ children, navItems, role, roleColor = '#6aab42'
     badgePing:   roleColor,
     overlay:     'rgba(0,0,0,0.3)',
   } : {
-    mainBg:      '#0b1207',
-    sidebarBg:   'rgba(10,14,6,0.75)',
+    mainBg:      '#f0f2f4',
+    sidebarBg:   'rgba(255,255,255,0.75)',
     sidebarBdr:  'rgba(138,194,104,0.09)',
-    topbarBg:    'rgba(10,14,6,0.75)',
+    topbarBg:    'rgba(255,255,255,0.75)',
     topbarBdr:   'rgba(138,194,104,0.09)',
-    logo:        '#f5ede0',
-    subtext:     'rgba(245,237,224,0.35)',
-    navText:     'rgba(245,237,224,0.45)',
-    navActive:   '#f5ede0',
+    logo:        '#1e293b',
+    subtext:     'rgba(30,41,59,0.35)',
+    navText:     'rgba(30,41,59,0.45)',
+    navActive:   '#1e293b',
     navActiveBg: `${roleColor}22`,
-    navHoverBg:  'rgba(245,240,224,0.06)',
+    navHoverBg:  'rgba(30,41,59,0.06)',
     navBadgeBg:  `${roleColor}28`,
     badgeText:   roleColor,
-    userText:    '#f5ede0',
-    userSub:     'rgba(245,237,224,0.35)',
-    logoutClr:   'rgba(245,237,224,0.40)',
-    logoutHover: '#f5ede0',
-    iconBg:      'rgba(245,240,224,0.06)',
+    userText:    '#1e293b',
+    userSub:     'rgba(30,41,59,0.35)',
+    logoutClr:   'rgba(30,41,59,0.40)',
+    logoutHover: '#1e293b',
+    iconBg:      'rgba(30,41,59,0.06)',
     iconBdr:     'rgba(138,194,104,0.14)',
-    iconClr:     'rgba(245,237,224,0.45)',
-    iconHover:   '#f5ede0',
-    menuBg:      'rgba(245,240,224,0.04)',
+    iconClr:     'rgba(30,41,59,0.45)',
+    iconHover:   '#1e293b',
+    menuBg:      'rgba(30,41,59,0.04)',
     menuBdr:     'rgba(138,194,104,0.12)',
-    menuText:    'rgba(245,237,224,0.55)',
-    menuHover:   'rgba(245,240,224,0.07)',
+    menuText:    'rgba(30,41,59,0.55)',
+    menuHover:   'rgba(30,41,59,0.07)',
     badgePing:   '#3d7020',
     overlay:     'rgba(0,0,0,0.65)',
   }
@@ -79,7 +79,7 @@ export default function Layout({ children, navItems, role, roleColor = '#6aab42'
       <div className="flex items-center gap-3 px-4 py-5 border-b" style={{ borderColor: T.sidebarBdr }}>
         <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
           style={{ background: '#3d7020' }}>
-          <MapPin className="w-4 h-4" style={{ color: '#f5ede0' }} />
+          <MapPin className="w-4 h-4" style={{ color: '#f5f7f2' }} />
         </div>
         {(!collapsed || mobile) && (
           <div className="overflow-hidden min-w-0">
@@ -217,7 +217,7 @@ export default function Layout({ children, navItems, role, roleColor = '#6aab42'
               <Bell className="w-4 h-4" />
             </button>
             <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center"
-              style={{ background: T.badgePing, color: '#f5ede0' }}>3</span>
+              style={{ background: T.badgePing, color: '#f5f7f2' }}>3</span>
           </div>
 
           {/* User menu */}

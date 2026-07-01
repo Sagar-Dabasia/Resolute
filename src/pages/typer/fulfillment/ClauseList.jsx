@@ -103,7 +103,7 @@ export default function ClauseList({
                 <div className="fixed inset-0 z-10" onClick={() => setMenu(false)} />
                 <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
                   className="absolute left-0 top-full mt-1.5 z-20 w-56 p-1 rounded-lg shadow-xl"
-                  style={{ background: '#0c1207', border: `1px solid ${T.border}` }}>
+                  style={{ background: '#ffffff', border: `1px solid ${T.border}` }}>
                   {addOptions.map(opt => (
                     <button key={opt.label} onClick={() => add(opt)}
                       className="w-full text-left px-2.5 py-2 rounded-md text-[12.5px] transition-colors"

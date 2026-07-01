@@ -42,11 +42,11 @@ function InvoiceCard({ order }) {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <FileText className="w-4 h-4" style={{ color: ROLE_COLOR }} />
-          <span className="font-semibold text-sm" style={{ color: '#f5ede0' }}>Invoice · {order.id}</span>
+          <span className="font-semibold text-sm" style={{ color: '#1e293b' }}>Invoice · {order.id}</span>
         </div>
-        <span className="text-lg font-bold tabular-nums" style={{ color: '#f5ede0' }}>{money(amount)}</span>
+        <span className="text-lg font-bold tabular-nums" style={{ color: '#1e293b' }}>{money(amount)}</span>
       </div>
-      <p className="text-[11px] mb-3" style={{ color: 'rgba(245,237,224,0.35)' }}>Sales tax applied automatically at settlement.</p>
+      <p className="text-[11px] mb-3" style={{ color: 'rgba(30,41,59,0.35)' }}>Sales tax applied automatically at settlement.</p>
       {pay?.status === 'submitted' ? (
         <div className="flex items-center gap-2 text-sm px-3 py-2.5 rounded-xl"
           style={{ background: 'rgba(109,188,120,0.12)', border: '1px solid rgba(109,188,120,0.25)', color: '#6dbc78' }}>
@@ -54,14 +54,14 @@ function InvoiceCard({ order }) {
         </div>
       ) : (
         <>
-          <div className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'rgba(245,237,224,0.40)' }}>Payment Method</div>
+          <div className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'rgba(30,41,59,0.40)' }}>Payment Method</div>
           <div className="grid grid-cols-2 gap-2 mb-3">
             {PAYMENT_METHODS.map(m => (
               <button key={m} onClick={() => setMethod(m)}
                 className="py-2.5 rounded-xl text-sm font-medium transition-all border flex items-center justify-center gap-1.5"
                 style={method === m
-                  ? { background: `${ROLE_COLOR}1e`, border: `1px solid ${ROLE_COLOR}55`, color: '#f5ede0' }
-                  : { border: '1px solid rgba(245,240,224,0.08)', color: 'rgba(245,237,224,0.45)' }}>
+                  ? { background: `${ROLE_COLOR}1e`, border: `1px solid ${ROLE_COLOR}55`, color: '#1e293b' }
+                  : { border: '1px solid rgba(30,41,59,0.08)', color: 'rgba(30,41,59,0.45)' }}>
                 <DollarSign className="w-3.5 h-3.5" /> {m}
               </button>
             ))}
@@ -102,8 +102,8 @@ function TrackOrder({ order }) {
       <div className="flex items-center justify-between mb-4">
         <div>
           <div className="font-mono font-semibold text-sm" style={{ color: ROLE_COLOR }}>{order.id}</div>
-          <div className="font-bold" style={{ color:'#f5ede0' }}>{order.client}</div>
-          <div className="text-xs" style={{ color:'rgba(245,237,224,0.42)' }}>{order.type} · {order.state}</div>
+          <div className="font-bold" style={{ color:'#1e293b' }}>{order.client}</div>
+          <div className="text-xs" style={{ color:'rgba(30,41,59,0.42)' }}>{order.type} · {order.state}</div>
         </div>
         <span className="text-xs font-semibold px-3 py-1.5 rounded-full"
           style={{ background:`${sc}1e`, color:sc }}>{stage.label}</span>
@@ -115,29 +115,29 @@ function TrackOrder({ order }) {
             <div className="flex flex-col items-center gap-1.5">
               <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all"
                 style={i < idx
-                  ? { background:'#3d7020', color:'#f5ede0' }
+                  ? { background:'#3d7020', color:'#f5f7f2' }
                   : i === idx
-                  ? { background:'#5a8c3e', color:'#f5ede0', boxShadow:`0 0 0 3px rgba(90,140,62,0.25)` }
-                  : { background:'rgba(245,240,224,0.08)', color:'rgba(245,237,224,0.28)' }}>
+                  ? { background:'#5a8c3e', color:'#f5f7f2', boxShadow:`0 0 0 3px rgba(90,140,62,0.25)` }
+                  : { background:'rgba(30,41,59,0.08)', color:'rgba(30,41,59,0.28)' }}>
                 {i < idx ? <CheckCircle className="w-3.5 h-3.5" /> : i + 1}
               </div>
               <span className="text-[9px] text-center leading-tight whitespace-nowrap hidden sm:block"
-                style={{ color: i <= idx ? 'rgba(245,237,224,0.55)' : 'rgba(245,237,224,0.22)' }}>
+                style={{ color: i <= idx ? 'rgba(30,41,59,0.55)' : 'rgba(30,41,59,0.22)' }}>
                 {step}
               </span>
             </div>
             {i < CLIENT_STEPS.length - 1 && (
               <div className="flex-1 h-0.5 rounded-full mb-5"
-                style={{ background: i < idx ? '#4d8c2a' : 'rgba(245,240,224,0.10)' }} />
+                style={{ background: i < idx ? '#4d8c2a' : 'rgba(30,41,59,0.10)' }} />
             )}
           </React.Fragment>
         ))}
       </div>
-      <div className="flex items-center justify-between text-xs mb-1.5" style={{ color:'rgba(245,237,224,0.38)' }}>
-        <span>ETA: <span style={{ color:'#f5ede0' }}>{order.eta}</span></span>
+      <div className="flex items-center justify-between text-xs mb-1.5" style={{ color:'rgba(30,41,59,0.38)' }}>
+        <span>ETA: <span style={{ color:'#1e293b' }}>{order.eta}</span></span>
         <span>{order.progress}% complete</span>
       </div>
-      <div className="h-1.5 rounded-full overflow-hidden" style={{ background:'rgba(245,240,224,0.08)' }}>
+      <div className="h-1.5 rounded-full overflow-hidden" style={{ background:'rgba(30,41,59,0.08)' }}>
         <motion.div className="h-full rounded-full"
           initial={{ width:0 }} animate={{ width:`${order.progress}%` }}
           transition={{ duration:1.2, ease:'easeOut' }}
@@ -163,11 +163,11 @@ function PlaceOrderPage() {
         style={{ background:'rgba(109,188,120,0.18)' }}>
         <CheckCircle className="w-10 h-10" style={{ color:'#6dbc78' }} />
       </div>
-      <h2 className="text-2xl font-bold mb-2" style={{ color:'#f5ede0' }}>Order Submitted!</h2>
-      <p className="text-sm mb-1" style={{ color:'rgba(245,237,224,0.55)' }}>
+      <h2 className="text-2xl font-bold mb-2" style={{ color:'#1e293b' }}>Order Submitted!</h2>
+      <p className="text-sm mb-1" style={{ color:'rgba(30,41,59,0.55)' }}>
         Assigned <span className="font-mono font-bold" style={{ color:ROLE_COLOR }}>RTS-10049</span>
       </p>
-      <p className="text-xs mb-8" style={{ color:'rgba(245,237,224,0.32)' }}>
+      <p className="text-xs mb-8" style={{ color:'rgba(30,41,59,0.32)' }}>
         Confirmation sent to {form.email || 'your email'} within minutes.
       </p>
       <div className="flex gap-3">
@@ -181,8 +181,8 @@ function PlaceOrderPage() {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-1" style={{ color:'#f5ede0' }}>Place a New Order</h1>
-        <p className="text-sm" style={{ color:'rgba(245,237,224,0.42)' }}>Title search across all 50 states · Confirmation within minutes</p>
+        <h1 className="text-2xl font-bold mb-1" style={{ color:'#1e293b' }}>Place a New Order</h1>
+        <p className="text-sm" style={{ color:'rgba(30,41,59,0.42)' }}>Title search across all 50 states · Confirmation within minutes</p>
       </div>
       {/* Steps indicator */}
       <div className="flex items-center gap-2 mb-8">
@@ -191,18 +191,18 @@ function PlaceOrderPage() {
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => i+1 < step && setStep(i+1)}>
               <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all"
                 style={i+1 < step
-                  ? { background:'#3d7020', color:'#f5ede0' }
+                  ? { background:'#3d7020', color:'#f5f7f2' }
                   : i+1 === step
-                  ? { background:'#5a8c3e', color:'#f5ede0', boxShadow:`0 0 0 3px rgba(90,140,62,0.25)` }
-                  : { background:'rgba(245,240,224,0.07)', color:'rgba(245,237,224,0.28)' }}>
+                  ? { background:'#5a8c3e', color:'#f5f7f2', boxShadow:`0 0 0 3px rgba(90,140,62,0.25)` }
+                  : { background:'rgba(30,41,59,0.07)', color:'rgba(30,41,59,0.28)' }}>
                 {i+1 < step ? <CheckCircle className="w-3.5 h-3.5" /> : i+1}
               </div>
               <span className="text-xs font-medium hidden sm:block"
-                style={{ color: i+1===step ? '#f5ede0' : 'rgba(245,237,224,0.30)' }}>{s}</span>
+                style={{ color: i+1===step ? '#1e293b' : 'rgba(30,41,59,0.30)' }}>{s}</span>
             </div>
             {i < STEPS.length-1 && (
               <div className="flex-1 h-0.5 rounded-full"
-                style={{ background: i+1 < step ? '#4d8c2a' : 'rgba(245,240,224,0.10)' }} />
+                style={{ background: i+1 < step ? '#4d8c2a' : 'rgba(30,41,59,0.10)' }} />
             )}
           </React.Fragment>
         ))}
@@ -213,56 +213,56 @@ function PlaceOrderPage() {
           <form onSubmit={e => { e.preventDefault(); setSubmitted(true) }}>
             {step===1 && (
               <div className="space-y-4">
-                <h2 className="text-lg font-semibold mb-4" style={{ color:'#f5ede0' }}>Property Information</h2>
+                <h2 className="text-lg font-semibold mb-4" style={{ color:'#1e293b' }}>Property Information</h2>
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'rgba(245,237,224,0.40)' }}>Property State *</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'rgba(30,41,59,0.40)' }}>Property State *</label>
                   <select value={form.state} onChange={e=>set('state',e.target.value)} className="input-field text-sm" required>
                     <option value="">Select state…</option>
                     {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'rgba(245,237,224,0.40)' }}>County *</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'rgba(30,41,59,0.40)' }}>County *</label>
                   <input value={form.county} onChange={e=>set('county',e.target.value)} placeholder="e.g. Miami-Dade" className="input-field text-sm" required/>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'rgba(245,237,224,0.40)' }}>Property Address</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'rgba(30,41,59,0.40)' }}>Property Address</label>
                   <input value={form.address} onChange={e=>set('address',e.target.value)} placeholder="123 Main St, City, State 00000" className="input-field text-sm"/>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'rgba(245,237,224,0.40)' }}>Parcel / APN #</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'rgba(30,41,59,0.40)' }}>Parcel / APN #</label>
                   <input value={form.parcelId} onChange={e=>set('parcelId',e.target.value)} placeholder="Optional" className="input-field text-sm"/>
                 </div>
               </div>
             )}
             {step===2 && (
               <div className="space-y-4">
-                <h2 className="text-lg font-semibold mb-4" style={{ color:'#f5ede0' }}>Search Details</h2>
+                <h2 className="text-lg font-semibold mb-4" style={{ color:'#1e293b' }}>Search Details</h2>
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color:'rgba(245,237,224,0.40)' }}>Search Type *</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color:'rgba(30,41,59,0.40)' }}>Search Type *</label>
                   <div className="grid grid-cols-2 gap-2">
                     {['Current Owner','Two-Owner','Full Search','Lien Search','Tax Certificate','HOA Estoppel','Municipal Lien','Property Valuation'].map(t => (
                       <button key={t} type="button" onClick={() => set('searchType',t)}
                         className="p-3 rounded-xl text-sm text-left border transition-all"
                         style={form.searchType===t
-                          ? { border:`1px solid ${ROLE_COLOR}55`, background:`${ROLE_COLOR}18`, color:'#f5ede0' }
-                          : { border:'1px solid rgba(245,240,224,0.08)', color:'rgba(245,237,224,0.50)' }}>
+                          ? { border:`1px solid ${ROLE_COLOR}55`, background:`${ROLE_COLOR}18`, color:'#1e293b' }
+                          : { border:'1px solid rgba(30,41,59,0.08)', color:'rgba(30,41,59,0.50)' }}>
                         {t}
                       </button>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color:'rgba(245,237,224,0.40)' }}>Priority</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color:'rgba(30,41,59,0.40)' }}>Priority</label>
                   <div className="grid grid-cols-2 gap-3">
                     {[['normal','Standard (2-3 days)','Normal turnaround'],['rush','Rush (24 hrs)','+ Rush fee applies']].map(([k,l,d]) => (
                       <button key={k} type="button" onClick={() => set('priority',k)}
                         className="p-3 rounded-xl text-left border transition-all"
                         style={form.priority===k
                           ? k==='rush'
-                            ? { border:'1px solid rgba(220,80,60,0.40)', background:'rgba(220,80,60,0.12)', color:'#f5ede0' }
-                            : { border:`1px solid ${ROLE_COLOR}55`, background:`${ROLE_COLOR}18`, color:'#f5ede0' }
-                          : { border:'1px solid rgba(245,240,224,0.08)', color:'rgba(245,237,224,0.50)' }}>
+                            ? { border:'1px solid rgba(220,80,60,0.40)', background:'rgba(220,80,60,0.12)', color:'#1e293b' }
+                            : { border:`1px solid ${ROLE_COLOR}55`, background:`${ROLE_COLOR}18`, color:'#1e293b' }
+                          : { border:'1px solid rgba(30,41,59,0.08)', color:'rgba(30,41,59,0.50)' }}>
                         <div className="font-semibold text-sm">{l}</div>
                         <div className="text-xs mt-0.5 opacity-60">{d}</div>
                       </button>
@@ -270,43 +270,43 @@ function PlaceOrderPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'rgba(245,237,224,0.40)' }}>Special Instructions</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'rgba(30,41,59,0.40)' }}>Special Instructions</label>
                   <textarea value={form.notes} onChange={e=>set('notes',e.target.value)} rows={3} className="input-field text-sm resize-none" placeholder="Any notes for the search team…"/>
                 </div>
               </div>
             )}
             {step===3 && (
               <div className="space-y-4">
-                <h2 className="text-lg font-semibold mb-4" style={{ color:'#f5ede0' }}>Contact Information</h2>
+                <h2 className="text-lg font-semibold mb-4" style={{ color:'#1e293b' }}>Contact Information</h2>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'rgba(245,237,224,0.40)' }}>First Name *</label>
+                    <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'rgba(30,41,59,0.40)' }}>First Name *</label>
                     <input value={form.firstName} onChange={e=>set('firstName',e.target.value)} placeholder="First name" className="input-field text-sm" required/>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'rgba(245,237,224,0.40)' }}>Last Name *</label>
+                    <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'rgba(30,41,59,0.40)' }}>Last Name *</label>
                     <input value={form.lastName} onChange={e=>set('lastName',e.target.value)} placeholder="Last name" className="input-field text-sm" required/>
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'rgba(245,237,224,0.40)' }}>Work Email *</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'rgba(30,41,59,0.40)' }}>Work Email *</label>
                   <input type="email" value={form.email} onChange={e=>set('email',e.target.value)} placeholder="you@company.com" className="input-field text-sm" required/>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'rgba(245,237,224,0.40)' }}>Company</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'rgba(30,41,59,0.40)' }}>Company</label>
                   <input value={form.company} onChange={e=>set('company',e.target.value)} placeholder="Company name" className="input-field text-sm"/>
                 </div>
               </div>
             )}
             {step===4 && (
               <div className="space-y-4">
-                <h2 className="text-lg font-semibold mb-4" style={{ color:'#f5ede0' }}>Review & Submit</h2>
+                <h2 className="text-lg font-semibold mb-4" style={{ color:'#1e293b' }}>Review & Submit</h2>
                 <div className="grid grid-cols-2 gap-3">
                   {[['State',form.state||'—'],['County',form.county||'—'],['Search Type',form.searchType||'—'],
                     ['Priority',form.priority.toUpperCase()],['Contact',`${form.firstName} ${form.lastName}`.trim()||'—'],['Email',form.email||'—']].map(([k,v]) => (
                     <div key={k} className="glass p-3 rounded-xl">
-                      <div className="text-xs mb-0.5" style={{ color:'rgba(245,237,224,0.32)' }}>{k}</div>
-                      <div className="font-medium text-sm" style={{ color:'#f5ede0' }}>{v}</div>
+                      <div className="text-xs mb-0.5" style={{ color:'rgba(30,41,59,0.32)' }}>{k}</div>
+                      <div className="font-medium text-sm" style={{ color:'#1e293b' }}>{v}</div>
                     </div>
                   ))}
                 </div>
@@ -341,8 +341,8 @@ function ClientHome() {
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color:'#f5ede0' }}>Client Portal</h1>
-          <p className="text-sm" style={{ color:'rgba(245,237,224,0.45)' }}>Welcome back, Taylor Brooks</p>
+          <h1 className="text-2xl font-bold" style={{ color:'#1e293b' }}>Client Portal</h1>
+          <p className="text-sm" style={{ color:'rgba(30,41,59,0.45)' }}>Welcome back, Taylor Brooks</p>
         </div>
         <motion.button whileHover={{ scale:1.02 }} whileTap={{ scale:0.98 }} className="btn-primary flex items-center gap-2 text-sm">
           <PlusCircle className="w-4 h-4" /> New Order
@@ -359,14 +359,14 @@ function ClientHome() {
             <div className="w-9 h-9 rounded-xl mb-3 flex items-center justify-center" style={{ background:`${s.color}22` }}>
               <s.icon className="w-4 h-4" style={{ color:s.color }} />
             </div>
-            <div className="text-2xl font-bold" style={{ color:'#f5ede0' }}>{s.value}</div>
-            <div className="text-sm" style={{ color:'rgba(245,237,224,0.45)' }}>{s.label}</div>
+            <div className="text-2xl font-bold" style={{ color:'#1e293b' }}>{s.value}</div>
+            <div className="text-sm" style={{ color:'rgba(30,41,59,0.45)' }}>{s.label}</div>
           </motion.div>
         ))}
       </div>
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <h2 className="font-semibold" style={{ color:'#f5ede0' }}>Order Tracking</h2>
+          <h2 className="font-semibold" style={{ color:'#1e293b' }}>Order Tracking</h2>
           {myOrders.map(o => (
             <React.Fragment key={o.id}>
               <TrackOrder order={o} />
@@ -375,10 +375,10 @@ function ClientHome() {
           ))}
         </div>
         <div className="glass-card p-5">
-          <h2 className="font-semibold mb-1" style={{ color:'#f5ede0' }}>Coverage Map</h2>
-          <p className="text-xs mb-3" style={{ color:'rgba(245,237,224,0.30)' }}>3,140+ counties · All 50 states</p>
+          <h2 className="font-semibold mb-1" style={{ color:'#1e293b' }}>Coverage Map</h2>
+          <p className="text-xs mb-3" style={{ color:'rgba(30,41,59,0.30)' }}>3,140+ counties · All 50 states</p>
           <USAMap compact />
-          <div className="mt-4 flex items-center gap-2 text-xs" style={{ color:'rgba(245,237,224,0.30)' }}>
+          <div className="mt-4 flex items-center gap-2 text-xs" style={{ color:'rgba(30,41,59,0.30)' }}>
             <MapPin className="w-3.5 h-3.5" style={{ color:ROLE_COLOR }} />
             Your searches are in FL, CA, NY
           </div>
@@ -403,7 +403,7 @@ function SupportPage() {
   }
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold" style={{ color:'#f5ede0' }}>Support</h1>
+      <h1 className="text-2xl font-bold" style={{ color:'#1e293b' }}>Support</h1>
       <div className="glass-card overflow-hidden flex flex-col" style={{ height:500 }}>
         <div className="p-4 flex items-center gap-3" style={{ borderBottom:'1px solid rgba(138,194,104,0.09)' }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center"
@@ -411,7 +411,7 @@ function SupportPage() {
             <MessageSquare className="w-4 h-4" style={{ color:ROLE_COLOR }} />
           </div>
           <div>
-            <div className="font-semibold text-sm" style={{ color:'#f5ede0' }}>Resolute Support</div>
+            <div className="font-semibold text-sm" style={{ color:'#1e293b' }}>Resolute Support</div>
             <div className="flex items-center gap-1.5 text-xs" style={{ color:'#6dbc78' }}>
               <span className="w-1.5 h-1.5 rounded-full" style={{ background:'#6dbc78' }} />
               Online · Avg reply under 2 min
@@ -423,10 +423,10 @@ function SupportPage() {
             <div key={i} className={`flex ${m.from==='user' ? 'justify-end' : 'justify-start'}`}>
               <div className="max-w-xs px-4 py-2.5 rounded-2xl text-sm"
                 style={m.from==='user'
-                  ? { background:'#3d7020', color:'#f5ede0' }
-                  : { background:'rgba(245,240,224,0.07)', color:'rgba(245,237,224,0.80)', border:'1px solid rgba(138,194,104,0.12)' }}>
+                  ? { background:'#3d7020', color:'#f5f7f2' }
+                  : { background:'rgba(30,41,59,0.07)', color:'rgba(30,41,59,0.80)', border:'1px solid rgba(138,194,104,0.12)' }}>
                 {m.text}
-                <div className="text-xs mt-1" style={{ color: m.from==='user' ? 'rgba(245,237,224,0.45)' : 'rgba(245,237,224,0.28)' }}>
+                <div className="text-xs mt-1" style={{ color: m.from==='user' ? 'rgba(30,41,59,0.45)' : 'rgba(30,41,59,0.28)' }}>
                   {m.time}
                 </div>
               </div>
@@ -450,7 +450,7 @@ function MyOrdersPage() {
   const myOrders = useMyOrders()
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold" style={{ color: '#f5ede0' }}>My Orders</h1>
+      <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>My Orders</h1>
       <div className="space-y-4">
         {myOrders.map(o => (
           <React.Fragment key={o.id}>
