@@ -234,7 +234,7 @@ function CompletenessBar({ comp, address, save }) {
   const pct = Math.round((comp.done / comp.total) * 100)
   return (
     <div className="sticky top-0 z-30 -mx-1 mb-5 rounded-xl px-4 py-3 backdrop-blur"
-      style={{ background: 'rgba(12,18,7,0.92)', border: `1px solid ${T.border}` }}>
+      style={{ background: 'rgba(255,255,255,0.95)', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(16,24,40,0.06)' }}>
       <div className="flex items-center gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
