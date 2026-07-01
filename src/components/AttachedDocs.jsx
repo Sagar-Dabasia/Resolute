@@ -6,6 +6,7 @@ import { FileText, Eye, Paperclip } from 'lucide-react'
 const DOCS = [
   { key: 'screenerDoc', label: 'Screener · Search Document' },
   { key: 'examinerDoc', label: 'Examiner · Researched Document' },
+  { key: 'commitmentDoc', label: 'Typer · Title Commitment' },
 ]
 
 export default function AttachedDocs({ workflow, className = '' }) {
