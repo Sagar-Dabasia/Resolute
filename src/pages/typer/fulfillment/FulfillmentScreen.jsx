@@ -15,6 +15,7 @@ import {
 import { T, Label, TextInput, TextArea, DateInput, RoundBtn, AccentButton, GhostButton } from './ui'
 import DeedTabs from './DeedTabs'
 import AttachedDocs from '../../../components/AttachedDocs'
+import { CommitmentDocumentModal } from '../../../components/CommitmentDocument'
 import { FileDropZone, FileRow, makeFileRef } from './FileDrop'
 import RequirementsSection from './RequirementsSection'
 import ExceptionsSection from './ExceptionsSection'
@@ -507,6 +508,7 @@ function Supplementary({ order, f, set }) {
 
 // ── Section 12: Finalize ─────────────────────────────────────────────────────
 function Finalize({ comp, order, user, completeStep, navigate }) {
+  const [showDoc, setShowDoc] = useState(false)
   const missing = comp.items.filter(i => !i.done)
   const ready = missing.length === 0
   const submit = () => {
@@ -516,6 +518,7 @@ function Finalize({ comp, order, user, completeStep, navigate }) {
   }
   return (
     <div>
+      {showDoc && <CommitmentDocumentModal order={order} onClose={() => setShowDoc(false)} />}
       <p className="text-[12.5px] mb-3" style={{ color: T.faint }}>
         When you submit, the order is sent to the customer for review.
       </p>
@@ -527,7 +530,10 @@ function Finalize({ comp, order, user, completeStep, navigate }) {
           </div>
         </div>
       )}
-      <AccentButton icon={Send} disabled={!ready} onClick={submit}>Submit to Customer Review</AccentButton>
+      <div className="flex items-center gap-2 flex-wrap">
+        <GhostButton icon={FileText} onClick={() => setShowDoc(true)}>Generate Commitment Document</GhostButton>
+        <AccentButton icon={Send} disabled={!ready} onClick={submit}>Submit to Customer Review</AccentButton>
+      </div>
     </div>
   )
 }
