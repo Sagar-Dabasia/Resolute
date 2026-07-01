@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { MapPin, LogOut, Bell, ChevronDown, Menu } from 'lucide-react'
 
-export default function Layout({ children, navItems, role, roleColor = '#6aab42', lightTheme = true }) {
+export default function Layout({ children, navItems, role, roleColor = '#4d7c2f', lightTheme = true }) {
   const { user, logout } = useAuth()
   const navigate    = useNavigate()
   const location    = useLocation()
@@ -49,24 +49,24 @@ export default function Layout({ children, navItems, role, roleColor = '#6aab42'
     topbarBg:    'rgba(255,255,255,0.75)',
     topbarBdr:   'rgba(138,194,104,0.09)',
     logo:        '#1e293b',
-    subtext:     'rgba(30,41,59,0.35)',
-    navText:     'rgba(30,41,59,0.45)',
+    subtext:     '#64748b',
+    navText:     '#475569',
     navActive:   '#1e293b',
     navActiveBg: `${roleColor}22`,
     navHoverBg:  'rgba(30,41,59,0.06)',
     navBadgeBg:  `${roleColor}28`,
     badgeText:   roleColor,
     userText:    '#1e293b',
-    userSub:     'rgba(30,41,59,0.35)',
-    logoutClr:   'rgba(30,41,59,0.40)',
+    userSub:     '#64748b',
+    logoutClr:   '#64748b',
     logoutHover: '#1e293b',
     iconBg:      'rgba(30,41,59,0.06)',
     iconBdr:     'rgba(138,194,104,0.14)',
-    iconClr:     'rgba(30,41,59,0.45)',
+    iconClr:     '#475569',
     iconHover:   '#1e293b',
     menuBg:      'rgba(30,41,59,0.04)',
     menuBdr:     'rgba(138,194,104,0.12)',
-    menuText:    'rgba(30,41,59,0.55)',
+    menuText:    '#475569',
     menuHover:   'rgba(30,41,59,0.07)',
     badgePing:   '#3d7020',
     overlay:     'rgba(0,0,0,0.65)',

@@ -8,13 +8,13 @@ import {
 } from 'lucide-react'
 
 const ROLES = [
-  { key: 'admin',    label: 'Admin',    icon: ShieldCheck, color: '#5a8c3e', desc: 'Full system control',        demo: 'rajni@resolute.com',    pass: 'admin123'    },
-  { key: 'screener', label: 'Screener', icon: Search,      color: '#8ab868', desc: 'Review incoming orders',     demo: 'screener@resolute.com', pass: 'screener123' },
-  { key: 'examiner', label: 'Examiner', icon: FileSearch,  color: '#c4a44e', desc: 'Examine title documents',    demo: 'examiner@resolute.com', pass: 'examiner123' },
-  { key: 'typer',    label: 'Typer',    icon: Keyboard,    color: '#3e9ec4', desc: 'Type final reports',         demo: 'typer@resolute.com',    pass: 'typer123'    },
-  { key: 'delivery', label: 'Delivery', icon: Truck,       color: '#c4783e', desc: 'Deliver completed searches', demo: 'delivery@resolute.com', pass: 'delivery123' },
-  { key: 'client',   label: 'Client',   icon: Building2,   color: '#a0c070', desc: 'Place & track orders',       demo: 'client@resolute.com',   pass: 'client123'   },
-  { key: 'operator', label: 'All-in-One', icon: Users,     color: '#5a9ea0', desc: 'All phases, one desk',       demo: 'operator@resolute.com', pass: 'operator123' },
+  { key: 'admin',    label: 'Admin',    icon: ShieldCheck, color: '#3d7020', desc: 'Full system control',        demo: 'rajni@resolute.com',    pass: 'admin123'    },
+  { key: 'screener', label: 'Screener', icon: Search,      color: '#4d7c2f', desc: 'Review incoming orders',     demo: 'screener@resolute.com', pass: 'screener123' },
+  { key: 'examiner', label: 'Examiner', icon: FileSearch,  color: '#a16207', desc: 'Examine title documents',    demo: 'examiner@resolute.com', pass: 'examiner123' },
+  { key: 'typer',    label: 'Typer',    icon: Keyboard,    color: '#0e7490', desc: 'Type final reports',         demo: 'typer@resolute.com',    pass: 'typer123'    },
+  { key: 'delivery', label: 'Delivery', icon: Truck,       color: '#b45309', desc: 'Deliver completed searches', demo: 'delivery@resolute.com', pass: 'delivery123' },
+  { key: 'client',   label: 'Client',   icon: Building2,   color: '#4d7c2f', desc: 'Place & track orders',       demo: 'client@resolute.com',   pass: 'client123'   },
+  { key: 'operator', label: 'All-in-One', icon: Users,     color: '#0f766e', desc: 'All phases, one desk',       demo: 'operator@resolute.com', pass: 'operator123' },
 ]
 
 // Admin tier accounts — super admins see full client detail, members see client codes only.
@@ -89,14 +89,14 @@ export default function LoginPage() {
               <MapPin className="w-5 h-5" style={{ color: '#f5f7f2' }} />
             </div>
             <span className="text-2xl font-bold tracking-tight" style={{ color: '#1e293b' }}>Resolute</span>
-            <span className="text-sm font-medium ml-1" style={{ color: 'rgba(30,41,59,0.28)' }}>Portal</span>
+            <span className="text-sm font-medium ml-1" style={{ color: '#64748b' }}>Portal</span>
           </div>
 
           <h1 className="text-5xl font-bold leading-tight mb-6">
             <span style={{ color: '#1e293b' }}>Human-Verified</span><br />
             <span className="gradient-text">Title Intelligence</span>
           </h1>
-          <p className="text-lg leading-relaxed max-w-md" style={{ color: 'rgba(30,41,59,0.48)' }}>
+          <p className="text-lg leading-relaxed max-w-md" style={{ color: '#475569' }}>
             Your unified portal for managing title searches across all 50 states
             with real-time tracking and instant delivery.
           </p>
@@ -104,8 +104,8 @@ export default function LoginPage() {
           <div className="mt-10 space-y-4">
             {['50-State Coverage', '3,140+ Counties', '98.4% On-Time Delivery', 'Real-Time Tracking'].map(f => (
               <div key={f} className="flex items-center gap-3">
-                <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: '#6aab42' }} />
-                <span className="text-sm font-medium" style={{ color: 'rgba(30,41,59,0.55)' }}>{f}</span>
+                <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: '#4d7c2f' }} />
+                <span className="text-sm font-medium" style={{ color: '#475569' }}>{f}</span>
               </div>
             ))}
           </div>
@@ -130,7 +130,7 @@ export default function LoginPage() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             className="glass-card p-8">
             <h2 className="text-2xl font-bold mb-1" style={{ color: '#1e293b' }}>Sign in</h2>
-            <p className="text-sm mb-8" style={{ color: 'rgba(30,41,59,0.38)' }}>Select your role to continue</p>
+            <p className="text-sm mb-8" style={{ color: '#64748b' }}>Select your role to continue</p>
 
             {/* Role grid */}
             <div className="grid grid-cols-3 gap-2 mb-8">
@@ -146,9 +146,9 @@ export default function LoginPage() {
                       background: active ? `${role.color}1a` : 'rgba(30,41,59,0.04)',
                       borderColor: active ? `${role.color}55` : 'rgba(30,41,59,0.08)',
                     }}>
-                    <Icon className="w-5 h-5" style={{ color: active ? role.color : 'rgba(30,41,59,0.35)' }} />
+                    <Icon className="w-5 h-5" style={{ color: active ? role.color : '#64748b' }} />
                     <span className="text-xs font-medium"
-                      style={{ color: active ? '#1e293b' : 'rgba(30,41,59,0.35)' }}>
+                      style={{ color: active ? '#1e293b' : '#64748b' }}>
                       {role.label}
                     </span>
                   </motion.button>
@@ -167,7 +167,7 @@ export default function LoginPage() {
                     <span className="text-sm font-semibold" style={{ color: selectedRole.color }}>
                       {selectedRole.label}
                     </span>
-                    <span className="text-xs ml-auto" style={{ color: 'rgba(30,41,59,0.38)' }}>
+                    <span className="text-xs ml-auto" style={{ color: '#64748b' }}>
                       {selectedRole.desc}
                     </span>
                   </div>
@@ -181,7 +181,7 @@ export default function LoginPage() {
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }} className="overflow-hidden mb-5">
                   <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
-                    style={{ color: 'rgba(30,41,59,0.42)' }}>Admin account</label>
+                    style={{ color: '#64748b' }}>Admin account</label>
                   <div className="grid grid-cols-3 gap-2">
                     {ADMIN_ACCOUNTS.map(acct => {
                       const active = adminAccount === acct.key
@@ -193,9 +193,9 @@ export default function LoginPage() {
                             borderColor: active ? 'rgba(90,140,62,0.45)' : 'rgba(30,41,59,0.08)',
                           }}>
                           <div className="text-xs font-semibold"
-                            style={{ color: active ? '#1e293b' : 'rgba(30,41,59,0.55)' }}>{acct.label}</div>
+                            style={{ color: active ? '#1e293b' : '#475569' }}>{acct.label}</div>
                           <div className="text-[10px] leading-tight mt-0.5"
-                            style={{ color: active ? '#8fc268' : 'rgba(30,41,59,0.30)' }}>{acct.tier}</div>
+                            style={{ color: active ? '#4d7c2f' : '#64748b' }}>{acct.tier}</div>
                         </button>
                       )
                     })}
@@ -208,20 +208,20 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
-                  style={{ color: 'rgba(30,41,59,0.42)' }}>Email</label>
+                  style={{ color: '#64748b' }}>Email</label>
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)}
                   placeholder="Enter your email" className="input-field" required />
               </div>
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
-                  style={{ color: 'rgba(30,41,59,0.42)' }}>Password</label>
+                  style={{ color: '#64748b' }}>Password</label>
                 <div className="relative">
                   <input type={showPass ? 'text' : 'password'} value={password}
                     onChange={e => setPassword(e.target.value)}
                     placeholder="Enter your password" className="input-field pr-12" required />
                   <button type="button" onClick={() => setShowPass(!showPass)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                    style={{ color: 'rgba(30,41,59,0.28)' }}>
+                    style={{ color: '#64748b' }}>
                     {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
@@ -231,7 +231,7 @@ export default function LoginPage() {
                 {error && (
                   <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                     className="flex items-center gap-2 text-sm px-4 py-3 rounded-xl"
-                    style={{ background: 'rgba(220,60,60,0.10)', border: '1px solid rgba(220,60,60,0.22)', color: '#f08080' }}>
+                    style={{ background: 'rgba(220,60,60,0.10)', border: '1px solid rgba(220,60,60,0.22)', color: '#dc2626' }}>
                     <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
                   </motion.div>
                 )}
@@ -243,12 +243,12 @@ export default function LoginPage() {
                 style={{ opacity: loading ? 0.6 : 1 }}>
                 {loading
                   ? <div className="w-5 h-5 border-2 rounded-full animate-spin"
-                      style={{ borderColor: 'rgba(30,41,59,0.25)', borderTopColor: '#1e293b' }} />
+                      style={{ borderColor: '#64748b', borderTopColor: '#1e293b' }} />
                   : <><span>Sign in</span><ArrowRight className="w-4 h-4" /></>}
               </motion.button>
             </form>
 
-            <p className="text-center text-xs mt-6" style={{ color: 'rgba(30,41,59,0.22)' }}>
+            <p className="text-center text-xs mt-6" style={{ color: '#64748b' }}>
               Demo credentials pre-filled · Select a role above
             </p>
           </motion.div>

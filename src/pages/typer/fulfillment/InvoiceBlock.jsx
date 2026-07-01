@@ -35,7 +35,7 @@ export default function InvoiceBlock({ invoice, onChange }) {
       </div>
       {!locked
         ? <button onClick={() => rmRow(sectionKey, li.id)} title="Remove"
-            className="w-6 h-6 rounded-md flex items-center justify-center transition-colors" style={{ color: '#d98a7a' }}
+            className="w-6 h-6 rounded-md flex items-center justify-center transition-colors" style={{ color: '#dc2626' }}
             onMouseOver={e => e.currentTarget.style.background = 'rgba(217,138,122,0.12)'}
             onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
             <Trash2 className="w-3.5 h-3.5" />

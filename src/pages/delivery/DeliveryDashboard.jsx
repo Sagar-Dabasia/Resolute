@@ -8,7 +8,7 @@ import { displayClient, clientByName } from '../../data/mockData'
 import { useAuth } from '../../context/AuthContext'
 import { useOrders } from '../../context/OrderContext'
 
-const ROLE_COLOR = '#c4783e'
+const ROLE_COLOR = '#b45309'
 const NAV = [
   { path: '/delivery',         label: 'Dashboard',    icon: LayoutDashboard },
   { path: '/delivery/queue',   label: 'Ready to Send',icon: Package, badge: 2 },
@@ -37,34 +37,34 @@ function DeliveryModal({ order, onClose }) {
             <div className="font-mono font-semibold text-sm" style={{ color:ROLE_COLOR }}>{order.id}</div>
             <div className="text-xl font-bold" style={{ color:'#1e293b' }}>{displayClient(order.client, user)}</div>
           </div>
-          <button onClick={onClose} style={{ color:'rgba(30,41,59,0.30)' }}><X className="w-5 h-5" /></button>
+          <button onClick={onClose} style={{ color:'#64748b' }}><X className="w-5 h-5" /></button>
         </div>
         <div className="flex items-center gap-3 p-4 rounded-xl mb-5"
           style={{ background:'rgba(109,188,120,0.12)', border:'1px solid rgba(109,188,120,0.25)' }}>
           <div className="w-10 h-10 rounded-xl flex items-center justify-center"
             style={{ background:'rgba(109,188,120,0.20)' }}>
-            <CheckCircle className="w-5 h-5" style={{ color:'#6dbc78' }} />
+            <CheckCircle className="w-5 h-5" style={{ color:'#15803d' }} />
           </div>
           <div>
             <div className="font-semibold text-sm" style={{ color:'#1e293b' }}>Report Ready for Delivery</div>
-            <div className="text-xs" style={{ color:'rgba(30,41,59,0.42)' }}>{order.type} · {order.state}, {order.county} County</div>
+            <div className="text-xs" style={{ color:'#64748b' }}>{order.type} · {order.state}, {order.county} County</div>
           </div>
         </div>
         <div className="mb-4">
           <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
-            style={{ color:'rgba(30,41,59,0.38)' }}>Delivery Method</label>
+            style={{ color:'#64748b' }}>Delivery Method</label>
           <div className="grid grid-cols-2 gap-2">
             {[['email','Email'],['portal','Client Portal']].map(([k,l]) => (
               <button key={k} onClick={() => setMethod(k)}
                 className="py-2.5 rounded-xl text-sm font-medium transition-all border"
                 style={method===k
                   ? { background:`${ROLE_COLOR}22`, border:`1px solid ${ROLE_COLOR}55`, color:'#1e293b' }
-                  : { border:'1px solid rgba(30,41,59,0.08)', color:'rgba(30,41,59,0.40)' }}>
+                  : { border:'1px solid rgba(30,41,59,0.08)', color:'#64748b' }}>
                 {l}
               </button>
             ))}
           </div>
-          <p className="text-[11px] mt-2" style={{ color:'rgba(30,41,59,0.40)' }}>
+          <p className="text-[11px] mt-2" style={{ color:'#64748b' }}>
             {method==='email'
               ? 'Full package + invoice will be emailed to the client.'
               : 'Package is posted to the client portal and the invoice is reflected there.'}
@@ -72,13 +72,13 @@ function DeliveryModal({ order, onClose }) {
         </div>
         <div className="mb-4" style={{ display: method==='email' ? 'block' : 'none' }}>
           <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
-            style={{ color:'rgba(30,41,59,0.38)' }}>Recipient Email</label>
+            style={{ color:'#64748b' }}>Recipient Email</label>
           <input value={recipient} onChange={e=>setRecipient(e.target.value)}
             placeholder="client@company.com" className="input-field text-sm" />
         </div>
         <div className="mb-5">
           <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
-            style={{ color:'rgba(30,41,59,0.38)' }}>Delivery Note</label>
+            style={{ color:'#64748b' }}>Delivery Note</label>
           <textarea value={note} onChange={e=>setNote(e.target.value)}
             placeholder="Notes for the client…" rows={3} className="input-field text-sm resize-none" />
         </div>
@@ -107,21 +107,21 @@ function DeliveryHome() {
       {selected && <DeliveryModal order={selected} onClose={() => setSelected(null)} />}
       <div>
         <h1 className="text-2xl font-bold" style={{ color:'#1e293b' }}>Delivery Dashboard</h1>
-        <p className="text-sm" style={{ color:'rgba(30,41,59,0.45)' }}>Manage and deliver completed title search reports</p>
+        <p className="text-sm" style={{ color:'#475569' }}>Manage and deliver completed title search reports</p>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { icon:Package,     label:'Ready to Deliver', value:'2',  color:ROLE_COLOR },
-          { icon:Truck,       label:'Sent Today',       value:'3',  color:'#8ab868' },
-          { icon:CheckCircle, label:'Delivered (MTD)',  value:'79', color:'#6dbc78' },
-          { icon:Clock,       label:'Avg Delivery',     value:'22m',color:'#c4a44e' },
+          { icon:Truck,       label:'Sent Today',       value:'3',  color:'#4d7c2f' },
+          { icon:CheckCircle, label:'Delivered (MTD)',  value:'79', color:'#15803d' },
+          { icon:Clock,       label:'Avg Delivery',     value:'22m',color:'#a16207' },
         ].map(s => (
           <motion.div key={s.label} initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} className="stat-card">
             <div className="w-9 h-9 rounded-xl mb-3 flex items-center justify-center" style={{ background:`${s.color}22` }}>
               <s.icon className="w-4 h-4" style={{ color:s.color }} />
             </div>
             <div className="text-2xl font-bold" style={{ color:'#1e293b' }}>{s.value}</div>
-            <div className="text-sm" style={{ color:'rgba(30,41,59,0.45)' }}>{s.label}</div>
+            <div className="text-sm" style={{ color:'#475569' }}>{s.label}</div>
           </motion.div>
         ))}
       </div>
@@ -145,29 +145,29 @@ function DeliveryHome() {
                   <span className="font-mono font-semibold text-sm" style={{ color:ROLE_COLOR }}>{o.id}</span>
                   {o.priority==='rush' && (
                     <span className="text-xs font-semibold px-2 py-0.5 rounded-md"
-                      style={{ background:'rgba(220,80,60,0.18)', color:'#e08080' }}>RUSH</span>
+                      style={{ background:'rgba(220,80,60,0.18)', color:'#dc2626' }}>RUSH</span>
                   )}
                 </div>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="font-medium text-sm truncate" style={{ color:'#1e293b' }}>{displayClient(o.client, user)}</span>
                   {clientByName(o.client)?.activity === 'low' && (
                     <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md flex-shrink-0"
-                      style={{ background:'rgba(196,120,62,0.18)', color:'#d99a6c' }}>LOW ACTIVITY</span>
+                      style={{ background:'rgba(196,120,62,0.18)', color:'#b45309' }}>LOW ACTIVITY</span>
                   )}
                 </div>
-                <div className="text-xs" style={{ color:'rgba(30,41,59,0.42)' }}>{o.type} · {o.state}</div>
+                <div className="text-xs" style={{ color:'#64748b' }}>{o.type} · {o.state}</div>
               </div>
               <div className="text-right flex-shrink-0">
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-full capitalize"
                   style={{ background:`${ROLE_COLOR}22`, color:ROLE_COLOR }}>{o.status}</span>
-                <div className="text-xs mt-1" style={{ color:'rgba(30,41,59,0.28)' }}>ETA {o.eta}</div>
+                <div className="text-xs mt-1" style={{ color:'#64748b' }}>ETA {o.eta}</div>
               </div>
               <button
                 onClick={e => { e.stopPropagation(); setEmailed(ids => ids.includes(o.id) ? ids : [...ids, o.id]) }}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold flex-shrink-0 transition-all border"
                 style={emailed.includes(o.id)
-                  ? { background:'rgba(109,188,120,0.16)', borderColor:'rgba(109,188,120,0.35)', color:'#6dbc78' }
-                  : { background:`${ROLE_COLOR}1a`, borderColor:`${ROLE_COLOR}40`, color:'#d99a6c' }}>
+                  ? { background:'rgba(109,188,120,0.16)', borderColor:'rgba(109,188,120,0.35)', color:'#15803d' }
+                  : { background:`${ROLE_COLOR}1a`, borderColor:`${ROLE_COLOR}40`, color:'#b45309' }}>
                 {emailed.includes(o.id)
                   ? <><CheckCircle className="w-3.5 h-3.5" /> Emailed</>
                   : <><Mail className="w-3.5 h-3.5" /> Send by email</>}
@@ -184,10 +184,10 @@ function DeliveryHome() {
             <div key={o.id} className="flex items-center gap-3 p-3 rounded-xl transition-colors"
               onMouseOver={e=>e.currentTarget.style.background='rgba(30,41,59,0.03)'}
               onMouseOut={e=>e.currentTarget.style.background='transparent'}>
-              <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color:'#6dbc78' }} />
-              <span className="font-mono text-xs flex-shrink-0" style={{ color:'rgba(30,41,59,0.55)' }}>{o.id}</span>
-              <span className="text-xs flex-1 truncate" style={{ color:'rgba(30,41,59,0.45)' }}>{displayClient(o.client, user)}</span>
-              <span className="text-xs flex-shrink-0" style={{ color:'rgba(30,41,59,0.28)' }}>Completed {o.completed || o.eta}</span>
+              <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color:'#15803d' }} />
+              <span className="font-mono text-xs flex-shrink-0" style={{ color:'#475569' }}>{o.id}</span>
+              <span className="text-xs flex-1 truncate" style={{ color:'#475569' }}>{displayClient(o.client, user)}</span>
+              <span className="text-xs flex-shrink-0" style={{ color:'#64748b' }}>Completed {o.completed || o.eta}</span>
             </div>
           ))}
         </div>

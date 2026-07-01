@@ -40,7 +40,7 @@ export default function DeedTabs({ deeds, onChange }) {
                     onKeyDown={e => { if (e.key === 'Enter') { e.stopPropagation(); removeDeed(i) } }}
                     className="w-4 h-4 rounded flex items-center justify-center transition-colors"
                     style={{ color: T.dim }}
-                    onMouseOver={e => { e.currentTarget.style.color = '#d98a7a' }}
+                    onMouseOver={e => { e.currentTarget.style.color = '#dc2626' }}
                     onMouseOut={e => { e.currentTarget.style.color = T.dim }}>
                     <X className="w-3 h-3" />
                   </span>

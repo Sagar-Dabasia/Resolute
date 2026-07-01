@@ -813,7 +813,7 @@ function AdminUsers() {
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         {[
-          { role:'Super Admins', count: USERS.filter(u=>u.role==='admin').length,    color:'#5a8c3e' },
+          { role:'Super Admins', count: USERS.filter(u=>u.role==='admin').length,    color:'#3d7020' },
           { role:'Screeners',    count: USERS.filter(u=>u.role==='screener').length, color:'#4d8c2a' },
           { role:'Examiners',    count: USERS.filter(u=>u.role==='examiner').length, color:'#d97706' },
           { role:'Typers',       count: USERS.filter(u=>u.role==='typer').length,    color:'#0891b2' },

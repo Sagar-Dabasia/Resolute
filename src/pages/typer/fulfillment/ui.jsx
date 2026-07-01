@@ -6,13 +6,13 @@ import { Plus, Minus, X, GripVertical, ChevronUp, ChevronDown } from 'lucide-rea
 
 export const T = {
   text:        '#1e293b',
-  muted:       'rgba(30,41,59,0.55)',
-  faint:       'rgba(30,41,59,0.34)',
-  dim:         'rgba(30,41,59,0.20)',
+  muted:       '#475569',
+  faint:       '#64748b',
+  dim:         '#64748b',
   accent:      '#4d8c2a',
   accentDeep:  '#3d7020',
-  accentBright:'#7cbf4e',
-  warn:        '#c4a44e',
+  accentBright:'#4d7c2f',
+  warn:        '#a16207',
   border:      'rgba(138,194,104,0.14)',
   borderSoft:  'rgba(138,194,104,0.09)',
   borderStrong:'rgba(124,191,78,0.42)',
@@ -144,7 +144,7 @@ export function RoundBtn({ icon: Icon = Plus, onClick, title, danger, ...rest })
   return (
     <button onClick={onClick} title={title}
       className="w-6 h-6 rounded-md flex items-center justify-center transition-colors flex-shrink-0"
-      style={{ border: `1px solid ${T.border}`, color: danger ? '#d98a7a' : T.muted, background: 'transparent' }}
+      style={{ border: `1px solid ${T.border}`, color: danger ? '#dc2626' : T.muted, background: 'transparent' }}
       onMouseOver={e => { e.currentTarget.style.background = danger ? 'rgba(217,138,122,0.12)' : T.rowHover }}
       onMouseOut={e => { e.currentTarget.style.background = 'transparent' }}
       {...rest}>

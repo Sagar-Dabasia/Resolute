@@ -9,7 +9,7 @@ import { displayClient, nextRoleFor } from '../../data/mockData'
 import { LayoutDashboard, Layers, CheckCircle, X, Send, ChevronRight, FileText, Keyboard } from 'lucide-react'
 import FulfillmentScreen from '../typer/fulfillment/FulfillmentScreen'
 
-const ROLE_COLOR = '#5a9ea0'
+const ROLE_COLOR = '#0f766e'
 const NAV = [
   { path: '/operator',          label: 'Dashboard', icon: LayoutDashboard },
   { path: '/operator/completed',label: 'Completed', icon: CheckCircle },
@@ -17,10 +17,10 @@ const NAV = [
 
 // Stage each order is currently waiting on (first uncompleted production role).
 const STAGE = {
-  screener: { label: 'Screening',   color: '#8ab868', verb: 'Screen & assign' },
-  examiner: { label: 'Examination', color: '#c4a44e', verb: 'Examine & upload' },
-  typer:    { label: 'Typing',      color: '#3e9ec4', verb: 'Type commitment' },
-  delivery: { label: 'Delivery',    color: '#c4783e', verb: 'Deliver to client' },
+  screener: { label: 'Screening',   color: '#4d7c2f', verb: 'Screen & assign' },
+  examiner: { label: 'Examination', color: '#a16207', verb: 'Examine & upload' },
+  typer:    { label: 'Typing',      color: '#0e7490', verb: 'Type commitment' },
+  delivery: { label: 'Delivery',    color: '#b45309', verb: 'Deliver to client' },
 }
 const ASSIGN = [['in_house', 'In-House'], ['abc', 'ABC (Abroad, US)'], ['both', 'Both']]
 
@@ -60,9 +60,9 @@ function StageModal({ order, onClose }) {
                 style={{ background: `${meta.color}22`, color: meta.color }}>{meta.label}</span>
             </div>
             <div className="text-lg font-bold mt-0.5" style={{ color: '#1e293b' }}>{displayClient(order.client, user)}</div>
-            <div className="text-xs" style={{ color: 'rgba(30,41,59,0.42)' }}>{order.type} · {order.state}, {order.county} County</div>
+            <div className="text-xs" style={{ color: '#64748b' }}>{order.type} · {order.state}, {order.county} County</div>
           </div>
-          <button onClick={onClose} style={{ color: 'rgba(30,41,59,0.30)' }}><X className="w-5 h-5" /></button>
+          <button onClick={onClose} style={{ color: '#64748b' }}><X className="w-5 h-5" /></button>
         </div>
 
         {/* Screening */}
@@ -75,7 +75,7 @@ function StageModal({ order, onClose }) {
                   className="py-2.5 rounded-lg text-xs font-semibold transition-all"
                   style={assignment === k
                     ? { background: `${ROLE_COLOR}28`, color: ROLE_COLOR, border: `1px solid ${ROLE_COLOR}55` }
-                    : { background: 'rgba(30,41,59,0.05)', color: 'rgba(30,41,59,0.40)', border: '1px solid rgba(30,41,59,0.08)' }}>
+                    : { background: 'rgba(30,41,59,0.05)', color: '#64748b', border: '1px solid rgba(30,41,59,0.08)' }}>
                   {l}
                 </button>
               ))}
@@ -88,7 +88,7 @@ function StageModal({ order, onClose }) {
         {/* Examination */}
         {role === 'examiner' && (
           <>
-            <Lbl>Researched Document <span style={{ textTransform: 'none', color: '#e08080' }}>*required</span></Lbl>
+            <Lbl>Researched Document <span style={{ textTransform: 'none', color: '#dc2626' }}>*required</span></Lbl>
             <div className="mb-4"><DocUpload orderId={order.id} value={doc} onChange={setDoc} accent={ROLE_COLOR} /></div>
           </>
         )}
@@ -96,9 +96,9 @@ function StageModal({ order, onClose }) {
         {/* Typing — hand off to the full fulfillment screen */}
         {role === 'typer' && (
           <div className="mb-4 p-4 rounded-xl" style={{ background: 'rgba(62,158,196,0.10)', border: '1px solid rgba(62,158,196,0.25)' }}>
-            <div className="flex items-center gap-2 mb-1"><Keyboard className="w-4 h-4" style={{ color: '#3e9ec4' }} />
+            <div className="flex items-center gap-2 mb-1"><Keyboard className="w-4 h-4" style={{ color: '#0e7490' }} />
               <span className="font-semibold text-sm" style={{ color: '#1e293b' }}>Type the commitment</span></div>
-            <p className="text-xs mb-3" style={{ color: 'rgba(30,41,59,0.45)' }}>Opens the full sectioned fulfillment form. Submitting there advances the order.</p>
+            <p className="text-xs mb-3" style={{ color: '#475569' }}>Opens the full sectioned fulfillment form. Submitting there advances the order.</p>
             <button onClick={() => { onClose(); navigate(`/operator/order/${order.id}`) }}
               className="btn-primary text-sm py-2.5 w-full flex items-center justify-center gap-2">
               <FileText className="w-4 h-4" /> Open Fulfillment Form
@@ -116,12 +116,12 @@ function StageModal({ order, onClose }) {
                   className="py-2.5 rounded-xl text-sm font-medium transition-all border"
                   style={method === k
                     ? { background: `${ROLE_COLOR}22`, border: `1px solid ${ROLE_COLOR}55`, color: '#1e293b' }
-                    : { border: '1px solid rgba(30,41,59,0.08)', color: 'rgba(30,41,59,0.40)' }}>
+                    : { border: '1px solid rgba(30,41,59,0.08)', color: '#64748b' }}>
                   {l}
                 </button>
               ))}
             </div>
-            <p className="text-[11px] mb-4" style={{ color: 'rgba(30,41,59,0.40)' }}>
+            <p className="text-[11px] mb-4" style={{ color: '#64748b' }}>
               {method === 'email' ? 'Full package + invoice emailed to the client.' : 'Package posted to the client portal; invoice reflected there.'}
             </p>
           </>
@@ -149,7 +149,7 @@ function StageModal({ order, onClose }) {
 }
 
 const Lbl = ({ children }) => (
-  <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'rgba(30,41,59,0.38)' }}>{children}</label>
+  <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: '#64748b' }}>{children}</label>
 )
 
 function OperatorHome() {
@@ -164,7 +164,7 @@ function OperatorHome() {
       {selected && <StageModal order={selected} onClose={() => setSelected(null)} />}
       <div>
         <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>All-in-One Workspace</h1>
-        <p className="text-sm" style={{ color: 'rgba(30,41,59,0.45)' }}>Run every stage — screening through delivery — from one desk</p>
+        <p className="text-sm" style={{ color: '#475569' }}>Run every stage — screening through delivery — from one desk</p>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {Object.entries(STAGE).map(([r, s]) => (
@@ -173,7 +173,7 @@ function OperatorHome() {
               <Layers className="w-4 h-4" style={{ color: s.color }} />
             </div>
             <div className="text-2xl font-bold" style={{ color: '#1e293b' }}>{byStage(r)}</div>
-            <div className="text-sm" style={{ color: 'rgba(30,41,59,0.45)' }}>In {s.label}</div>
+            <div className="text-sm" style={{ color: '#475569' }}>In {s.label}</div>
           </motion.div>
         ))}
       </div>
@@ -194,20 +194,20 @@ function OperatorHome() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="font-mono font-semibold text-sm" style={{ color: ROLE_COLOR }}>{o.id}</span>
-                    {o.priority === 'rush' && <span className="text-xs font-semibold px-2 py-0.5 rounded-md" style={{ background: 'rgba(220,80,60,0.18)', color: '#e08080' }}>RUSH</span>}
+                    {o.priority === 'rush' && <span className="text-xs font-semibold px-2 py-0.5 rounded-md" style={{ background: 'rgba(220,80,60,0.18)', color: '#dc2626' }}>RUSH</span>}
                   </div>
                   <div className="font-medium text-sm mt-0.5 truncate" style={{ color: '#1e293b' }}>{displayClient(o.client, user)}</div>
-                  <div className="text-xs" style={{ color: 'rgba(30,41,59,0.42)' }}>{o.type} · {o.state}, {o.county}</div>
+                  <div className="text-xs" style={{ color: '#64748b' }}>{o.type} · {o.state}, {o.county}</div>
                 </div>
                 <div className="text-right flex-shrink-0">
                   <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${s.color}22`, color: s.color }}>{s.label}</span>
-                  <div className="text-xs mt-1" style={{ color: 'rgba(30,41,59,0.28)' }}>ETA {o.eta}</div>
+                  <div className="text-xs mt-1" style={{ color: '#64748b' }}>ETA {o.eta}</div>
                 </div>
                 <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(30,41,59,0.18)' }} />
               </motion.div>
             )
           })}
-          {active.length === 0 && <div className="text-sm text-center py-6" style={{ color: 'rgba(30,41,59,0.3)' }}>No active orders.</div>}
+          {active.length === 0 && <div className="text-sm text-center py-6" style={{ color: '#64748b' }}>No active orders.</div>}
         </div>
       </div>
     </div>
@@ -224,13 +224,13 @@ function CompletedList() {
       <div className="glass-card p-5 space-y-2">
         {done.map(o => (
           <div key={o.id} className="flex items-center gap-3 p-3 rounded-xl">
-            <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: '#6dbc78' }} />
-            <span className="font-mono text-xs" style={{ color: 'rgba(30,41,59,0.55)' }}>{o.id}</span>
-            <span className="text-xs flex-1 truncate" style={{ color: 'rgba(30,41,59,0.45)' }}>{displayClient(o.client, user)}</span>
-            <span className="text-xs" style={{ color: 'rgba(30,41,59,0.28)' }}>{o.completed || o.eta}</span>
+            <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: '#15803d' }} />
+            <span className="font-mono text-xs" style={{ color: '#475569' }}>{o.id}</span>
+            <span className="text-xs flex-1 truncate" style={{ color: '#475569' }}>{displayClient(o.client, user)}</span>
+            <span className="text-xs" style={{ color: '#64748b' }}>{o.completed || o.eta}</span>
           </div>
         ))}
-        {done.length === 0 && <div className="text-sm text-center py-6" style={{ color: 'rgba(30,41,59,0.3)' }}>Nothing delivered yet.</div>}
+        {done.length === 0 && <div className="text-sm text-center py-6" style={{ color: '#64748b' }}>Nothing delivered yet.</div>}
       </div>
     </div>
   )
