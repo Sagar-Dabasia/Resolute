@@ -8,6 +8,7 @@ import { useOrders } from '../../context/OrderContext'
 import { displayClient, nextRoleFor } from '../../data/mockData'
 import { LayoutDashboard, Layers, CheckCircle, X, Send, ChevronRight, FileText, Keyboard } from 'lucide-react'
 import FulfillmentScreen from '../typer/fulfillment/FulfillmentScreen'
+import AttachedDocs from '../../components/AttachedDocs'
 
 const ROLE_COLOR = '#0f766e'
 const NAV = [
@@ -64,6 +65,10 @@ function StageModal({ order, onClose }) {
           </div>
           <button onClick={onClose} style={{ color: '#64748b' }}><X className="w-5 h-5" /></button>
         </div>
+
+        {(order.workflow?.screenerDoc || order.workflow?.examinerDoc) && (
+          <div className="mb-4"><AttachedDocs workflow={order.workflow} /></div>
+        )}
 
         {/* Screening */}
         {role === 'screener' && (

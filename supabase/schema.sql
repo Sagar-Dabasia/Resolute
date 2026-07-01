@@ -16,6 +16,7 @@ alter type user_role add value if not exists 'operator';
 do $$ begin create type order_status as enum
   ('received','screening','searching','examining','typing','delivered','onhold');
 exception when duplicate_object then null; end $$;
+alter type order_status add value if not exists 'delivery';
 
 do $$ begin create type order_priority as enum ('normal','rush');
 exception when duplicate_object then null; end $$;
@@ -234,7 +235,7 @@ on conflict (code) do nothing;
 insert into public.orders
   (id,client_code,state,county,type,status,priority,payment,clarification,assigned_to,
    screener,examiner,typer,delivery,progress,created,eta,completed,completed_dates,completed_by) values
-  ('RTS-10041','CL01','FL','Miami-Dade','Full Search','searching','rush','Wire',null,'examiner',
+  ('RTS-10041','CL01','FL','Miami-Dade','Full Search','examining','rush','Wire',null,'examiner',
    'Sam Carter','Jordan Lee','Priya Nair','Morgan Davis',65,'2026-06-09','2026-06-11',null,
    '{"screener":"2026-06-09"}','{"screener":"Sam Carter"}'),
   ('RTS-10042','CL02','TX','Harris','Current Owner','delivered','normal','ACH',null,null,
@@ -244,7 +245,7 @@ insert into public.orders
   ('RTS-10043','CL03','CA','Los Angeles','Two-Owner','examining','normal','Credit Card','responded','examiner',
    'Sam Carter','Jordan Lee','Priya Nair','Morgan Davis',45,'2026-06-09','2026-06-12',null,
    '{"screener":"2026-06-09"}','{"screener":"Sam Carter"}'),
-  ('RTS-10044','CL04','NY','Kings','Lien Search','received','rush','Invoice (Net-30)','pending','screener',
+  ('RTS-10044','CL04','NY','Kings','Lien Search','screening','rush','Invoice (Net-30)','pending','screener',
    'Sam Carter','Jordan Lee','Priya Nair','Morgan Davis',10,'2026-06-10','2026-06-11',null,'{}','{}'),
   ('RTS-10045','CL05','GA','Fulton','Full Search','screening','normal','Check','responded','screener',
    'Sam Carter','Jordan Lee','Priya Nair','Morgan Davis',25,'2026-06-10','2026-06-13',null,'{}','{}'),
@@ -252,7 +253,7 @@ insert into public.orders
    'Sam Carter','Jordan Lee','Priya Nair','Morgan Davis',100,'2026-06-07','2026-06-09','2026-06-09',
    '{"screener":"2026-06-07","examiner":"2026-06-08","typer":"2026-06-08","delivery":"2026-06-09"}',
    '{"screener":"Sam Carter","examiner":"Jordan Lee","typer":"Priya Nair","delivery":"Morgan Davis"}'),
-  ('RTS-10047','CL07','NC','Mecklenburg','HOA Estoppel','searching','rush','ACH',null,'examiner',
+  ('RTS-10047','CL07','NC','Mecklenburg','HOA Estoppel','examining','rush','ACH',null,'examiner',
    'Sam Carter','Jordan Lee','Priya Nair','Morgan Davis',55,'2026-06-09','2026-06-11',null,
    '{"screener":"2026-06-09"}','{"screener":"Sam Carter"}'),
   ('RTS-10048','CL01','AZ','Maricopa','Current Owner','typing','normal','Wire',null,'typer',

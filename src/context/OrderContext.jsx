@@ -1,11 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { ORDERS, ACTIVITY, nextRoleFor } from '../data/mockData'
+import { ORDERS, ACTIVITY, nextRoleFor, statusForRole } from '../data/mockData'
 import { isSupabaseConfigured, fetchOrders, saveOrder, subscribeOrders } from '../lib/backend'
 
 const OrderContext = createContext(null)
 
-// received → screening → searching → examining → typing → delivered
-const PIPELINE = ['received', 'screening', 'searching', 'examining', 'typing', 'delivered']
+// Status follows the owning role, so it advances one stage at a time in order.
+const PIPELINE = ['received', 'screening', 'examining', 'typing', 'delivery', 'delivered']
+const progressFor = (status) => {
+  const i = PIPELINE.indexOf(status)
+  return i <= 0 ? (status === 'received' ? 5 : 0) : Math.round((i / (PIPELINE.length - 1)) * 100)
+}
 const STAGE_BY_ROLE = { screener: 'screening', examiner: 'examination', typer: 'typing', delivery: 'delivery' }
 const todayISO = () => new Date().toISOString().slice(0, 10)
 
@@ -47,12 +51,10 @@ export function OrderProvider({ children }) {
       const nextRole = nextRoleFor({ completedDates: newDates })
       advancedTo = nextRole
       const allDone = nextRole === null
-      const idx = PIPELINE.indexOf(o.status)
-      const nextStatus = allDone ? 'delivered' : (idx >= 0 && idx < PIPELINE.length - 1 ? PIPELINE[idx + 1] : o.status)
-      const newIdx = PIPELINE.indexOf(nextStatus)
+      const nextStatus = statusForRole(nextRole)   // owner and status stay in lockstep
       const next = {
         ...o, status: nextStatus, assignedTo: nextRole,
-        progress: allDone ? 100 : Math.round((newIdx / (PIPELINE.length - 1)) * 100),
+        progress: allDone ? 100 : progressFor(nextStatus),
         completed: allDone ? (o.completed || todayISO()) : o.completed,
         completedDates: newDates, completedBy: { ...o.completedBy, [role]: userName },
       }
@@ -74,15 +76,14 @@ export function OrderProvider({ children }) {
   const returnToAdmin = (orderId, role, userName, notes, extra = {}) => {
     setOrders(os => os.map(o => {
       if (o.id !== orderId) return o
-      const idx = PIPELINE.indexOf(o.status)
-      const nextStatus = idx >= 0 && idx < PIPELINE.length - 1 ? PIPELINE[idx + 1] : o.status
-      const newIdx = PIPELINE.indexOf(nextStatus)
+      const newDates = { ...o.completedDates, [role]: todayISO() }
+      const nextStatus = statusForRole(nextRoleFor({ completedDates: newDates }))
       const next = {
         ...o,
         status: nextStatus,
         assignedTo: 'admin',
-        progress: Math.round((newIdx / (PIPELINE.length - 1)) * 100),
-        completedDates: { ...o.completedDates, [role]: todayISO() },
+        progress: progressFor(nextStatus),
+        completedDates: newDates,
         completedBy: { ...o.completedBy, [role]: userName },
         workflow: { ...o.workflow, ...extra },
       }
