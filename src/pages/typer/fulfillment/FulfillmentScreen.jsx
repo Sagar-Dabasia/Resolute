@@ -14,6 +14,7 @@ import {
 } from '../../../data/fulfillment'
 import { T, Label, TextInput, TextArea, DateInput, RoundBtn, AccentButton, GhostButton } from './ui'
 import DeedTabs from './DeedTabs'
+import AttachedDocs from '../../../components/AttachedDocs'
 import { FileDropZone, FileRow, makeFileRef } from './FileDrop'
 import RequirementsSection from './RequirementsSection'
 import ExceptionsSection from './ExceptionsSection'
@@ -538,6 +539,7 @@ function ContextRail({ order, f, user }) {
   return (
     <aside className="hidden xl:block w-[300px] flex-shrink-0">
       <div className="sticky top-5 space-y-4">
+        <AttachedDocs workflow={order.workflow} />
         <RailCard icon={MapPin} title="Full Address">
           <div className="text-[13px] font-medium leading-snug" style={{ color: T.text }}>{f.meta.address}</div>
           <div className="text-[12px] mt-0.5" style={{ color: T.faint }}>{order.county} County, {order.state}</div>

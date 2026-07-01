@@ -10,6 +10,7 @@ import {
   ChevronDown, ChevronUp, FileText, ArrowUpRight, X, Lock, ShieldCheck, UserPlus, Download,
 } from 'lucide-react'
 import { downloadCsv } from '../../lib/exportCsv'
+import AttachedDocs from '../../components/AttachedDocs'
 import {
   USERS, MONTHLY_STATS, PAYMENT_METHODS, MESSAGES,
   STAGE_KEYS, STAGE_LABELS, displayClient, clientByName,
@@ -276,6 +277,10 @@ function OrderEditModal({ order, user, onClose, onSave }) {
               </div>
             </div>
           </div>
+
+          {order.workflow && (order.workflow.screenerDoc || order.workflow.examinerDoc) && (
+            <div style={{ padding:'0 22px 18px' }}><AttachedDocs workflow={order.workflow} /></div>
+          )}
 
           <div style={{ display:'flex', gap:10, padding:'0 22px 20px' }}>
             <button onClick={save} style={{ flex:1, padding:'10px', background:ROLE_COLOR, border:'none',

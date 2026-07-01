@@ -8,6 +8,7 @@ import { displayClient } from '../../data/mockData'
 import { useAuth } from '../../context/AuthContext'
 import { useOrders } from '../../context/OrderContext'
 import DocUpload from '../../components/DocUpload'
+import AttachedDocs from '../../components/AttachedDocs'
 
 const ROLE_COLOR = '#a16207'
 const NAV = [
@@ -50,6 +51,7 @@ function ExamineModal({ order, onClose }) {
           ))}
         </div>
         <div className="space-y-4 mb-5">
+          <AttachedDocs workflow={order.workflow} />
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
               style={{ color:'#64748b' }}>Examination Checklist</label>

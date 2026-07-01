@@ -7,6 +7,7 @@ import { LayoutDashboard, Truck, Package, CheckCircle, Clock, Download, Send, Ma
 import { displayClient, clientByName } from '../../data/mockData'
 import { useAuth } from '../../context/AuthContext'
 import { useOrders } from '../../context/OrderContext'
+import AttachedDocs from '../../components/AttachedDocs'
 
 const ROLE_COLOR = '#b45309'
 const NAV = [
@@ -50,6 +51,7 @@ function DeliveryModal({ order, onClose }) {
             <div className="text-xs" style={{ color:'#64748b' }}>{order.type} · {order.state}, {order.county} County</div>
           </div>
         </div>
+        <div className="mb-4"><AttachedDocs workflow={order.workflow} /></div>
         <div className="mb-4">
           <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
             style={{ color:'#64748b' }}>Delivery Method</label>
