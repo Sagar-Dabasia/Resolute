@@ -121,11 +121,14 @@ const DETAIL_TABS = [
   { key:'inbox',    label:'Inbox' },
   { key:'files',    label:'Files' },
 ]
-const MOCK_FILES = [
-  { name:'Title Search Report.pdf', size:'248 KB', stage:'Examination' },
-  { name:'Property Deed.pdf',       size:'1.2 MB', stage:'Search' },
-  { name:'Tax Certificate.pdf',     size:'96 KB',  stage:'Screening' },
-]
+// Real files attached to an order by earlier stages (carried on order.workflow).
+const orderFiles = (order) => {
+  const w = order.workflow || {}
+  const out = []
+  if (w.screenerDoc) out.push({ ...w.screenerDoc, stage: 'Screening' })
+  if (w.examinerDoc) out.push({ ...w.examinerDoc, stage: 'Examination' })
+  return out
+}
 
 function OrderEditModal({ order, user, onClose, onSave }) {
   const { activityLog } = useOrders()
@@ -149,6 +152,7 @@ function OrderEditModal({ order, user, onClose, onSave }) {
   const cb = order.completedBy || {}
   const orderActivity = activityLog.filter(a => a.action && a.action.includes(order.id))
   const orderMessages = MESSAGES.filter(m => m.orderId === order.id)
+  const files = orderFiles(order)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -172,7 +176,7 @@ function OrderEditModal({ order, user, onClose, onSave }) {
         {/* Detail tabs */}
         <div style={{ display:'flex', gap:0, padding:'0 22px', borderBottom:`1px solid ${Q.border}` }}>
           {DETAIL_TABS.map(t => {
-            const badge = t.key === 'inbox' ? orderMessages.length : t.key === 'files' ? MOCK_FILES.length : 0
+            const badge = t.key === 'inbox' ? orderMessages.length : t.key === 'files' ? files.length : 0
             return (
               <button key={t.key} onClick={() => setTab(t.key)}
                 style={{ display:'flex', alignItems:'center', gap:6, padding:'10px 14px', fontSize:13, fontWeight:600,
@@ -335,18 +339,30 @@ function OrderEditModal({ order, user, onClose, onSave }) {
         {/* FILES */}
         {tab === 'files' && (
           <div style={{ padding:'18px 22px' }}>
-            <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-              {MOCK_FILES.map(f => (
-                <div key={f.name} style={{ display:'flex', alignItems:'center', gap:12,
-                  border:`1px solid ${Q.border}`, borderRadius:10, padding:'10px 14px' }}>
-                  <FileText style={{ width:18, height:18, color:ROLE_COLOR, flexShrink:0 }} />
-                  <div style={{ flex:1 }}>
-                    <div style={{ fontSize:13, fontWeight:500, color:Q.text }}>{f.name}</div>
-                    <div style={{ fontSize:11, color:Q.faint }}>{f.stage} · {f.size}</div>
+            {files.length === 0 ? (
+              <div style={{ fontSize:13, color:Q.muted, textAlign:'center', padding:'24px 0' }}>
+                No documents attached yet. Files uploaded by the screener and examiner appear here.
+              </div>
+            ) : (
+              <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                {files.map(f => (
+                  <div key={f.id || f.name} style={{ display:'flex', alignItems:'center', gap:12,
+                    border:`1px solid ${Q.border}`, borderRadius:10, padding:'10px 14px' }}>
+                    <FileText style={{ width:18, height:18, color: f.type === 'pdf' ? '#dc2626' : '#2563eb', flexShrink:0 }} />
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:13, fontWeight:500, color:Q.text }}>{f.name}</div>
+                      <div style={{ fontSize:11, color:Q.faint }}>{f.stage} · {(f.type || 'file').toUpperCase()}</div>
+                    </div>
+                    {f.url && (
+                      <button onClick={() => window.open(f.url, '_blank')} title="Preview / download"
+                        style={{ background:'transparent', border:'none', cursor:'pointer', color:Q.muted }}>
+                        <Eye style={{ width:16, height:16 }} />
+                      </button>
+                    )}
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </motion.div>
