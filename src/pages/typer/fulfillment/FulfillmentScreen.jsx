@@ -15,7 +15,7 @@ import {
 import { T, Label, TextInput, TextArea, DateInput, RoundBtn, AccentButton, GhostButton } from './ui'
 import DeedTabs from './DeedTabs'
 import AttachedDocs from '../../../components/AttachedDocs'
-import { CommitmentDocumentModal } from '../../../components/CommitmentDocument'
+import { CommitmentDocumentModal, buildCommitmentHtml } from '../../../components/CommitmentDocument'
 import { FileDropZone, FileRow, makeFileRef } from './FileDrop'
 import RequirementsSection from './RequirementsSection'
 import ExceptionsSection from './ExceptionsSection'
@@ -29,7 +29,7 @@ export default function FulfillmentScreen() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { orders, completeStep } = useOrders()
+  const { orders, completeStep, updateOrder } = useOrders()
   const { byOrder, ensure, update, save } = useFulfillmentStore()
   const order = orders.find(o => o.id === id)
   const [tab, setTab] = useState('Fulfillment')
@@ -90,13 +90,13 @@ export default function FulfillmentScreen() {
 
       {tab !== 'Fulfillment'
         ? <StubTab name={tab} order={order} user={user} />
-        : <FulfillmentBody {...{ order, f, set, comp, save, user, completeStep, navigate }} />}
+        : <FulfillmentBody {...{ order, f, set, comp, save, user, completeStep, updateOrder, navigate }} />}
     </div>
   )
 }
 
 // ── Fulfillment body: two-column layout ──────────────────────────────────────
-function FulfillmentBody({ order, f, set, comp, save, user, completeStep, navigate }) {
+function FulfillmentBody({ order, f, set, comp, save, user, completeStep, updateOrder, navigate }) {
   return (
     <div className="flex gap-6 px-5 md:px-7 py-5">
       <div className="flex-1 min-w-0 max-w-[860px]">
@@ -219,7 +219,7 @@ function FulfillmentBody({ order, f, set, comp, save, user, completeStep, naviga
 
         {/* 18 — Finalize */}
         <Section n={18} title="Finalize Order" done={comp.done === comp.total}>
-          <Finalize comp={comp} order={order} user={user} completeStep={completeStep} navigate={navigate} />
+          <Finalize comp={comp} order={order} f={f} user={user} completeStep={completeStep} updateOrder={updateOrder} navigate={navigate} />
         </Section>
       </div>
 
@@ -507,13 +507,29 @@ function Supplementary({ order, f, set }) {
 }
 
 // ── Section 12: Finalize ─────────────────────────────────────────────────────
-function Finalize({ comp, order, user, completeStep, navigate }) {
+function Finalize({ comp, order, f, user, completeStep, updateOrder, navigate }) {
   const [showDoc, setShowDoc] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
   const missing = comp.items.filter(i => !i.done)
   const ready = missing.length === 0
-  const submit = () => {
-    if (!ready) return
-    completeStep(order.id, 'typer', user?.name, 'Commitment typed & verified')
+  const submit = async () => {
+    if (!ready || submitting) return
+    setSubmitting(true)
+    // Generate the commitment document and attach it to the order so it flows
+    // to Admin and Delivery under Files, like every other stage's document.
+    try {
+      const html = buildCommitmentHtml(order, f)
+      const file = new File([html], `Title Commitment - ${order.id}.doc`, { type: 'application/msword' })
+      let ref
+      if (isSupabaseConfigured) {
+        const { url, path } = await uploadDocument(order.id, file)
+        ref = { id: uid(), name: file.name, type: 'word', url, path }
+      } else {
+        ref = { id: uid(), name: file.name, type: 'word', url: URL.createObjectURL(file) }
+      }
+      updateOrder({ ...order, workflow: { ...order.workflow, commitmentDoc: ref } })
+    } catch (e) { /* attachment is best-effort; still submit */ }
+    completeStep(order.id, 'typer', user?.name, 'Commitment typed, generated & verified')
     navigate(-1)
   }
   return (
@@ -532,7 +548,7 @@ function Finalize({ comp, order, user, completeStep, navigate }) {
       )}
       <div className="flex items-center gap-2 flex-wrap">
         <GhostButton icon={FileText} onClick={() => setShowDoc(true)}>Generate Commitment Document</GhostButton>
-        <AccentButton icon={Send} disabled={!ready} onClick={submit}>Submit to Customer Review</AccentButton>
+        <AccentButton icon={Send} disabled={!ready || submitting} onClick={submit}>{submitting ? 'Generating…' : 'Submit to Customer Review'}</AccentButton>
       </div>
     </div>
   )

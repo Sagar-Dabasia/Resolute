@@ -11,7 +11,6 @@ import {
 } from 'lucide-react'
 import { downloadCsv } from '../../lib/exportCsv'
 import AttachedDocs from '../../components/AttachedDocs'
-import { CommitmentDocumentModal } from '../../components/CommitmentDocument'
 import {
   USERS, MONTHLY_STATS, PAYMENT_METHODS, MESSAGES,
   STAGE_KEYS, STAGE_LABELS, displayClient, clientByName,
@@ -128,6 +127,7 @@ const orderFiles = (order) => {
   const out = []
   if (w.screenerDoc) out.push({ ...w.screenerDoc, stage: 'Screening' })
   if (w.examinerDoc) out.push({ ...w.examinerDoc, stage: 'Examination' })
+  if (w.commitmentDoc) out.push({ ...w.commitmentDoc, stage: 'Typing · Commitment' })
   return out
 }
 
@@ -135,7 +135,6 @@ function OrderEditModal({ order, user, onClose, onSave }) {
   const { activityLog } = useOrders()
   const cli = clientByName(order.client)
   const [tab, setTab] = useState('overview')
-  const [showDoc, setShowDoc] = useState(false)
   const [form, setForm] = useState({
     screener: order.screener, examiner: order.examiner, typer: order.typer,
     delivery: order.delivery, payment: order.payment, status: order.status,
@@ -170,18 +169,10 @@ function OrderEditModal({ order, user, onClose, onSave }) {
             <div style={{ fontSize:18, fontWeight:700, color:Q.text }}>{displayClient(order.client, user)}</div>
             <div style={{ fontSize:12, color:Q.muted }}>{order.type} · {order.county}, {order.state}</div>
           </div>
-          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-            <button onClick={() => setShowDoc(true)} title="View commitment document"
-              style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'7px 11px', borderRadius:8,
-                border:`1px solid ${Q.border}`, background:'#fff', color:Q.text, fontSize:12.5, fontWeight:600, cursor:'pointer' }}>
-              <FileText style={{ width:14, height:14 }} /> Document
-            </button>
-            <button onClick={onClose} style={{ background:'transparent', border:'none', cursor:'pointer', color:Q.faint }}>
-              <X style={{ width:18, height:18 }} />
-            </button>
-          </div>
+          <button onClick={onClose} style={{ background:'transparent', border:'none', cursor:'pointer', color:Q.faint }}>
+            <X style={{ width:18, height:18 }} />
+          </button>
         </div>
-        {showDoc && <CommitmentDocumentModal order={order} onClose={() => setShowDoc(false)} />}
 
         {/* Detail tabs */}
         <div style={{ display:'flex', gap:0, padding:'0 22px', borderBottom:`1px solid ${Q.border}` }}>
