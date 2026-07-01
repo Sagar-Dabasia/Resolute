@@ -14,6 +14,7 @@ const ROLES = [
   { key: 'typer',    label: 'Typer',    icon: Keyboard,    color: '#3e9ec4', desc: 'Type final reports',         demo: 'typer@resolute.com',    pass: 'typer123'    },
   { key: 'delivery', label: 'Delivery', icon: Truck,       color: '#c4783e', desc: 'Deliver completed searches', demo: 'delivery@resolute.com', pass: 'delivery123' },
   { key: 'client',   label: 'Client',   icon: Building2,   color: '#a0c070', desc: 'Place & track orders',       demo: 'client@resolute.com',   pass: 'client123'   },
+  { key: 'operator', label: 'All-in-One', icon: Users,     color: '#5a9ea0', desc: 'All phases, one desk',       demo: 'operator@resolute.com', pass: 'operator123' },
 ]
 
 // Admin tier accounts — super admins see full client detail, members see client codes only.

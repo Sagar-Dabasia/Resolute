@@ -35,7 +35,7 @@ export default function FulfillmentScreen() {
   useEffect(() => { if (order) ensure(order) }, [order, ensure])
   const f = order ? byOrder[id] : null
 
-  if (!order) return <div className="p-6 text-sm" style={{ color: T.muted }}>Order not found. <button className="underline" onClick={() => navigate('/typer')}>Back to queue</button></div>
+  if (!order) return <div className="p-6 text-sm" style={{ color: T.muted }}>Order not found. <button className="underline" onClick={() => navigate(-1)}>Back to queue</button></div>
   if (!f) return <div className="p-6 text-sm" style={{ color: T.muted }}>Loading…</div>
 
   const set = (recipe) => update(id, recipe)
@@ -45,7 +45,7 @@ export default function FulfillmentScreen() {
     <div className="-m-4 md:-m-6">
       {/* Order header */}
       <div className="px-5 md:px-7 pt-4 pb-0 border-b" style={{ borderColor: T.borderSoft, background: 'rgba(10,14,6,0.4)' }}>
-        <button onClick={() => navigate('/typer')}
+        <button onClick={() => navigate(-1)}
           className="inline-flex items-center gap-1.5 text-[12px] mb-3 transition-colors" style={{ color: T.faint }}
           onMouseOver={e => e.currentTarget.style.color = T.text} onMouseOut={e => e.currentTarget.style.color = T.faint}>
           <ArrowLeft className="w-3.5 h-3.5" /> Queue
@@ -511,7 +511,7 @@ function Finalize({ comp, order, user, completeStep, navigate }) {
   const submit = () => {
     if (!ready) return
     completeStep(order.id, 'typer', user?.name, 'Commitment typed & verified')
-    navigate('/typer')
+    navigate(-1)
   }
   return (
     <div>

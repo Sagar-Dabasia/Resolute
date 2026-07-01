@@ -73,6 +73,7 @@ export const USERS = [
   { id: 13, name: 'Owen Park',     email: 'owen.p@resolute.com',     role: 'examiner', status: 'active',   orders: 27, joined: '2025-08-05' },
   { id: 14, name: 'Leah Tran',     email: 'leah.t@resolute.com',     role: 'typer',    status: 'active',   orders: 19, joined: '2025-05-21' },
   { id: 15, name: 'Nina Reyes',    email: 'nina.r@resolute.com',     role: 'delivery', status: 'active',   orders: 31, joined: '2025-04-12' },
+  { id: 16, name: 'Jordan Blake',  email: 'operator@resolute.com',   role: 'operator', status: 'active',   orders: 26, joined: '2025-03-01' },
 ]
 
 // Fixed order of pipeline roles. Routing flexibility = Admin chooses WHO does

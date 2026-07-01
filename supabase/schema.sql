@@ -8,8 +8,10 @@ create extension if not exists "pgcrypto";
 
 -- ---- Enums ----------------------------------------------------------
 do $$ begin create type user_role as enum
-  ('admin','screener','examiner','typer','delivery','client');
+  ('admin','screener','examiner','typer','delivery','client','operator');
 exception when duplicate_object then null; end $$;
+-- For databases created before 'operator' existed:
+alter type user_role add value if not exists 'operator';
 
 do $$ begin create type order_status as enum
   ('received','screening','searching','examining','typing','delivered','onhold');
