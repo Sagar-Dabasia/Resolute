@@ -171,18 +171,22 @@ function PlaceOrderPage() {
   const [createdId, setCreatedId] = useState(null)
   const [form, setForm] = useState({
     searchType:'', state:'', county:'', address:'', city:'', zip:'', parcelId:'',
-    buyer:'', borrower:'', seller:'',
+    buyerFirst:'', buyerLast:'', borrowerFirst:'', borrowerLast:'', sellerFirst:'', sellerLast:'',
     priority:'normal', firstName:'', lastName:'', email:'', company:'', role:'', notes:''
   })
   const [submitted, setSubmitted] = useState(false)
   const set = (k,v) => setForm(f => ({ ...f, [k]:v }))
   const submit = () => {
+    const fullName = (a, b) => `${a || ''} ${b || ''}`.trim()
+    const buyer = fullName(form.buyerFirst, form.buyerLast)
+    const borrower = fullName(form.borrowerFirst, form.borrowerLast)
+    const seller = fullName(form.sellerFirst, form.sellerLast)
     const order = createOrder({
       state: form.state, county: form.county, type: form.searchType || 'Full Search',
       priority: form.priority,
       intake: {
         source: 'web', propertyAddress: [form.address, form.city, form.state, form.zip].filter(Boolean).join(', '),
-        parcelNumberAPN: form.parcelId, borrowerName: form.borrower, buyer: form.buyer, seller: form.seller,
+        parcelNumberAPN: form.parcelId, borrowerName: borrower, buyer, seller,
         orderType: form.searchType, from: `${form.firstName} ${form.lastName} <${form.email}>`.trim(),
         company: form.company, role: form.role, specialInstructions: form.notes,
       },
@@ -280,10 +284,18 @@ function PlaceOrderPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'#64748b' }}>Parties <span style={{textTransform:'none',opacity:.6}}>(optional)</span></label>
-                  <div className="grid grid-cols-3 gap-2">
-                    <input value={form.buyer} onChange={e=>set('buyer',e.target.value)} placeholder="Buyer" className="input-field text-sm"/>
-                    <input value={form.borrower} onChange={e=>set('borrower',e.target.value)} placeholder="Borrower" className="input-field text-sm"/>
-                    <input value={form.seller} onChange={e=>set('seller',e.target.value)} placeholder="Seller" className="input-field text-sm"/>
+                  <div className="space-y-2">
+                    {[
+                      { label:'Buyer',    first:'buyerFirst',    last:'buyerLast' },
+                      { label:'Borrower', first:'borrowerFirst', last:'borrowerLast' },
+                      { label:'Seller',   first:'sellerFirst',   last:'sellerLast' },
+                    ].map(p => (
+                      <div key={p.label} className="grid grid-cols-[80px,1fr,1fr] gap-2 items-center">
+                        <span className="text-xs font-medium" style={{ color:'#475569' }}>{p.label}</span>
+                        <input value={form[p.first]} onChange={e=>set(p.first,e.target.value)} placeholder="First Name" className="input-field text-sm"/>
+                        <input value={form[p.last]}  onChange={e=>set(p.last,e.target.value)}  placeholder="Last Name"  className="input-field text-sm"/>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
