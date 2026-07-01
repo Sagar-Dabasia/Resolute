@@ -41,29 +41,29 @@ function OrderModal({ order, onClose }) {
         <div className="flex items-start justify-between mb-6">
           <div>
             <div className="font-mono font-semibold text-sm" style={{ color: ROLE_COLOR }}>{order.id}</div>
-            <div className="text-xl font-bold mt-0.5" style={{ color: '#f5ede0' }}>{displayClient(order.client, user)}</div>
+            <div className="text-xl font-bold mt-0.5" style={{ color: '#1e293b' }}>{displayClient(order.client, user)}</div>
           </div>
-          <button onClick={onClose} style={{ color: 'rgba(245,237,224,0.30)' }}><X className="w-5 h-5" /></button>
+          <button onClick={onClose} style={{ color: 'rgba(30,41,59,0.30)' }}><X className="w-5 h-5" /></button>
         </div>
         <div className="grid grid-cols-2 gap-3 mb-5">
           {[['State/County',`${order.state} · ${order.county}`],['Search Type',order.type],
             ['Priority',order.priority.toUpperCase()],['ETA',order.eta]].map(([k,v]) => (
             <div key={k} className="glass p-3 rounded-xl">
-              <div className="text-xs mb-1" style={{ color: 'rgba(245,237,224,0.32)' }}>{k}</div>
-              <div className="font-medium text-sm" style={{ color: '#f5ede0' }}>{v}</div>
+              <div className="text-xs mb-1" style={{ color: 'rgba(30,41,59,0.32)' }}>{k}</div>
+              <div className="font-medium text-sm" style={{ color: '#1e293b' }}>{v}</div>
             </div>
           ))}
         </div>
         <div className="mb-4">
           <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
-            style={{ color: 'rgba(245,237,224,0.38)' }}>Assign Search To</label>
+            style={{ color: 'rgba(30,41,59,0.38)' }}>Assign Search To</label>
           <div className="grid grid-cols-3 gap-2">
             {ASSIGN_OPTS.map(([k, l]) => (
               <button key={k} onClick={() => setAssignment(k)}
                 className="py-2.5 rounded-lg text-xs font-semibold transition-all"
                 style={assignment === k
                   ? { background: `${ROLE_COLOR}28`, color: ROLE_COLOR, border: `1px solid ${ROLE_COLOR}55` }
-                  : { background: 'rgba(245,240,224,0.05)', color: 'rgba(245,237,224,0.40)', border: '1px solid rgba(245,240,224,0.08)' }}>
+                  : { background: 'rgba(30,41,59,0.05)', color: 'rgba(30,41,59,0.40)', border: '1px solid rgba(30,41,59,0.08)' }}>
                 {l}
               </button>
             ))}
@@ -71,7 +71,7 @@ function OrderModal({ order, onClose }) {
         </div>
         <div className="mb-4">
           <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
-            style={{ color: 'rgba(245,237,224,0.38)' }}>Search Document <span style={{ textTransform: 'none', opacity: 0.6 }}>(optional)</span></label>
+            style={{ color: 'rgba(30,41,59,0.38)' }}>Search Document <span style={{ textTransform: 'none', opacity: 0.6 }}>(optional)</span></label>
           <DocUpload orderId={order.id} value={doc} onChange={setDoc} accent={ROLE_COLOR} />
         </div>
         <textarea value={notes} onChange={e => setNotes(e.target.value)}
@@ -84,7 +84,7 @@ function OrderModal({ order, onClose }) {
           </button>
           <button className="btn-secondary text-sm py-2.5 px-4" onClick={onClose}>Hold</button>
         </div>
-        {!assignment && <p className="text-[11px] mt-2" style={{ color: 'rgba(245,237,224,0.35)' }}>Choose who conducts the search to continue.</p>}
+        {!assignment && <p className="text-[11px] mt-2" style={{ color: 'rgba(30,41,59,0.35)' }}>Choose who conducts the search to continue.</p>}
       </motion.div>
     </div>
   )
@@ -99,8 +99,8 @@ function ScreenerHome() {
     <div className="space-y-6">
       {selected && <OrderModal order={selected} onClose={() => setSelected(null)} />}
       <div>
-        <h1 className="text-2xl font-bold" style={{ color: '#f5ede0' }}>Screening Dashboard</h1>
-        <p className="text-sm" style={{ color: 'rgba(245,237,224,0.45)' }}>Review and validate incoming title search requests</p>
+        <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Screening Dashboard</h1>
+        <p className="text-sm" style={{ color: 'rgba(30,41,59,0.45)' }}>Review and validate incoming title search requests</p>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
@@ -113,19 +113,19 @@ function ScreenerHome() {
             <div className="w-9 h-9 rounded-xl mb-3 flex items-center justify-center" style={{ background: `${s.color}22` }}>
               <s.icon className="w-4 h-4" style={{ color: s.color }} />
             </div>
-            <div className="text-2xl font-bold" style={{ color: '#f5ede0' }}>{s.value}</div>
-            <div className="text-sm" style={{ color: 'rgba(245,237,224,0.45)' }}>{s.label}</div>
+            <div className="text-2xl font-bold" style={{ color: '#1e293b' }}>{s.value}</div>
+            <div className="text-sm" style={{ color: 'rgba(30,41,59,0.45)' }}>{s.label}</div>
           </motion.div>
         ))}
       </div>
       <div className="glass-card p-5">
-        <h2 className="font-semibold mb-4" style={{ color: '#f5ede0' }}>My Screening Queue</h2>
+        <h2 className="font-semibold mb-4" style={{ color: '#1e293b' }}>My Screening Queue</h2>
         <div className="space-y-3">
           {myOrders.map((o, i) => (
             <motion.div key={o.id} initial={{ opacity:0, x:-8 }} animate={{ opacity:1, x:0 }}
               transition={{ delay: i * 0.07 }}
               className="flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all"
-              style={{ background:'rgba(245,240,224,0.03)', border:'1px solid rgba(138,194,104,0.08)' }}
+              style={{ background:'rgba(30,41,59,0.03)', border:'1px solid rgba(138,194,104,0.08)' }}
               onMouseOver={e => e.currentTarget.style.borderColor = 'rgba(138,194,104,0.25)'}
               onMouseOut={e => e.currentTarget.style.borderColor = 'rgba(138,194,104,0.08)'}
               onClick={() => setSelected(o)}>
@@ -138,17 +138,17 @@ function ScreenerHome() {
                       style={{ background:'rgba(220,80,60,0.18)', color:'#e08080' }}>RUSH</span>
                   )}
                 </div>
-                <div className="font-medium text-sm mt-0.5 truncate" style={{ color:'#f5ede0' }}>{displayClient(o.client, user)}</div>
-                <div className="text-xs" style={{ color:'rgba(245,237,224,0.42)' }}>{o.type} · {o.state}, {o.county}</div>
+                <div className="font-medium text-sm mt-0.5 truncate" style={{ color:'#1e293b' }}>{displayClient(o.client, user)}</div>
+                <div className="text-xs" style={{ color:'rgba(30,41,59,0.42)' }}>{o.type} · {o.state}, {o.county}</div>
               </div>
               <div className="text-right flex-shrink-0">
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-full capitalize"
                   style={{ background: `${STATUS_DOT[o.status] || ROLE_COLOR}22`, color: STATUS_DOT[o.status] || ROLE_COLOR }}>
                   {o.status}
                 </span>
-                <div className="text-xs mt-1" style={{ color:'rgba(245,237,224,0.28)' }}>ETA {o.eta}</div>
+                <div className="text-xs mt-1" style={{ color:'rgba(30,41,59,0.28)' }}>ETA {o.eta}</div>
               </div>
-              <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color:'rgba(245,237,224,0.18)' }} />
+              <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color:'rgba(30,41,59,0.18)' }} />
             </motion.div>
           ))}
         </div>
@@ -166,11 +166,11 @@ export default function ScreenerDashboard() {
       <Routes>
         <Route index element={<ScreenerHome />} />
         <Route path="queue" element={<div className="space-y-6">
-          <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>Screening Queue</h1>
+          <h1 className="text-2xl font-bold" style={{color:'#1e293b'}}>Screening Queue</h1>
           <div className="glass-card p-5"><OrdersTable orders={myOrders} /></div>
         </div>} />
         <Route path="completed" element={<div className="space-y-6">
-          <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>Completed Screenings</h1>
+          <h1 className="text-2xl font-bold" style={{color:'#1e293b'}}>Completed Screenings</h1>
           <div className="glass-card p-5"><OrdersTable orders={completed} /></div>
         </div>} />
       </Routes>

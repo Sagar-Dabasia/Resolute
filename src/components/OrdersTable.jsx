@@ -19,15 +19,15 @@ function ProgressBar({ status, progress }) {
                 ? '#4d8c2a'
                 : i === idx
                 ? '#8fc268'
-                : 'rgba(245,240,224,0.10)',
+                : 'rgba(30,41,59,0.10)',
             }} />
         ))}
       </div>
       <div className="flex justify-between">
-        <span className="text-xs" style={{ color: 'rgba(245,237,224,0.32)' }}>
+        <span className="text-xs" style={{ color: 'rgba(30,41,59,0.32)' }}>
           {STEP_LABELS[idx] || '—'}
         </span>
-        <span className="text-xs" style={{ color: 'rgba(245,237,224,0.32)' }}>{progress}%</span>
+        <span className="text-xs" style={{ color: 'rgba(30,41,59,0.32)' }}>{progress}%</span>
       </div>
     </div>
   )
@@ -62,7 +62,7 @@ export default function OrdersTable({ orders, showAssignees = false, onOrderClic
       <div className="flex items-center gap-3 mb-4 flex-wrap">
         <div className="relative flex-1 min-w-[200px] max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
-            style={{ color: 'rgba(245,237,224,0.28)' }} />
+            style={{ color: 'rgba(30,41,59,0.28)' }} />
           <input value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Search orders…" className="input-field pl-9 py-2 text-sm" />
         </div>
@@ -71,9 +71,9 @@ export default function OrdersTable({ orders, showAssignees = false, onOrderClic
             <button key={s} onClick={() => setFilter(s)}
               className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 capitalize"
               style={{
-                background: filter === s ? '#3d7020' : 'rgba(245,240,224,0.05)',
-                color:      filter === s ? '#f5ede0' : 'rgba(245,237,224,0.40)',
-                border:     filter === s ? '1px solid rgba(138,194,104,0.35)' : '1px solid rgba(245,240,224,0.08)',
+                background: filter === s ? '#3d7020' : 'rgba(30,41,59,0.05)',
+                color:      filter === s ? '#1e293b' : 'rgba(30,41,59,0.40)',
+                border:     filter === s ? '1px solid rgba(138,194,104,0.35)' : '1px solid rgba(30,41,59,0.08)',
               }}>
               {s}
             </button>
@@ -88,7 +88,7 @@ export default function OrdersTable({ orders, showAssignees = false, onOrderClic
               {['Order ID','Client','Location','Type','Status','Progress',
                 ...(showAssignees ? ['Assigned'] : []), 'Priority',''].map(h => (
                 <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider whitespace-nowrap"
-                  style={{ color: 'rgba(245,237,224,0.30)' }}>
+                  style={{ color: 'rgba(30,41,59,0.30)' }}>
                   {h}
                 </th>
               ))}
@@ -103,19 +103,19 @@ export default function OrdersTable({ orders, showAssignees = false, onOrderClic
                   transition={{ delay: i * 0.03 }}
                   className="cursor-pointer transition-colors"
                   style={{ borderBottom: '1px solid rgba(138,194,104,0.06)' }}
-                  onMouseOver={e => e.currentTarget.style.background = 'rgba(245,240,224,0.03)'}
+                  onMouseOver={e => e.currentTarget.style.background = 'rgba(30,41,59,0.03)'}
                   onMouseOut={e => e.currentTarget.style.background = 'transparent'}
                   onClick={() => onOrderClick?.(order)}>
                   <td className="px-4 py-3 font-mono font-semibold whitespace-nowrap" style={{ color: '#8fc268' }}>
                     {order.id}
                   </td>
-                  <td className="px-4 py-3 font-medium whitespace-nowrap" style={{ color: '#f5ede0' }}>
+                  <td className="px-4 py-3 font-medium whitespace-nowrap" style={{ color: '#1e293b' }}>
                     {displayClient(order.client, user)}
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'rgba(245,237,224,0.52)' }}>
+                  <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'rgba(30,41,59,0.52)' }}>
                     {order.state} · {order.county}
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'rgba(245,237,224,0.52)' }}>
+                  <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'rgba(30,41,59,0.52)' }}>
                     {order.type}
                   </td>
                   <td className="px-4 py-3">
@@ -129,7 +129,7 @@ export default function OrdersTable({ orders, showAssignees = false, onOrderClic
                     <ProgressBar status={order.status} progress={order.progress} />
                   </td>
                   {showAssignees && (
-                    <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: 'rgba(245,237,224,0.38)' }}>
+                    <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: 'rgba(30,41,59,0.38)' }}>
                       {order.screener}
                     </td>
                   )}
@@ -137,14 +137,14 @@ export default function OrdersTable({ orders, showAssignees = false, onOrderClic
                     <span className="text-xs font-semibold px-2 py-0.5 rounded-md"
                       style={order.priority === 'rush'
                         ? { background: 'rgba(220,80,60,0.18)', color: '#e08080' }
-                        : { background: 'rgba(245,240,224,0.07)', color: 'rgba(245,237,224,0.38)' }}>
+                        : { background: 'rgba(30,41,59,0.07)', color: 'rgba(30,41,59,0.38)' }}>
                       {order.priority.toUpperCase()}
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <button className="transition-colors" style={{ color: 'rgba(245,237,224,0.18)' }}
-                      onMouseOver={e => e.currentTarget.style.color = '#f5ede0'}
-                      onMouseOut={e => e.currentTarget.style.color = 'rgba(245,237,224,0.18)'}
+                    <button className="transition-colors" style={{ color: 'rgba(30,41,59,0.18)' }}
+                      onMouseOver={e => e.currentTarget.style.color = '#1e293b'}
+                      onMouseOut={e => e.currentTarget.style.color = 'rgba(30,41,59,0.18)'}
                       onClick={e => e.stopPropagation()}>
                       <MoreHorizontal className="w-4 h-4" />
                     </button>
@@ -155,7 +155,7 @@ export default function OrdersTable({ orders, showAssignees = false, onOrderClic
           </tbody>
         </table>
         {filtered.length === 0 && (
-          <div className="text-center py-12 text-sm" style={{ color: 'rgba(245,237,224,0.28)' }}>
+          <div className="text-center py-12 text-sm" style={{ color: 'rgba(30,41,59,0.28)' }}>
             No orders found
           </div>
         )}

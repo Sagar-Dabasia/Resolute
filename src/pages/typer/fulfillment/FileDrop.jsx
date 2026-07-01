@@ -86,7 +86,7 @@ export function FileRow({ file, onRemove, onRetry, onReplace, checkbox, checked,
       <div className="flex-1 min-w-0">
         <div className="text-[13px] font-medium truncate" style={{ color: T.text }}>{file.name}</div>
         {file.status === 'uploading' ? (
-          <div className="mt-1 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(245,240,224,0.08)' }}>
+          <div className="mt-1 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(30,41,59,0.08)' }}>
             <motion.div className="h-full rounded-full" style={{ background: T.accentBright }}
               animate={{ width: `${file.progress}%` }} transition={{ ease: 'linear' }} />
           </div>

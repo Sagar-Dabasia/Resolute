@@ -86,7 +86,7 @@ export default function USAMap({ compact = false }) {
         <div className="absolute inset-0 flex items-center justify-center gap-3">
           <div className="w-5 h-5 border-2 rounded-full animate-spin"
             style={{ borderColor: 'rgba(143,194,104,0.25)', borderTopColor: 'rgba(143,194,104,0.8)' }} />
-          <span className="text-xs" style={{ color: 'rgba(245,240,224,0.4)' }}>Loading map…</span>
+          <span className="text-xs" style={{ color: 'rgba(30,41,59,0.4)' }}>Loading map…</span>
         </div>
       )}
 
@@ -136,7 +136,7 @@ export default function USAMap({ compact = false }) {
                   dominantBaseline="middle"
                   fontSize={orders > 10 ? 9 : 7}
                   fontWeight={orders > 10 ? '600' : '400'}
-                  fill={isHovered ? 'rgba(245,240,224,0.95)' : 'rgba(245,240,224,0.55)'}
+                  fill={isHovered ? 'rgba(30,41,59,0.95)' : 'rgba(30,41,59,0.55)'}
                   style={{ pointerEvents: 'none', userSelect: 'none' }}
                 >
                   {st.abbrev}
@@ -178,13 +178,13 @@ export default function USAMap({ compact = false }) {
           >
             <div className="glass-card px-4 py-3 min-w-[170px]"
               style={{ border: '1px solid rgba(143,194,104,0.35)' }}>
-              <div className="font-semibold text-sm mb-0.5" style={{ color: '#f5ede0' }}>
+              <div className="font-semibold text-sm mb-0.5" style={{ color: '#1e293b' }}>
                 {NAMES[hovered] || hovered}
               </div>
               <div className="text-xs font-medium mb-2" style={{ color: '#8fc268' }}>
                 {STATE_ORDERS[hovered] || 0} active orders
               </div>
-              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(245,240,224,0.10)' }}>
+              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(30,41,59,0.10)' }}>
                 <div className="h-full rounded-full"
                   style={{
                     width: `${((STATE_ORDERS[hovered] || 0) / maxOrders) * 100}%`,
@@ -200,7 +200,7 @@ export default function USAMap({ compact = false }) {
       {/* Legend */}
       {!compact && (
         <div className="absolute bottom-1 right-3 flex items-center gap-3 flex-wrap">
-          <span className="text-xs" style={{ color: 'rgba(245,240,224,0.30)' }}>Orders</span>
+          <span className="text-xs" style={{ color: 'rgba(30,41,59,0.30)' }}>Orders</span>
           {[
             ['rgba(61,112,32,0.38)',  '1–4'],
             ['rgba(77,140,42,0.56)',  '5–9'],
@@ -209,7 +209,7 @@ export default function USAMap({ compact = false }) {
           ].map(([c, l]) => (
             <div key={l} className="flex items-center gap-1.5">
               <div className="w-3 h-3 rounded-sm" style={{ background: c, border: '1px solid rgba(143,194,104,0.25)' }} />
-              <span className="text-xs" style={{ color: 'rgba(245,240,224,0.30)' }}>{l}</span>
+              <span className="text-xs" style={{ color: 'rgba(30,41,59,0.30)' }}>{l}</span>
             </div>
           ))}
         </div>

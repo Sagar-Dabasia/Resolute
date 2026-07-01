@@ -36,45 +36,45 @@ function ExamineModal({ order, onClose }) {
         <div className="flex items-start justify-between mb-6">
           <div>
             <div className="font-mono font-semibold text-sm" style={{ color: ROLE_COLOR }}>{order.id}</div>
-            <div className="text-xl font-bold" style={{ color:'#f5ede0' }}>{displayClient(order.client, user)}</div>
-            <div className="text-sm" style={{ color:'rgba(245,237,224,0.42)' }}>{order.type} · {order.state}, {order.county} County</div>
+            <div className="text-xl font-bold" style={{ color:'#1e293b' }}>{displayClient(order.client, user)}</div>
+            <div className="text-sm" style={{ color:'rgba(30,41,59,0.42)' }}>{order.type} · {order.state}, {order.county} County</div>
           </div>
-          <button onClick={onClose} style={{ color:'rgba(245,237,224,0.30)' }}><X className="w-5 h-5" /></button>
+          <button onClick={onClose} style={{ color:'rgba(30,41,59,0.30)' }}><X className="w-5 h-5" /></button>
         </div>
         <div className="grid grid-cols-2 gap-3 mb-5">
           {[['Search Type',order.type],['County',order.county],['State',order.state],['Priority',order.priority.toUpperCase()]].map(([k,v]) => (
             <div key={k} className="glass p-3 rounded-xl">
-              <div className="text-xs mb-1" style={{ color:'rgba(245,237,224,0.32)' }}>{k}</div>
-              <div className="font-medium text-sm" style={{ color:'#f5ede0' }}>{v}</div>
+              <div className="text-xs mb-1" style={{ color:'rgba(30,41,59,0.32)' }}>{k}</div>
+              <div className="font-medium text-sm" style={{ color:'#1e293b' }}>{v}</div>
             </div>
           ))}
         </div>
         <div className="space-y-4 mb-5">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
-              style={{ color:'rgba(245,237,224,0.38)' }}>Examination Checklist</label>
+              style={{ color:'rgba(30,41,59,0.38)' }}>Examination Checklist</label>
             <div className="space-y-2">
               {['Chain of title verified','Tax status confirmed','Lien search completed',
                 'HOA status checked','Easements/encumbrances noted'].map(item => (
                 <label key={item} className="flex items-center gap-3 cursor-pointer p-2.5 rounded-lg transition-colors"
-                  onMouseOver={e=>e.currentTarget.style.background='rgba(245,240,224,0.05)'}
+                  onMouseOver={e=>e.currentTarget.style.background='rgba(30,41,59,0.05)'}
                   onMouseOut={e=>e.currentTarget.style.background='transparent'}>
                   <input type="checkbox" className="w-4 h-4 rounded" style={{ accentColor: ROLE_COLOR }} />
-                  <span className="text-sm" style={{ color:'rgba(245,237,224,0.65)' }}>{item}</span>
+                  <span className="text-sm" style={{ color:'rgba(30,41,59,0.65)' }}>{item}</span>
                 </label>
               ))}
             </div>
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
-              style={{ color:'rgba(245,237,224,0.38)' }}>Issues Found</label>
+              style={{ color:'rgba(30,41,59,0.38)' }}>Issues Found</label>
             <div className="grid grid-cols-2 gap-3">
               {[['Open Liens',liens,setLiens],['Encumbrances',encumbrances,setEncumbrances]].map(([l,v,s]) => (
                 <button key={l} onClick={() => s(!v)}
                   className="p-3 rounded-xl text-sm font-medium transition-all border"
                   style={v
                     ? { border:'1px solid rgba(220,80,60,0.40)', background:'rgba(220,80,60,0.14)', color:'#e08080' }
-                    : { border:'1px solid rgba(245,240,224,0.08)', color:'rgba(245,237,224,0.40)' }}>
+                    : { border:'1px solid rgba(30,41,59,0.08)', color:'rgba(30,41,59,0.40)' }}>
                   {l}: {v ? 'YES' : 'NO'}
                 </button>
               ))}
@@ -82,12 +82,12 @@ function ExamineModal({ order, onClose }) {
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
-              style={{ color:'rgba(245,237,224,0.38)' }}>Researched Document <span style={{ textTransform:'none', color:'#e08080' }}>*required</span></label>
+              style={{ color:'rgba(30,41,59,0.38)' }}>Researched Document <span style={{ textTransform:'none', color:'#e08080' }}>*required</span></label>
             <DocUpload orderId={order.id} value={doc} onChange={setDoc} accent={ROLE_COLOR} />
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
-              style={{ color:'rgba(245,237,224,0.38)' }}>Examination Notes</label>
+              style={{ color:'rgba(30,41,59,0.38)' }}>Examination Notes</label>
             <textarea value={findings} onChange={e=>setFindings(e.target.value)}
               placeholder="Document findings, chain of title issues, liens, easements…"
               rows={3} className="input-field text-sm resize-none" />
@@ -101,7 +101,7 @@ function ExamineModal({ order, onClose }) {
           </button>
           <button className="btn-secondary text-sm py-2.5 px-4" onClick={onClose}>Save Draft</button>
         </div>
-        {(!doc || doc.status !== 'done') && <p className="text-[11px] mt-2" style={{ color:'rgba(245,237,224,0.35)' }}>Upload the researched document to continue.</p>}
+        {(!doc || doc.status !== 'done') && <p className="text-[11px] mt-2" style={{ color:'rgba(30,41,59,0.35)' }}>Upload the researched document to continue.</p>}
       </motion.div>
     </div>
   )
@@ -116,8 +116,8 @@ function ExaminerHome() {
     <div className="space-y-6">
       {selected && <ExamineModal order={selected} onClose={() => setSelected(null)} />}
       <div>
-        <h1 className="text-2xl font-bold" style={{ color:'#f5ede0' }}>Examiner Dashboard</h1>
-        <p className="text-sm" style={{ color:'rgba(245,237,224,0.45)' }}>Examine title documents and verify chain of title</p>
+        <h1 className="text-2xl font-bold" style={{ color:'#1e293b' }}>Examiner Dashboard</h1>
+        <p className="text-sm" style={{ color:'rgba(30,41,59,0.45)' }}>Examine title documents and verify chain of title</p>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
@@ -130,19 +130,19 @@ function ExaminerHome() {
             <div className="w-9 h-9 rounded-xl mb-3 flex items-center justify-center" style={{ background:`${s.color}22` }}>
               <s.icon className="w-4 h-4" style={{ color:s.color }} />
             </div>
-            <div className="text-2xl font-bold" style={{ color:'#f5ede0' }}>{s.value}</div>
-            <div className="text-sm" style={{ color:'rgba(245,237,224,0.45)' }}>{s.label}</div>
+            <div className="text-2xl font-bold" style={{ color:'#1e293b' }}>{s.value}</div>
+            <div className="text-sm" style={{ color:'rgba(30,41,59,0.45)' }}>{s.label}</div>
           </motion.div>
         ))}
       </div>
       <div className="glass-card p-5">
-        <h2 className="font-semibold mb-4" style={{ color:'#f5ede0' }}>Examination Queue</h2>
+        <h2 className="font-semibold mb-4" style={{ color:'#1e293b' }}>Examination Queue</h2>
         <div className="space-y-3">
           {myOrders.map((o,i) => (
             <motion.div key={o.id} initial={{ opacity:0, x:-8 }} animate={{ opacity:1, x:0 }}
               transition={{ delay:i*0.07 }}
               className="flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all"
-              style={{ background:'rgba(245,240,224,0.03)', border:'1px solid rgba(138,194,104,0.08)' }}
+              style={{ background:'rgba(30,41,59,0.03)', border:'1px solid rgba(138,194,104,0.08)' }}
               onMouseOver={e=>e.currentTarget.style.borderColor='rgba(196,164,78,0.30)'}
               onMouseOut={e=>e.currentTarget.style.borderColor='rgba(138,194,104,0.08)'}
               onClick={() => setSelected(o)}>
@@ -154,9 +154,9 @@ function ExaminerHome() {
                       style={{ background:'rgba(220,80,60,0.18)', color:'#e08080' }}>RUSH</span>
                   )}
                 </div>
-                <div className="font-medium text-sm truncate" style={{ color:'#f5ede0' }}>{displayClient(o.client, user)}</div>
-                <div className="text-xs" style={{ color:'rgba(245,237,224,0.42)' }}>{o.type} · {o.state}, {o.county}</div>
-                <div className="mt-2 h-1.5 rounded-full overflow-hidden" style={{ background:'rgba(245,240,224,0.10)' }}>
+                <div className="font-medium text-sm truncate" style={{ color:'#1e293b' }}>{displayClient(o.client, user)}</div>
+                <div className="text-xs" style={{ color:'rgba(30,41,59,0.42)' }}>{o.type} · {o.state}, {o.county}</div>
+                <div className="mt-2 h-1.5 rounded-full overflow-hidden" style={{ background:'rgba(30,41,59,0.10)' }}>
                   <div className="h-full rounded-full transition-all"
                     style={{ width:`${o.progress}%`, background:'linear-gradient(90deg,#4d8c2a,#c4a44e)' }} />
                 </div>
@@ -164,9 +164,9 @@ function ExaminerHome() {
               <div className="text-right flex-shrink-0">
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-full capitalize"
                   style={{ background:`${ROLE_COLOR}22`, color:ROLE_COLOR }}>{o.status}</span>
-                <div className="text-xs mt-1" style={{ color:'rgba(245,237,224,0.28)' }}>{o.progress}%</div>
+                <div className="text-xs mt-1" style={{ color:'rgba(30,41,59,0.28)' }}>{o.progress}%</div>
               </div>
-              <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color:'rgba(245,237,224,0.18)' }} />
+              <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color:'rgba(30,41,59,0.18)' }} />
             </motion.div>
           ))}
         </div>
@@ -184,11 +184,11 @@ export default function ExaminerDashboard() {
       <Routes>
         <Route index element={<ExaminerHome />} />
         <Route path="examine" element={<div className="space-y-6">
-          <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>To Examine</h1>
+          <h1 className="text-2xl font-bold" style={{color:'#1e293b'}}>To Examine</h1>
           <div className="glass-card p-5"><OrdersTable orders={myOrders} /></div>
         </div>} />
         <Route path="completed" element={<div className="space-y-6">
-          <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>Completed</h1>
+          <h1 className="text-2xl font-bold" style={{color:'#1e293b'}}>Completed</h1>
           <div className="glass-card p-5"><OrdersTable orders={completed} /></div>
         </div>} />
       </Routes>

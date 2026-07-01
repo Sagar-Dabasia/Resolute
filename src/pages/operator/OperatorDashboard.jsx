@@ -59,10 +59,10 @@ function StageModal({ order, onClose }) {
               <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md"
                 style={{ background: `${meta.color}22`, color: meta.color }}>{meta.label}</span>
             </div>
-            <div className="text-lg font-bold mt-0.5" style={{ color: '#f5ede0' }}>{displayClient(order.client, user)}</div>
-            <div className="text-xs" style={{ color: 'rgba(245,237,224,0.42)' }}>{order.type} · {order.state}, {order.county} County</div>
+            <div className="text-lg font-bold mt-0.5" style={{ color: '#1e293b' }}>{displayClient(order.client, user)}</div>
+            <div className="text-xs" style={{ color: 'rgba(30,41,59,0.42)' }}>{order.type} · {order.state}, {order.county} County</div>
           </div>
-          <button onClick={onClose} style={{ color: 'rgba(245,237,224,0.30)' }}><X className="w-5 h-5" /></button>
+          <button onClick={onClose} style={{ color: 'rgba(30,41,59,0.30)' }}><X className="w-5 h-5" /></button>
         </div>
 
         {/* Screening */}
@@ -75,7 +75,7 @@ function StageModal({ order, onClose }) {
                   className="py-2.5 rounded-lg text-xs font-semibold transition-all"
                   style={assignment === k
                     ? { background: `${ROLE_COLOR}28`, color: ROLE_COLOR, border: `1px solid ${ROLE_COLOR}55` }
-                    : { background: 'rgba(245,240,224,0.05)', color: 'rgba(245,237,224,0.40)', border: '1px solid rgba(245,240,224,0.08)' }}>
+                    : { background: 'rgba(30,41,59,0.05)', color: 'rgba(30,41,59,0.40)', border: '1px solid rgba(30,41,59,0.08)' }}>
                   {l}
                 </button>
               ))}
@@ -97,8 +97,8 @@ function StageModal({ order, onClose }) {
         {role === 'typer' && (
           <div className="mb-4 p-4 rounded-xl" style={{ background: 'rgba(62,158,196,0.10)', border: '1px solid rgba(62,158,196,0.25)' }}>
             <div className="flex items-center gap-2 mb-1"><Keyboard className="w-4 h-4" style={{ color: '#3e9ec4' }} />
-              <span className="font-semibold text-sm" style={{ color: '#f5ede0' }}>Type the commitment</span></div>
-            <p className="text-xs mb-3" style={{ color: 'rgba(245,237,224,0.45)' }}>Opens the full sectioned fulfillment form. Submitting there advances the order.</p>
+              <span className="font-semibold text-sm" style={{ color: '#1e293b' }}>Type the commitment</span></div>
+            <p className="text-xs mb-3" style={{ color: 'rgba(30,41,59,0.45)' }}>Opens the full sectioned fulfillment form. Submitting there advances the order.</p>
             <button onClick={() => { onClose(); navigate(`/operator/order/${order.id}`) }}
               className="btn-primary text-sm py-2.5 w-full flex items-center justify-center gap-2">
               <FileText className="w-4 h-4" /> Open Fulfillment Form
@@ -115,13 +115,13 @@ function StageModal({ order, onClose }) {
                 <button key={k} onClick={() => setMethod(k)}
                   className="py-2.5 rounded-xl text-sm font-medium transition-all border"
                   style={method === k
-                    ? { background: `${ROLE_COLOR}22`, border: `1px solid ${ROLE_COLOR}55`, color: '#f5ede0' }
-                    : { border: '1px solid rgba(245,240,224,0.08)', color: 'rgba(245,237,224,0.40)' }}>
+                    ? { background: `${ROLE_COLOR}22`, border: `1px solid ${ROLE_COLOR}55`, color: '#1e293b' }
+                    : { border: '1px solid rgba(30,41,59,0.08)', color: 'rgba(30,41,59,0.40)' }}>
                   {l}
                 </button>
               ))}
             </div>
-            <p className="text-[11px] mb-4" style={{ color: 'rgba(245,237,224,0.40)' }}>
+            <p className="text-[11px] mb-4" style={{ color: 'rgba(30,41,59,0.40)' }}>
               {method === 'email' ? 'Full package + invoice emailed to the client.' : 'Package posted to the client portal; invoice reflected there.'}
             </p>
           </>
@@ -149,7 +149,7 @@ function StageModal({ order, onClose }) {
 }
 
 const Lbl = ({ children }) => (
-  <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'rgba(245,237,224,0.38)' }}>{children}</label>
+  <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'rgba(30,41,59,0.38)' }}>{children}</label>
 )
 
 function OperatorHome() {
@@ -163,8 +163,8 @@ function OperatorHome() {
     <div className="space-y-6">
       {selected && <StageModal order={selected} onClose={() => setSelected(null)} />}
       <div>
-        <h1 className="text-2xl font-bold" style={{ color: '#f5ede0' }}>All-in-One Workspace</h1>
-        <p className="text-sm" style={{ color: 'rgba(245,237,224,0.45)' }}>Run every stage — screening through delivery — from one desk</p>
+        <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>All-in-One Workspace</h1>
+        <p className="text-sm" style={{ color: 'rgba(30,41,59,0.45)' }}>Run every stage — screening through delivery — from one desk</p>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {Object.entries(STAGE).map(([r, s]) => (
@@ -172,13 +172,13 @@ function OperatorHome() {
             <div className="w-9 h-9 rounded-xl mb-3 flex items-center justify-center" style={{ background: `${s.color}22` }}>
               <Layers className="w-4 h-4" style={{ color: s.color }} />
             </div>
-            <div className="text-2xl font-bold" style={{ color: '#f5ede0' }}>{byStage(r)}</div>
-            <div className="text-sm" style={{ color: 'rgba(245,237,224,0.45)' }}>In {s.label}</div>
+            <div className="text-2xl font-bold" style={{ color: '#1e293b' }}>{byStage(r)}</div>
+            <div className="text-sm" style={{ color: 'rgba(30,41,59,0.45)' }}>In {s.label}</div>
           </motion.div>
         ))}
       </div>
       <div className="glass-card p-5">
-        <h2 className="font-semibold mb-4" style={{ color: '#f5ede0' }}>Active Orders</h2>
+        <h2 className="font-semibold mb-4" style={{ color: '#1e293b' }}>Active Orders</h2>
         <div className="space-y-3">
           {active.map((o, i) => {
             const role = nextRoleFor(o)
@@ -186,7 +186,7 @@ function OperatorHome() {
             return (
               <motion.div key={o.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
                 className="flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all"
-                style={{ background: 'rgba(245,240,224,0.03)', border: '1px solid rgba(138,194,104,0.08)' }}
+                style={{ background: 'rgba(30,41,59,0.03)', border: '1px solid rgba(138,194,104,0.08)' }}
                 onMouseOver={e => e.currentTarget.style.borderColor = `${s.color}55`}
                 onMouseOut={e => e.currentTarget.style.borderColor = 'rgba(138,194,104,0.08)'}
                 onClick={() => setSelected(o)}>
@@ -196,18 +196,18 @@ function OperatorHome() {
                     <span className="font-mono font-semibold text-sm" style={{ color: ROLE_COLOR }}>{o.id}</span>
                     {o.priority === 'rush' && <span className="text-xs font-semibold px-2 py-0.5 rounded-md" style={{ background: 'rgba(220,80,60,0.18)', color: '#e08080' }}>RUSH</span>}
                   </div>
-                  <div className="font-medium text-sm mt-0.5 truncate" style={{ color: '#f5ede0' }}>{displayClient(o.client, user)}</div>
-                  <div className="text-xs" style={{ color: 'rgba(245,237,224,0.42)' }}>{o.type} · {o.state}, {o.county}</div>
+                  <div className="font-medium text-sm mt-0.5 truncate" style={{ color: '#1e293b' }}>{displayClient(o.client, user)}</div>
+                  <div className="text-xs" style={{ color: 'rgba(30,41,59,0.42)' }}>{o.type} · {o.state}, {o.county}</div>
                 </div>
                 <div className="text-right flex-shrink-0">
                   <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${s.color}22`, color: s.color }}>{s.label}</span>
-                  <div className="text-xs mt-1" style={{ color: 'rgba(245,237,224,0.28)' }}>ETA {o.eta}</div>
+                  <div className="text-xs mt-1" style={{ color: 'rgba(30,41,59,0.28)' }}>ETA {o.eta}</div>
                 </div>
-                <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(245,237,224,0.18)' }} />
+                <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(30,41,59,0.18)' }} />
               </motion.div>
             )
           })}
-          {active.length === 0 && <div className="text-sm text-center py-6" style={{ color: 'rgba(245,237,224,0.3)' }}>No active orders.</div>}
+          {active.length === 0 && <div className="text-sm text-center py-6" style={{ color: 'rgba(30,41,59,0.3)' }}>No active orders.</div>}
         </div>
       </div>
     </div>
@@ -220,17 +220,17 @@ function CompletedList() {
   const done = orders.filter(o => o.status === 'delivered')
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold" style={{ color: '#f5ede0' }}>Completed</h1>
+      <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Completed</h1>
       <div className="glass-card p-5 space-y-2">
         {done.map(o => (
           <div key={o.id} className="flex items-center gap-3 p-3 rounded-xl">
             <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: '#6dbc78' }} />
-            <span className="font-mono text-xs" style={{ color: 'rgba(245,237,224,0.55)' }}>{o.id}</span>
-            <span className="text-xs flex-1 truncate" style={{ color: 'rgba(245,237,224,0.45)' }}>{displayClient(o.client, user)}</span>
-            <span className="text-xs" style={{ color: 'rgba(245,237,224,0.28)' }}>{o.completed || o.eta}</span>
+            <span className="font-mono text-xs" style={{ color: 'rgba(30,41,59,0.55)' }}>{o.id}</span>
+            <span className="text-xs flex-1 truncate" style={{ color: 'rgba(30,41,59,0.45)' }}>{displayClient(o.client, user)}</span>
+            <span className="text-xs" style={{ color: 'rgba(30,41,59,0.28)' }}>{o.completed || o.eta}</span>
           </div>
         ))}
-        {done.length === 0 && <div className="text-sm text-center py-6" style={{ color: 'rgba(245,237,224,0.3)' }}>Nothing delivered yet.</div>}
+        {done.length === 0 && <div className="text-sm text-center py-6" style={{ color: 'rgba(30,41,59,0.3)' }}>Nothing delivered yet.</div>}
       </div>
     </div>
   )

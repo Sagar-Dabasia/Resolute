@@ -62,7 +62,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex overflow-hidden relative" style={{ background: '#0e1608' }}>
+    <div className="min-h-screen flex overflow-hidden relative" style={{ background: '#f0f2f4' }}>
       {/* Ambient blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-48 -left-48 w-96 h-96 rounded-full blur-3xl animate-pulse-slow"
@@ -86,17 +86,17 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="flex items-center gap-3 mb-16">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#3d7020' }}>
-              <MapPin className="w-5 h-5" style={{ color: '#f5ede0' }} />
+              <MapPin className="w-5 h-5" style={{ color: '#f5f7f2' }} />
             </div>
-            <span className="text-2xl font-bold tracking-tight" style={{ color: '#f5ede0' }}>Resolute</span>
-            <span className="text-sm font-medium ml-1" style={{ color: 'rgba(245,237,224,0.28)' }}>Portal</span>
+            <span className="text-2xl font-bold tracking-tight" style={{ color: '#1e293b' }}>Resolute</span>
+            <span className="text-sm font-medium ml-1" style={{ color: 'rgba(30,41,59,0.28)' }}>Portal</span>
           </div>
 
           <h1 className="text-5xl font-bold leading-tight mb-6">
-            <span style={{ color: '#f5ede0' }}>Human-Verified</span><br />
+            <span style={{ color: '#1e293b' }}>Human-Verified</span><br />
             <span className="gradient-text">Title Intelligence</span>
           </h1>
-          <p className="text-lg leading-relaxed max-w-md" style={{ color: 'rgba(245,237,224,0.48)' }}>
+          <p className="text-lg leading-relaxed max-w-md" style={{ color: 'rgba(30,41,59,0.48)' }}>
             Your unified portal for managing title searches across all 50 states
             with real-time tracking and instant delivery.
           </p>
@@ -105,13 +105,13 @@ export default function LoginPage() {
             {['50-State Coverage', '3,140+ Counties', '98.4% On-Time Delivery', 'Real-Time Tracking'].map(f => (
               <div key={f} className="flex items-center gap-3">
                 <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: '#6aab42' }} />
-                <span className="text-sm font-medium" style={{ color: 'rgba(245,237,224,0.55)' }}>{f}</span>
+                <span className="text-sm font-medium" style={{ color: 'rgba(30,41,59,0.55)' }}>{f}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <p className="text-sm" style={{ color: 'rgba(245,237,224,0.18)' }}>
+        <p className="text-sm" style={{ color: 'rgba(30,41,59,0.18)' }}>
           © 2026 Resolute Title Services. All rights reserved.
         </p>
       </div>
@@ -122,15 +122,15 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <div className="flex items-center gap-3 mb-8 lg:hidden">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#3d7020' }}>
-              <MapPin className="w-4 h-4" style={{ color: '#f5ede0' }} />
+              <MapPin className="w-4 h-4" style={{ color: '#f5f7f2' }} />
             </div>
-            <span className="text-xl font-bold" style={{ color: '#f5ede0' }}>Resolute Portal</span>
+            <span className="text-xl font-bold" style={{ color: '#1e293b' }}>Resolute Portal</span>
           </div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             className="glass-card p-8">
-            <h2 className="text-2xl font-bold mb-1" style={{ color: '#f5ede0' }}>Sign in</h2>
-            <p className="text-sm mb-8" style={{ color: 'rgba(245,237,224,0.38)' }}>Select your role to continue</p>
+            <h2 className="text-2xl font-bold mb-1" style={{ color: '#1e293b' }}>Sign in</h2>
+            <p className="text-sm mb-8" style={{ color: 'rgba(30,41,59,0.38)' }}>Select your role to continue</p>
 
             {/* Role grid */}
             <div className="grid grid-cols-3 gap-2 mb-8">
@@ -143,12 +143,12 @@ export default function LoginPage() {
                     onClick={() => handleRoleSelect(role)}
                     className="flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all duration-200"
                     style={{
-                      background: active ? `${role.color}1a` : 'rgba(245,240,224,0.04)',
-                      borderColor: active ? `${role.color}55` : 'rgba(245,240,224,0.08)',
+                      background: active ? `${role.color}1a` : 'rgba(30,41,59,0.04)',
+                      borderColor: active ? `${role.color}55` : 'rgba(30,41,59,0.08)',
                     }}>
-                    <Icon className="w-5 h-5" style={{ color: active ? role.color : 'rgba(245,237,224,0.35)' }} />
+                    <Icon className="w-5 h-5" style={{ color: active ? role.color : 'rgba(30,41,59,0.35)' }} />
                     <span className="text-xs font-medium"
-                      style={{ color: active ? '#f5ede0' : 'rgba(245,237,224,0.35)' }}>
+                      style={{ color: active ? '#1e293b' : 'rgba(30,41,59,0.35)' }}>
                       {role.label}
                     </span>
                   </motion.button>
@@ -167,7 +167,7 @@ export default function LoginPage() {
                     <span className="text-sm font-semibold" style={{ color: selectedRole.color }}>
                       {selectedRole.label}
                     </span>
-                    <span className="text-xs ml-auto" style={{ color: 'rgba(245,237,224,0.38)' }}>
+                    <span className="text-xs ml-auto" style={{ color: 'rgba(30,41,59,0.38)' }}>
                       {selectedRole.desc}
                     </span>
                   </div>
@@ -181,7 +181,7 @@ export default function LoginPage() {
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }} className="overflow-hidden mb-5">
                   <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
-                    style={{ color: 'rgba(245,237,224,0.42)' }}>Admin account</label>
+                    style={{ color: 'rgba(30,41,59,0.42)' }}>Admin account</label>
                   <div className="grid grid-cols-3 gap-2">
                     {ADMIN_ACCOUNTS.map(acct => {
                       const active = adminAccount === acct.key
@@ -189,13 +189,13 @@ export default function LoginPage() {
                         <button key={acct.key} type="button" onClick={() => handleAdminAccount(acct)}
                           className="px-2 py-2 rounded-xl border text-left transition-all"
                           style={{
-                            background: active ? 'rgba(90,140,62,0.16)' : 'rgba(245,240,224,0.04)',
-                            borderColor: active ? 'rgba(90,140,62,0.45)' : 'rgba(245,240,224,0.08)',
+                            background: active ? 'rgba(90,140,62,0.16)' : 'rgba(30,41,59,0.04)',
+                            borderColor: active ? 'rgba(90,140,62,0.45)' : 'rgba(30,41,59,0.08)',
                           }}>
                           <div className="text-xs font-semibold"
-                            style={{ color: active ? '#f5ede0' : 'rgba(245,237,224,0.55)' }}>{acct.label}</div>
+                            style={{ color: active ? '#1e293b' : 'rgba(30,41,59,0.55)' }}>{acct.label}</div>
                           <div className="text-[10px] leading-tight mt-0.5"
-                            style={{ color: active ? '#8fc268' : 'rgba(245,237,224,0.30)' }}>{acct.tier}</div>
+                            style={{ color: active ? '#8fc268' : 'rgba(30,41,59,0.30)' }}>{acct.tier}</div>
                         </button>
                       )
                     })}
@@ -208,20 +208,20 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
-                  style={{ color: 'rgba(245,237,224,0.42)' }}>Email</label>
+                  style={{ color: 'rgba(30,41,59,0.42)' }}>Email</label>
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)}
                   placeholder="Enter your email" className="input-field" required />
               </div>
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
-                  style={{ color: 'rgba(245,237,224,0.42)' }}>Password</label>
+                  style={{ color: 'rgba(30,41,59,0.42)' }}>Password</label>
                 <div className="relative">
                   <input type={showPass ? 'text' : 'password'} value={password}
                     onChange={e => setPassword(e.target.value)}
                     placeholder="Enter your password" className="input-field pr-12" required />
                   <button type="button" onClick={() => setShowPass(!showPass)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                    style={{ color: 'rgba(245,237,224,0.28)' }}>
+                    style={{ color: 'rgba(30,41,59,0.28)' }}>
                     {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
@@ -243,12 +243,12 @@ export default function LoginPage() {
                 style={{ opacity: loading ? 0.6 : 1 }}>
                 {loading
                   ? <div className="w-5 h-5 border-2 rounded-full animate-spin"
-                      style={{ borderColor: 'rgba(245,240,224,0.25)', borderTopColor: '#f5ede0' }} />
+                      style={{ borderColor: 'rgba(30,41,59,0.25)', borderTopColor: '#1e293b' }} />
                   : <><span>Sign in</span><ArrowRight className="w-4 h-4" /></>}
               </motion.button>
             </form>
 
-            <p className="text-center text-xs mt-6" style={{ color: 'rgba(245,237,224,0.22)' }}>
+            <p className="text-center text-xs mt-6" style={{ color: 'rgba(30,41,59,0.22)' }}>
               Demo credentials pre-filled · Select a role above
             </p>
           </motion.div>
