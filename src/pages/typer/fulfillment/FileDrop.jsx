@@ -19,8 +19,8 @@ export const makeFileRef = (file) => ({
 })
 
 const TypeIcon = ({ type, className }) =>
-  type === 'pdf'  ? <FileText className={className} style={{ color: '#e0857a' }} />
-: type === 'word' ? <FileText className={className} style={{ color: '#7aa6e0' }} />
+  type === 'pdf'  ? <FileText className={className} style={{ color: '#dc2626' }} />
+: type === 'word' ? <FileText className={className} style={{ color: '#2563eb' }} />
 :                   <FileIcon className={className} style={{ color: T.faint }} />
 
 // Drag-and-drop + click-to-browse zone. Emits validated File[] via onFiles.
@@ -63,7 +63,7 @@ export function FileDropZone({ onFiles, multiple = false, compact = false }) {
           onChange={e => { handle(e.target.files); e.target.value = '' }} />
       </div>
       {err && (
-        <div className="flex items-center gap-1.5 mt-2 text-[12px]" style={{ color: '#e0857a' }}>
+        <div className="flex items-center gap-1.5 mt-2 text-[12px]" style={{ color: '#dc2626' }}>
           <AlertCircle className="w-3.5 h-3.5" /> {err}
         </div>
       )}
@@ -94,7 +94,7 @@ export function FileRow({ file, onRemove, onRetry, onReplace, checkbox, checked,
           <div className="text-[11px] flex items-center gap-1.5 tabular-nums" style={{ color: T.dim }}>
             {file.status === 'done'
               ? <><CheckCircle2 className="w-3 h-3" style={{ color: T.accentBright }} /> {fmtSize(file.size)} · {file.type.toUpperCase()}</>
-              : <><AlertCircle className="w-3 h-3" style={{ color: '#e0857a' }} /> Upload failed</>}
+              : <><AlertCircle className="w-3 h-3" style={{ color: '#dc2626' }} /> Upload failed</>}
           </div>
         )}
       </div>
@@ -118,7 +118,7 @@ function IconAct({ children, onClick, title, danger }) {
   return (
     <button onClick={onClick} title={title}
       className="w-6 h-6 rounded-md flex items-center justify-center transition-colors"
-      style={{ color: danger ? '#d98a7a' : T.faint }}
+      style={{ color: danger ? '#dc2626' : T.faint }}
       onMouseOver={e => { e.currentTarget.style.background = danger ? 'rgba(217,138,122,0.12)' : T.rowHover; if (!danger) e.currentTarget.style.color = T.text }}
       onMouseOut={e => { e.currentTarget.style.background = 'transparent'; if (!danger) e.currentTarget.style.color = T.faint }}>
       {children}

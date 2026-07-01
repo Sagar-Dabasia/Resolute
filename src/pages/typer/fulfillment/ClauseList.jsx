@@ -138,7 +138,7 @@ function ReorderBtn({ icon: Icon, onClick, disabled, danger, title, className = 
   return (
     <button onClick={onClick} disabled={disabled} title={title}
       className={`w-5 h-5 rounded flex items-center justify-center transition-colors flex-shrink-0 ${className}`}
-      style={{ color: disabled ? T.dim : danger ? '#d98a7a' : T.faint, cursor: disabled ? 'default' : 'pointer', opacity: disabled ? 0.4 : 1 }}
+      style={{ color: disabled ? T.dim : danger ? '#dc2626' : T.faint, cursor: disabled ? 'default' : 'pointer', opacity: disabled ? 0.4 : 1 }}
       onMouseOver={e => { if (!disabled) e.currentTarget.style.background = danger ? 'rgba(217,138,122,0.12)' : T.rowHover }}
       onMouseOut={e => { e.currentTarget.style.background = 'transparent' }}>
       <Icon className="w-3.5 h-3.5" />

@@ -9,7 +9,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useOrders } from '../../context/OrderContext'
 import DocUpload from '../../components/DocUpload'
 
-const ROLE_COLOR = '#c4a44e'
+const ROLE_COLOR = '#a16207'
 const NAV = [
   { path: '/examiner',           label: 'Dashboard',  icon: LayoutDashboard },
   { path: '/examiner/examine',   label: 'To Examine', icon: FileSearch, badge: 2 },
@@ -37,14 +37,14 @@ function ExamineModal({ order, onClose }) {
           <div>
             <div className="font-mono font-semibold text-sm" style={{ color: ROLE_COLOR }}>{order.id}</div>
             <div className="text-xl font-bold" style={{ color:'#1e293b' }}>{displayClient(order.client, user)}</div>
-            <div className="text-sm" style={{ color:'rgba(30,41,59,0.42)' }}>{order.type} · {order.state}, {order.county} County</div>
+            <div className="text-sm" style={{ color:'#64748b' }}>{order.type} · {order.state}, {order.county} County</div>
           </div>
-          <button onClick={onClose} style={{ color:'rgba(30,41,59,0.30)' }}><X className="w-5 h-5" /></button>
+          <button onClick={onClose} style={{ color:'#64748b' }}><X className="w-5 h-5" /></button>
         </div>
         <div className="grid grid-cols-2 gap-3 mb-5">
           {[['Search Type',order.type],['County',order.county],['State',order.state],['Priority',order.priority.toUpperCase()]].map(([k,v]) => (
             <div key={k} className="glass p-3 rounded-xl">
-              <div className="text-xs mb-1" style={{ color:'rgba(30,41,59,0.32)' }}>{k}</div>
+              <div className="text-xs mb-1" style={{ color:'#64748b' }}>{k}</div>
               <div className="font-medium text-sm" style={{ color:'#1e293b' }}>{v}</div>
             </div>
           ))}
@@ -52,7 +52,7 @@ function ExamineModal({ order, onClose }) {
         <div className="space-y-4 mb-5">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
-              style={{ color:'rgba(30,41,59,0.38)' }}>Examination Checklist</label>
+              style={{ color:'#64748b' }}>Examination Checklist</label>
             <div className="space-y-2">
               {['Chain of title verified','Tax status confirmed','Lien search completed',
                 'HOA status checked','Easements/encumbrances noted'].map(item => (
@@ -60,21 +60,21 @@ function ExamineModal({ order, onClose }) {
                   onMouseOver={e=>e.currentTarget.style.background='rgba(30,41,59,0.05)'}
                   onMouseOut={e=>e.currentTarget.style.background='transparent'}>
                   <input type="checkbox" className="w-4 h-4 rounded" style={{ accentColor: ROLE_COLOR }} />
-                  <span className="text-sm" style={{ color:'rgba(30,41,59,0.65)' }}>{item}</span>
+                  <span className="text-sm" style={{ color:'#334155' }}>{item}</span>
                 </label>
               ))}
             </div>
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
-              style={{ color:'rgba(30,41,59,0.38)' }}>Issues Found</label>
+              style={{ color:'#64748b' }}>Issues Found</label>
             <div className="grid grid-cols-2 gap-3">
               {[['Open Liens',liens,setLiens],['Encumbrances',encumbrances,setEncumbrances]].map(([l,v,s]) => (
                 <button key={l} onClick={() => s(!v)}
                   className="p-3 rounded-xl text-sm font-medium transition-all border"
                   style={v
-                    ? { border:'1px solid rgba(220,80,60,0.40)', background:'rgba(220,80,60,0.14)', color:'#e08080' }
-                    : { border:'1px solid rgba(30,41,59,0.08)', color:'rgba(30,41,59,0.40)' }}>
+                    ? { border:'1px solid rgba(220,80,60,0.40)', background:'rgba(220,80,60,0.14)', color:'#dc2626' }
+                    : { border:'1px solid rgba(30,41,59,0.08)', color:'#64748b' }}>
                   {l}: {v ? 'YES' : 'NO'}
                 </button>
               ))}
@@ -82,12 +82,12 @@ function ExamineModal({ order, onClose }) {
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
-              style={{ color:'rgba(30,41,59,0.38)' }}>Researched Document <span style={{ textTransform:'none', color:'#e08080' }}>*required</span></label>
+              style={{ color:'#64748b' }}>Researched Document <span style={{ textTransform:'none', color:'#dc2626' }}>*required</span></label>
             <DocUpload orderId={order.id} value={doc} onChange={setDoc} accent={ROLE_COLOR} />
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
-              style={{ color:'rgba(30,41,59,0.38)' }}>Examination Notes</label>
+              style={{ color:'#64748b' }}>Examination Notes</label>
             <textarea value={findings} onChange={e=>setFindings(e.target.value)}
               placeholder="Document findings, chain of title issues, liens, easements…"
               rows={3} className="input-field text-sm resize-none" />
@@ -101,7 +101,7 @@ function ExamineModal({ order, onClose }) {
           </button>
           <button className="btn-secondary text-sm py-2.5 px-4" onClick={onClose}>Save Draft</button>
         </div>
-        {(!doc || doc.status !== 'done') && <p className="text-[11px] mt-2" style={{ color:'rgba(30,41,59,0.35)' }}>Upload the researched document to continue.</p>}
+        {(!doc || doc.status !== 'done') && <p className="text-[11px] mt-2" style={{ color:'#64748b' }}>Upload the researched document to continue.</p>}
       </motion.div>
     </div>
   )
@@ -117,21 +117,21 @@ function ExaminerHome() {
       {selected && <ExamineModal order={selected} onClose={() => setSelected(null)} />}
       <div>
         <h1 className="text-2xl font-bold" style={{ color:'#1e293b' }}>Examiner Dashboard</h1>
-        <p className="text-sm" style={{ color:'rgba(30,41,59,0.45)' }}>Examine title documents and verify chain of title</p>
+        <p className="text-sm" style={{ color:'#475569' }}>Examine title documents and verify chain of title</p>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon:FileSearch,  label:'Awaiting Exam',   value:'2',  color:'#8ab0e8' },
+          { icon:FileSearch,  label:'Awaiting Exam',   value:'2',  color:'#2563eb' },
           { icon:Clock,       label:'In Progress',     value:'1',  color:ROLE_COLOR },
-          { icon:CheckCircle, label:'Completed Today', value:'4',  color:'#6dbc78' },
-          { icon:AlertCircle, label:'Issues Found',    value:'1',  color:'#e08080' },
+          { icon:CheckCircle, label:'Completed Today', value:'4',  color:'#15803d' },
+          { icon:AlertCircle, label:'Issues Found',    value:'1',  color:'#dc2626' },
         ].map(s => (
           <motion.div key={s.label} initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} className="stat-card">
             <div className="w-9 h-9 rounded-xl mb-3 flex items-center justify-center" style={{ background:`${s.color}22` }}>
               <s.icon className="w-4 h-4" style={{ color:s.color }} />
             </div>
             <div className="text-2xl font-bold" style={{ color:'#1e293b' }}>{s.value}</div>
-            <div className="text-sm" style={{ color:'rgba(30,41,59,0.45)' }}>{s.label}</div>
+            <div className="text-sm" style={{ color:'#475569' }}>{s.label}</div>
           </motion.div>
         ))}
       </div>
@@ -151,11 +151,11 @@ function ExaminerHome() {
                   <span className="font-mono font-semibold text-sm" style={{ color:ROLE_COLOR }}>{o.id}</span>
                   {o.priority==='rush' && (
                     <span className="text-xs font-semibold px-2 py-0.5 rounded-md"
-                      style={{ background:'rgba(220,80,60,0.18)', color:'#e08080' }}>RUSH</span>
+                      style={{ background:'rgba(220,80,60,0.18)', color:'#dc2626' }}>RUSH</span>
                   )}
                 </div>
                 <div className="font-medium text-sm truncate" style={{ color:'#1e293b' }}>{displayClient(o.client, user)}</div>
-                <div className="text-xs" style={{ color:'rgba(30,41,59,0.42)' }}>{o.type} · {o.state}, {o.county}</div>
+                <div className="text-xs" style={{ color:'#64748b' }}>{o.type} · {o.state}, {o.county}</div>
                 <div className="mt-2 h-1.5 rounded-full overflow-hidden" style={{ background:'rgba(30,41,59,0.10)' }}>
                   <div className="h-full rounded-full transition-all"
                     style={{ width:`${o.progress}%`, background:'linear-gradient(90deg,#4d8c2a,#c4a44e)' }} />
@@ -164,7 +164,7 @@ function ExaminerHome() {
               <div className="text-right flex-shrink-0">
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-full capitalize"
                   style={{ background:`${ROLE_COLOR}22`, color:ROLE_COLOR }}>{o.status}</span>
-                <div className="text-xs mt-1" style={{ color:'rgba(30,41,59,0.28)' }}>{o.progress}%</div>
+                <div className="text-xs mt-1" style={{ color:'#64748b' }}>{o.progress}%</div>
               </div>
               <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color:'rgba(30,41,59,0.18)' }} />
             </motion.div>

@@ -18,16 +18,16 @@ function ProgressBar({ status, progress }) {
               background: i < idx
                 ? '#4d8c2a'
                 : i === idx
-                ? '#8fc268'
+                ? '#4d7c2f'
                 : 'rgba(30,41,59,0.10)',
             }} />
         ))}
       </div>
       <div className="flex justify-between">
-        <span className="text-xs" style={{ color: 'rgba(30,41,59,0.32)' }}>
+        <span className="text-xs" style={{ color: '#64748b' }}>
           {STEP_LABELS[idx] || '—'}
         </span>
-        <span className="text-xs" style={{ color: 'rgba(30,41,59,0.32)' }}>{progress}%</span>
+        <span className="text-xs" style={{ color: '#64748b' }}>{progress}%</span>
       </div>
     </div>
   )
@@ -35,11 +35,11 @@ function ProgressBar({ status, progress }) {
 
 const STATUS_STYLES = {
   received:  { bg: 'rgba(100,149,237,0.18)', text: '#93b4f0', dot: '#93b4f0' },
-  screening: { bg: 'rgba(212,180,80,0.18)',  text: '#d4b450', dot: '#d4b450' },
-  searching: { bg: 'rgba(138,194,104,0.18)', text: '#8fc268', dot: '#8fc268' },
-  examining: { bg: 'rgba(196,164,78,0.18)',  text: '#c4a44e', dot: '#c4a44e' },
-  typing:    { bg: 'rgba(62,158,196,0.18)',  text: '#5ab6d0', dot: '#5ab6d0' },
-  delivered: { bg: 'rgba(80,180,100,0.18)',  text: '#6dbc78', dot: '#6dbc78' },
+  screening: { bg: 'rgba(212,180,80,0.18)',  text: '#b45309', dot: '#b45309' },
+  searching: { bg: 'rgba(138,194,104,0.18)', text: '#4d7c2f', dot: '#4d7c2f' },
+  examining: { bg: 'rgba(196,164,78,0.18)',  text: '#a16207', dot: '#a16207' },
+  typing:    { bg: 'rgba(62,158,196,0.18)',  text: '#0e7490', dot: '#0e7490' },
+  delivered: { bg: 'rgba(80,180,100,0.18)',  text: '#15803d', dot: '#15803d' },
   onhold:    { bg: 'rgba(220,80,80,0.18)',   text: '#e07878', dot: '#e07878' },
 }
 
@@ -62,7 +62,7 @@ export default function OrdersTable({ orders, showAssignees = false, onOrderClic
       <div className="flex items-center gap-3 mb-4 flex-wrap">
         <div className="relative flex-1 min-w-[200px] max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
-            style={{ color: 'rgba(30,41,59,0.28)' }} />
+            style={{ color: '#64748b' }} />
           <input value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Search orders…" className="input-field pl-9 py-2 text-sm" />
         </div>
@@ -72,7 +72,7 @@ export default function OrdersTable({ orders, showAssignees = false, onOrderClic
               className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 capitalize"
               style={{
                 background: filter === s ? '#3d7020' : 'rgba(30,41,59,0.05)',
-                color:      filter === s ? '#1e293b' : 'rgba(30,41,59,0.40)',
+                color:      filter === s ? '#1e293b' : '#64748b',
                 border:     filter === s ? '1px solid rgba(138,194,104,0.35)' : '1px solid rgba(30,41,59,0.08)',
               }}>
               {s}
@@ -88,7 +88,7 @@ export default function OrdersTable({ orders, showAssignees = false, onOrderClic
               {['Order ID','Client','Location','Type','Status','Progress',
                 ...(showAssignees ? ['Assigned'] : []), 'Priority',''].map(h => (
                 <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider whitespace-nowrap"
-                  style={{ color: 'rgba(30,41,59,0.30)' }}>
+                  style={{ color: '#64748b' }}>
                   {h}
                 </th>
               ))}
@@ -106,7 +106,7 @@ export default function OrdersTable({ orders, showAssignees = false, onOrderClic
                   onMouseOver={e => e.currentTarget.style.background = 'rgba(30,41,59,0.03)'}
                   onMouseOut={e => e.currentTarget.style.background = 'transparent'}
                   onClick={() => onOrderClick?.(order)}>
-                  <td className="px-4 py-3 font-mono font-semibold whitespace-nowrap" style={{ color: '#8fc268' }}>
+                  <td className="px-4 py-3 font-mono font-semibold whitespace-nowrap" style={{ color: '#4d7c2f' }}>
                     {order.id}
                   </td>
                   <td className="px-4 py-3 font-medium whitespace-nowrap" style={{ color: '#1e293b' }}>
@@ -129,15 +129,15 @@ export default function OrdersTable({ orders, showAssignees = false, onOrderClic
                     <ProgressBar status={order.status} progress={order.progress} />
                   </td>
                   {showAssignees && (
-                    <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: 'rgba(30,41,59,0.38)' }}>
+                    <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: '#64748b' }}>
                       {order.screener}
                     </td>
                   )}
                   <td className="px-4 py-3">
                     <span className="text-xs font-semibold px-2 py-0.5 rounded-md"
                       style={order.priority === 'rush'
-                        ? { background: 'rgba(220,80,60,0.18)', color: '#e08080' }
-                        : { background: 'rgba(30,41,59,0.07)', color: 'rgba(30,41,59,0.38)' }}>
+                        ? { background: 'rgba(220,80,60,0.18)', color: '#dc2626' }
+                        : { background: 'rgba(30,41,59,0.07)', color: '#64748b' }}>
                       {order.priority.toUpperCase()}
                     </span>
                   </td>
@@ -155,7 +155,7 @@ export default function OrdersTable({ orders, showAssignees = false, onOrderClic
           </tbody>
         </table>
         {filtered.length === 0 && (
-          <div className="text-center py-12 text-sm" style={{ color: 'rgba(30,41,59,0.28)' }}>
+          <div className="text-center py-12 text-sm" style={{ color: '#64748b' }}>
             No orders found
           </div>
         )}

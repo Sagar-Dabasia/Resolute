@@ -57,7 +57,7 @@ export default function FulfillmentScreen() {
               <span className="text-[11px] font-semibold uppercase tracking-[0.1em] px-2 py-0.5 rounded-full"
                 style={{ color: T.accentBright, background: 'rgba(124,191,78,0.14)', border: `1px solid ${T.borderStrong}` }}>Open</span>
               {order.priority === 'rush' &&
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(220,80,60,0.18)', color: '#e08080' }}>RUSH</span>}
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(220,80,60,0.18)', color: '#dc2626' }}>RUSH</span>}
             </div>
             <div className="text-[13px] mt-1 flex items-center gap-1.5 flex-wrap" style={{ color: T.faint }}>
               <span style={{ color: T.muted }}>{order.type}</span>

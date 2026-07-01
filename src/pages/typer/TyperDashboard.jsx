@@ -9,7 +9,7 @@ import { LayoutDashboard, Keyboard, CheckCircle, Clock, FileText, ChevronRight }
 import { displayClient } from '../../data/mockData'
 import FulfillmentScreen from './fulfillment/FulfillmentScreen'
 
-const ROLE_COLOR = '#3e9ec4'
+const ROLE_COLOR = '#0e7490'
 const NAV = [
   { path: '/typer',           label: 'Dashboard', icon: LayoutDashboard },
   { path: '/typer/queue',     label: 'To Type',   icon: Keyboard, badge: 2 },
@@ -25,21 +25,21 @@ function TyperHome() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold" style={{ color:'#1e293b' }}>Typer Dashboard</h1>
-        <p className="text-sm" style={{ color:'rgba(30,41,59,0.45)' }}>Type and format examined reports before delivery</p>
+        <p className="text-sm" style={{ color:'#475569' }}>Type and format examined reports before delivery</p>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { icon:Keyboard,    label:'Awaiting Typing', value:'2',   color:ROLE_COLOR },
-          { icon:FileText,    label:'In Progress',     value:'1',   color:'#8ab0e8' },
-          { icon:CheckCircle, label:'Typed Today',     value:'6',   color:'#6dbc78' },
-          { icon:Clock,       label:'Avg Type Time',   value:'24m', color:'#c4a44e' },
+          { icon:FileText,    label:'In Progress',     value:'1',   color:'#2563eb' },
+          { icon:CheckCircle, label:'Typed Today',     value:'6',   color:'#15803d' },
+          { icon:Clock,       label:'Avg Type Time',   value:'24m', color:'#a16207' },
         ].map(s => (
           <motion.div key={s.label} initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} className="stat-card">
             <div className="w-9 h-9 rounded-xl mb-3 flex items-center justify-center" style={{ background:`${s.color}22` }}>
               <s.icon className="w-4 h-4" style={{ color:s.color }} />
             </div>
             <div className="text-2xl font-bold" style={{ color:'#1e293b' }}>{s.value}</div>
-            <div className="text-sm" style={{ color:'rgba(30,41,59,0.45)' }}>{s.label}</div>
+            <div className="text-sm" style={{ color:'#475569' }}>{s.label}</div>
           </motion.div>
         ))}
       </div>
@@ -63,16 +63,16 @@ function TyperHome() {
                   <span className="font-mono font-semibold text-sm" style={{ color:ROLE_COLOR }}>{o.id}</span>
                   {o.priority==='rush' && (
                     <span className="text-xs font-semibold px-2 py-0.5 rounded-md"
-                      style={{ background:'rgba(220,80,60,0.18)', color:'#e08080' }}>RUSH</span>
+                      style={{ background:'rgba(220,80,60,0.18)', color:'#dc2626' }}>RUSH</span>
                   )}
                 </div>
                 <div className="font-medium text-sm truncate" style={{ color:'#1e293b' }}>{displayClient(o.client, user)}</div>
-                <div className="text-xs" style={{ color:'rgba(30,41,59,0.42)' }}>{o.type} · {o.state}, {o.county}</div>
+                <div className="text-xs" style={{ color:'#64748b' }}>{o.type} · {o.state}, {o.county}</div>
               </div>
               <div className="text-right flex-shrink-0">
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-full capitalize"
                   style={{ background:`${ROLE_COLOR}22`, color:ROLE_COLOR }}>{o.status}</span>
-                <div className="text-xs mt-1" style={{ color:'rgba(30,41,59,0.28)' }}>ETA {o.eta}</div>
+                <div className="text-xs mt-1" style={{ color:'#64748b' }}>ETA {o.eta}</div>
               </div>
               <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color:'rgba(30,41,59,0.18)' }} />
             </motion.div>

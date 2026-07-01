@@ -9,7 +9,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useOrders } from '../../context/OrderContext'
 import DocUpload from '../../components/DocUpload'
 
-const ROLE_COLOR = '#8ab868'
+const ROLE_COLOR = '#4d7c2f'
 const ASSIGN_OPTS = [['in_house', 'In-House'], ['abc', 'ABC (Abroad, US)'], ['both', 'Both']]
 const NAV = [
   { path: '/screener',           label: 'Dashboard',       icon: LayoutDashboard },
@@ -18,8 +18,8 @@ const NAV = [
 ]
 
 const STATUS_DOT = {
-  received:  '#8ab0e8', screening: '#d4b450', searching: '#8ab868',
-  examining: '#c4a44e', typing: '#5ab6d0', delivered: '#6dbc78',
+  received:  '#2563eb', screening: '#b45309', searching: '#4d7c2f',
+  examining: '#a16207', typing: '#0e7490', delivered: '#15803d',
 }
 
 function OrderModal({ order, onClose }) {
@@ -43,27 +43,27 @@ function OrderModal({ order, onClose }) {
             <div className="font-mono font-semibold text-sm" style={{ color: ROLE_COLOR }}>{order.id}</div>
             <div className="text-xl font-bold mt-0.5" style={{ color: '#1e293b' }}>{displayClient(order.client, user)}</div>
           </div>
-          <button onClick={onClose} style={{ color: 'rgba(30,41,59,0.30)' }}><X className="w-5 h-5" /></button>
+          <button onClick={onClose} style={{ color: '#64748b' }}><X className="w-5 h-5" /></button>
         </div>
         <div className="grid grid-cols-2 gap-3 mb-5">
           {[['State/County',`${order.state} · ${order.county}`],['Search Type',order.type],
             ['Priority',order.priority.toUpperCase()],['ETA',order.eta]].map(([k,v]) => (
             <div key={k} className="glass p-3 rounded-xl">
-              <div className="text-xs mb-1" style={{ color: 'rgba(30,41,59,0.32)' }}>{k}</div>
+              <div className="text-xs mb-1" style={{ color: '#64748b' }}>{k}</div>
               <div className="font-medium text-sm" style={{ color: '#1e293b' }}>{v}</div>
             </div>
           ))}
         </div>
         <div className="mb-4">
           <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
-            style={{ color: 'rgba(30,41,59,0.38)' }}>Assign Search To</label>
+            style={{ color: '#64748b' }}>Assign Search To</label>
           <div className="grid grid-cols-3 gap-2">
             {ASSIGN_OPTS.map(([k, l]) => (
               <button key={k} onClick={() => setAssignment(k)}
                 className="py-2.5 rounded-lg text-xs font-semibold transition-all"
                 style={assignment === k
                   ? { background: `${ROLE_COLOR}28`, color: ROLE_COLOR, border: `1px solid ${ROLE_COLOR}55` }
-                  : { background: 'rgba(30,41,59,0.05)', color: 'rgba(30,41,59,0.40)', border: '1px solid rgba(30,41,59,0.08)' }}>
+                  : { background: 'rgba(30,41,59,0.05)', color: '#64748b', border: '1px solid rgba(30,41,59,0.08)' }}>
                 {l}
               </button>
             ))}
@@ -71,7 +71,7 @@ function OrderModal({ order, onClose }) {
         </div>
         <div className="mb-4">
           <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
-            style={{ color: 'rgba(30,41,59,0.38)' }}>Search Document <span style={{ textTransform: 'none', opacity: 0.6 }}>(optional)</span></label>
+            style={{ color: '#64748b' }}>Search Document <span style={{ textTransform: 'none', opacity: 0.6 }}>(optional)</span></label>
           <DocUpload orderId={order.id} value={doc} onChange={setDoc} accent={ROLE_COLOR} />
         </div>
         <textarea value={notes} onChange={e => setNotes(e.target.value)}
@@ -84,7 +84,7 @@ function OrderModal({ order, onClose }) {
           </button>
           <button className="btn-secondary text-sm py-2.5 px-4" onClick={onClose}>Hold</button>
         </div>
-        {!assignment && <p className="text-[11px] mt-2" style={{ color: 'rgba(30,41,59,0.35)' }}>Choose who conducts the search to continue.</p>}
+        {!assignment && <p className="text-[11px] mt-2" style={{ color: '#64748b' }}>Choose who conducts the search to continue.</p>}
       </motion.div>
     </div>
   )
@@ -100,21 +100,21 @@ function ScreenerHome() {
       {selected && <OrderModal order={selected} onClose={() => setSelected(null)} />}
       <div>
         <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Screening Dashboard</h1>
-        <p className="text-sm" style={{ color: 'rgba(30,41,59,0.45)' }}>Review and validate incoming title search requests</p>
+        <p className="text-sm" style={{ color: '#475569' }}>Review and validate incoming title search requests</p>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon: AlertTriangle, label: 'Awaiting Screening', value: '2', color: '#d4b450' },
+          { icon: AlertTriangle, label: 'Awaiting Screening', value: '2', color: '#b45309' },
           { icon: Search,        label: 'In Screening',       value: '1', color: ROLE_COLOR },
-          { icon: CheckCircle,   label: 'Passed Today',       value: '5', color: '#6dbc78' },
-          { icon: Clock,         label: 'Avg Screen Time',    value: '18m', color: '#c4a44e' },
+          { icon: CheckCircle,   label: 'Passed Today',       value: '5', color: '#15803d' },
+          { icon: Clock,         label: 'Avg Screen Time',    value: '18m', color: '#a16207' },
         ].map(s => (
           <motion.div key={s.label} initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} className="stat-card">
             <div className="w-9 h-9 rounded-xl mb-3 flex items-center justify-center" style={{ background: `${s.color}22` }}>
               <s.icon className="w-4 h-4" style={{ color: s.color }} />
             </div>
             <div className="text-2xl font-bold" style={{ color: '#1e293b' }}>{s.value}</div>
-            <div className="text-sm" style={{ color: 'rgba(30,41,59,0.45)' }}>{s.label}</div>
+            <div className="text-sm" style={{ color: '#475569' }}>{s.label}</div>
           </motion.div>
         ))}
       </div>
@@ -135,18 +135,18 @@ function ScreenerHome() {
                   <span className="font-mono font-semibold text-sm" style={{ color: ROLE_COLOR }}>{o.id}</span>
                   {o.priority === 'rush' && (
                     <span className="text-xs font-semibold px-2 py-0.5 rounded-md"
-                      style={{ background:'rgba(220,80,60,0.18)', color:'#e08080' }}>RUSH</span>
+                      style={{ background:'rgba(220,80,60,0.18)', color:'#dc2626' }}>RUSH</span>
                   )}
                 </div>
                 <div className="font-medium text-sm mt-0.5 truncate" style={{ color:'#1e293b' }}>{displayClient(o.client, user)}</div>
-                <div className="text-xs" style={{ color:'rgba(30,41,59,0.42)' }}>{o.type} · {o.state}, {o.county}</div>
+                <div className="text-xs" style={{ color:'#64748b' }}>{o.type} · {o.state}, {o.county}</div>
               </div>
               <div className="text-right flex-shrink-0">
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-full capitalize"
                   style={{ background: `${STATUS_DOT[o.status] || ROLE_COLOR}22`, color: STATUS_DOT[o.status] || ROLE_COLOR }}>
                   {o.status}
                 </span>
-                <div className="text-xs mt-1" style={{ color:'rgba(30,41,59,0.28)' }}>ETA {o.eta}</div>
+                <div className="text-xs mt-1" style={{ color:'#64748b' }}>ETA {o.eta}</div>
               </div>
               <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color:'rgba(30,41,59,0.18)' }} />
             </motion.div>
