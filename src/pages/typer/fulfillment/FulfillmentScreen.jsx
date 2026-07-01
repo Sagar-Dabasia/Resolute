@@ -88,9 +88,11 @@ export default function FulfillmentScreen() {
         </div>
       </div>
 
-      {tab !== 'Fulfillment'
-        ? <StubTab name={tab} order={order} user={user} />
-        : <FulfillmentBody {...{ order, f, set, comp, save, user, completeStep, updateOrder, navigate }} />}
+      {tab === 'Fulfillment'
+        ? <FulfillmentBody {...{ order, f, set, comp, save, user, completeStep, updateOrder, navigate }} />
+        : tab === 'Overview'
+        ? <OverviewTab order={order} f={f} user={user} />
+        : <StubTab name={tab} order={order} user={user} />}
     </div>
   )
 }
@@ -648,6 +650,68 @@ function ActionsMenu() {
           </>
         )}
       </AnimatePresence>
+    </div>
+  )
+}
+
+// ── Overview tab — read-only summary of what the client submitted ────────────
+function OverviewTab({ order, f, user }) {
+  const m = f.meta || {}
+  const intake = order.workflow?.intake || {}
+  const Card = ({ title, children }) => (
+    <div className="rounded-xl p-4 mb-4" style={{ background: T.card, border: `1px solid ${T.border}` }}>
+      <div className="text-[10px] font-semibold uppercase tracking-[0.12em] mb-2.5" style={{ color: T.faint }}>{title}</div>
+      <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">{children}</div>
+    </div>
+  )
+  const Row = ({ k, v, mono }) => (
+    <div className="flex items-baseline justify-between gap-3 py-1 border-b" style={{ borderColor: T.borderSoft }}>
+      <span className="text-[11px] uppercase tracking-[0.06em] flex-shrink-0" style={{ color: T.dim }}>{k}</span>
+      <span className={`text-[12.5px] text-right ${mono ? 'font-mono tabular-nums' : ''}`} style={{ color: v ? T.text : T.dim }}>{v || '—'}</span>
+    </div>
+  )
+  return (
+    <div className="px-5 md:px-7 py-5 max-w-[860px]">
+      <div className="flex items-center gap-2 mb-4">
+        <span className="text-[13px] font-semibold" style={{ color: T.text }}>Order details submitted by the client</span>
+        {intake.source === 'email' && <span className="text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded" style={{ background: 'rgba(37,99,235,0.10)', color: '#2563eb' }}>via email</span>}
+      </div>
+
+      <Card title="Order">
+        <Row k="Order No." v={order.id} mono />
+        <Row k="Product / Type" v={m.productType || order.type} />
+        <Row k="Customer" v={displayClient(order.client, user)} />
+        <Row k="Priority" v={(order.priority || '').toUpperCase()} />
+        <Row k="Status" v={order.status} />
+        <Row k="ETA" v={order.eta} mono />
+      </Card>
+
+      <Card title="Property">
+        <Row k="Address" v={intake.propertyAddress || m.address} />
+        <Row k="State / County" v={`${m.county || order.county || ''}, ${m.state || order.state || ''}`} />
+        <Row k="Parcel / APN" v={intake.parcelNumberAPN || m.parcelId} mono />
+        <Row k="Purpose" v={m.purpose} />
+      </Card>
+
+      <Card title="Parties">
+        <Row k="Buyer" v={m.buyer} />
+        <Row k="Borrower" v={intake.borrowerName} />
+        <Row k="Seller" v={m.seller} />
+        <Row k="Underwriter" v={m.underwriter} />
+      </Card>
+
+      {(intake.subject || intake.from || intake.specialInstructions) && (
+        <Card title="Client Message">
+          <Row k="From" v={intake.from} />
+          <Row k="Subject" v={intake.subject} />
+          <div className="col-span-2 pt-1">
+            <span className="text-[11px] uppercase tracking-[0.06em]" style={{ color: T.dim }}>Special instructions</span>
+            <p className="text-[12.5px] mt-1 leading-relaxed" style={{ color: T.muted }}>{intake.specialInstructions || '—'}</p>
+          </div>
+        </Card>
+      )}
+
+      <AttachedDocs workflow={order.workflow} />
     </div>
   )
 }

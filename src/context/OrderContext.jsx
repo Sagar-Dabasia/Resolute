@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { ORDERS, ACTIVITY, nextRoleFor, statusForRole } from '../data/mockData'
-import { isSupabaseConfigured, fetchOrders, saveOrder, subscribeOrders } from '../lib/backend'
+import { isSupabaseConfigured, fetchOrders, saveOrder, subscribeOrders, insertOrder } from '../lib/backend'
 
 const OrderContext = createContext(null)
 
@@ -98,10 +98,34 @@ export function OrderProvider({ children }) {
     persist(updated)
   }
 
+  // Create a new draft order (client "Place an Order"). Draft = 'received' in the
+  // Screener intake queue. Prepends locally; best-effort persist when configured.
+  const createOrder = (data = {}) => {
+    const max = orders.reduce((m, o) => {
+      const n = parseInt(String(o.id).replace(/\D/g, ''), 10)
+      return Number.isNaN(n) ? m : Math.max(m, n)
+    }, 10048)
+    const order = {
+      id: `RTS-${max + 1}`,
+      client: data.client || 'Web Order',
+      state: data.state || '', county: data.county || '', type: data.type || 'Full Search',
+      status: 'received', priority: data.priority || 'normal', payment: data.payment || 'Check',
+      clarification: null, assignedTo: 'screener',
+      screener: null, examiner: null, typer: null, delivery: null,
+      progress: 5, created: todayISO(), eta: data.eta || '', completed: null,
+      completedDates: {}, completedBy: {},
+      workflow: { intake: { source: 'web', ...(data.intake || {}) } },
+    }
+    setOrders(os => [order, ...os])
+    if (isSupabaseConfigured) insertOrder(order)
+    log({ id: Date.now(), action: `New order ${order.id} placed (${order.type})`, time: 'Just now', type: 'new' })
+    return order
+  }
+
   const getOrdersForRole = (role) => orders.filter(o => o.assignedTo === role)
 
   return (
-    <OrderContext.Provider value={{ orders, activityLog, assignOrder, completeStep, returnToAdmin, updateOrder, getOrdersForRole }}>
+    <OrderContext.Provider value={{ orders, activityLog, assignOrder, completeStep, returnToAdmin, updateOrder, createOrder, getOrdersForRole }}>
       {children}
     </OrderContext.Provider>
   )

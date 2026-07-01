@@ -77,6 +77,18 @@ export async function saveOrder(order) {
   if (error) console.error('[saveOrder]', error.message)
 }
 
+// Best-effort insert of a new order (client-placed). Note: RLS only lets staff
+// insert, so from a client session this may be rejected — the order still lives
+// in local state; wire a serverless endpoint for durable client-side creation.
+export async function insertOrder(order) {
+  const { error } = await supabase.from('orders').insert({
+    id: order.id, client_code: order.clientCode || null,
+    state: order.state, county: order.county, type: order.type,
+    created: order.created, ...toOrderRow(order),
+  })
+  if (error) console.error('[insertOrder]', error.message)
+}
+
 export function subscribeOrders(cb) {
   const channel = supabase.channel('orders-rt')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, cb)

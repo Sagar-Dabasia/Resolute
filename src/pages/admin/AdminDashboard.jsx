@@ -61,6 +61,23 @@ const STATUS_MAP = {
   delivered: { label:'Delivered', color:'#15803d', bg:'#f0fdf4' },
 }
 
+// Export the full order list to CSV (used on Dashboard + Orders — moved here
+// from Reports, where the order-level export was less relevant).
+export function exportOrdersCsv(orders, user) {
+  downloadCsv('orders.csv', [
+    { label: 'Order', get: o => o.id }, { label: 'Client', get: o => displayClient(o.client, user) },
+    { label: 'State', get: o => o.state }, { label: 'County', get: o => o.county },
+    { label: 'Type', get: o => o.type }, { label: 'Status', get: o => STATUS_MAP[o.status]?.label || o.status },
+    { label: 'Priority', get: o => o.priority }, { label: 'Payment', get: o => o.payment },
+    { label: 'Created', get: o => o.created }, { label: 'ETA', get: o => o.eta }, { label: 'Completed', get: o => o.completed || '' },
+  ], orders)
+}
+
+const csvBtnStyle = {
+  display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 8,
+  border: '1px solid #e2e8f0', background: '#fff', color: '#1e293b', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+}
+
 function QCard({ children, className = '', style = {} }) {
   return (
     <div className={className}
@@ -730,6 +747,7 @@ function OrdersPipeline() {
 
 function AdminHome() {
   const { activityLog, orders } = useOrders()
+  const { user } = useAuth()
   const activeCount    = orders.filter(o => o.status !== 'delivered').length
   const deliveredCount = orders.filter(o => o.status === 'delivered').length
   const rushCount      = orders.filter(o => o.priority === 'rush' && o.status !== 'delivered').length
@@ -737,15 +755,20 @@ function AdminHome() {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-xl font-bold tracking-tight" style={{ color: Q.text }}>Operations Dashboard</h1>
           <p className="text-sm mt-0.5" style={{ color: Q.muted }}>Resolute Title Services — June 2026</p>
         </div>
-        <span className="text-xs px-3 py-1.5 rounded-full font-semibold"
-          style={{ background:'#f0fdf4', color:'#16a34a', border:'1px solid #bbf7d0' }}>
-          All systems operational
-        </span>
+        <div className="flex items-center gap-2">
+          <button onClick={() => exportOrdersCsv(orders, user)} style={csvBtnStyle} title="Download all orders as CSV">
+            <Download style={{ width: 14, height: 14 }} /> Export Orders CSV
+          </button>
+          <span className="text-xs px-3 py-1.5 rounded-full font-semibold"
+            style={{ background:'#f0fdf4', color:'#16a34a', border:'1px solid #bbf7d0' }}>
+            All systems operational
+          </span>
+        </div>
       </div>
 
       {/* Stats — live from order data */}
@@ -804,11 +827,18 @@ function AdminHome() {
 }
 
 function AdminOrders() {
+  const { orders } = useOrders()
+  const { user } = useAuth()
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-xl font-bold" style={{ color: Q.text }}>Order Management</h1>
-        <p className="text-sm" style={{ color: Q.muted }}>All active and completed title search orders</p>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-xl font-bold" style={{ color: Q.text }}>Order Management</h1>
+          <p className="text-sm" style={{ color: Q.muted }}>All active and completed title search orders</p>
+        </div>
+        <button onClick={() => exportOrdersCsv(orders, user)} style={csvBtnStyle} title="Download all orders as CSV">
+          <Download style={{ width: 14, height: 14 }} /> Export Orders CSV
+        </button>
       </div>
       <OrdersPipeline />
     </div>
@@ -1010,9 +1040,6 @@ function AdminReports() {
         <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap' }}>
           <button onClick={exportSummary} style={btn} title="Export the grouped summary as CSV">
             <Download style={{ width:14, height:14 }} /> Summary CSV
-          </button>
-          <button onClick={exportOrders} style={btn} title="Export the filtered orders as CSV">
-            <Download style={{ width:14, height:14 }} /> Orders CSV
           </button>
           <span style={{ fontSize:13, color:Q.muted }}>Group by</span>
           <select value={dim} onChange={e => setDim(e.target.value)}
