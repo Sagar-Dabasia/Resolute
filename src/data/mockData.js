@@ -1,17 +1,19 @@
 // Pipeline stages (typing inserted before delivery)
-export const STAGE_KEYS   = ['received','screening','searching','examining','typing','delivered']
-export const STAGE_LABELS = ['Received','Screening','Searching','Examining','Typing','Delivered']
+// One status per role stage, strictly ordered. Status is DERIVED from the role
+// that owns the order (see statusForRole), so the two can never drift.
+export const STAGE_KEYS   = ['received','screening','examining','typing','delivery','delivered']
+export const STAGE_LABELS = ['Received','Screening','Examining','Typing','Out for Delivery','Delivered']
 
 export const PAYMENT_METHODS = ['Check', 'ACH']
 
 export const ORDERS = [
-  { id: 'RTS-10041', client: 'Lakewood Title Group',    state: 'FL', county: 'Miami-Dade',  type: 'Full Search',     status: 'searching',  screener: 'Sam Carter',   examiner: 'Jordan Lee',  typer: 'Priya Nair', delivery: 'Morgan Davis', priority: 'rush',   payment: 'Wire',             clarification: null,        created: '2026-06-09', eta: '2026-06-11', completed: null,         progress: 65,  assignedTo: 'examiner', completedDates: { screener: '2026-06-09', examiner: null, typer: null, delivery: null }, completedBy: { screener: 'Sam Carter', examiner: null, typer: null, delivery: null } },
+  { id: 'RTS-10041', client: 'Lakewood Title Group',    state: 'FL', county: 'Miami-Dade',  type: 'Full Search',     status: 'examining',  screener: 'Sam Carter',   examiner: 'Jordan Lee',  typer: 'Priya Nair', delivery: 'Morgan Davis', priority: 'rush',   payment: 'Wire',             clarification: null,        created: '2026-06-09', eta: '2026-06-11', completed: null,         progress: 65,  assignedTo: 'examiner', completedDates: { screener: '2026-06-09', examiner: null, typer: null, delivery: null }, completedBy: { screener: 'Sam Carter', examiner: null, typer: null, delivery: null } },
   { id: 'RTS-10042', client: 'Apex Lending Partners',   state: 'TX', county: 'Harris',      type: 'Current Owner',   status: 'delivered',  screener: 'Sam Carter',   examiner: 'Jordan Lee',  typer: 'Priya Nair', delivery: 'Morgan Davis', priority: 'normal', payment: 'ACH',              clarification: null,        created: '2026-06-08', eta: '2026-06-10', completed: '2026-06-10', progress: 100, assignedTo: null,       completedDates: { screener: '2026-06-08', examiner: '2026-06-09', typer: '2026-06-09', delivery: '2026-06-10' }, completedBy: { screener: 'Sam Carter', examiner: 'Jordan Lee', typer: 'Priya Nair', delivery: 'Morgan Davis' } },
   { id: 'RTS-10043', client: 'Sterling Law Firm',       state: 'CA', county: 'Los Angeles', type: 'Two-Owner',       status: 'examining',  screener: 'Sam Carter',   examiner: 'Jordan Lee',  typer: 'Priya Nair', delivery: 'Morgan Davis', priority: 'normal', payment: 'Credit Card',      clarification: 'responded', created: '2026-06-09', eta: '2026-06-12', completed: null,         progress: 45,  assignedTo: 'examiner', completedDates: { screener: '2026-06-09', examiner: null, typer: null, delivery: null }, completedBy: { screener: 'Sam Carter', examiner: null, typer: null, delivery: null } },
-  { id: 'RTS-10044', client: 'Pinnacle Real Estate',    state: 'NY', county: 'Kings',       type: 'Lien Search',     status: 'received',   screener: 'Sam Carter',   examiner: 'Jordan Lee',  typer: 'Priya Nair', delivery: 'Morgan Davis', priority: 'rush',   payment: 'Invoice (Net-30)', clarification: 'pending',   created: '2026-06-10', eta: '2026-06-11', completed: null,         progress: 10,  assignedTo: 'screener', completedDates: { screener: null, examiner: null, typer: null, delivery: null }, completedBy: { screener: null, examiner: null, typer: null, delivery: null } },
+  { id: 'RTS-10044', client: 'Pinnacle Real Estate',    state: 'NY', county: 'Kings',       type: 'Lien Search',     status: 'screening',   screener: 'Sam Carter',   examiner: 'Jordan Lee',  typer: 'Priya Nair', delivery: 'Morgan Davis', priority: 'rush',   payment: 'Invoice (Net-30)', clarification: 'pending',   created: '2026-06-10', eta: '2026-06-11', completed: null,         progress: 10,  assignedTo: 'screener', completedDates: { screener: null, examiner: null, typer: null, delivery: null }, completedBy: { screener: null, examiner: null, typer: null, delivery: null } },
   { id: 'RTS-10045', client: 'BlueStar Title Agency',   state: 'GA', county: 'Fulton',      type: 'Full Search',     status: 'screening',  screener: 'Sam Carter',   examiner: 'Jordan Lee',  typer: 'Priya Nair', delivery: 'Morgan Davis', priority: 'normal', payment: 'Check',            clarification: 'responded', created: '2026-06-10', eta: '2026-06-13', completed: null,         progress: 25,  assignedTo: 'screener', completedDates: { screener: null, examiner: null, typer: null, delivery: null }, completedBy: { screener: null, examiner: null, typer: null, delivery: null } },
   { id: 'RTS-10046', client: 'Meridian Mortgage LLC',   state: 'OH', county: 'Cuyahoga',    type: 'Tax Certificate', status: 'delivered',  screener: 'Sam Carter',   examiner: 'Jordan Lee',  typer: 'Priya Nair', delivery: 'Morgan Davis', priority: 'normal', payment: 'Wire',             clarification: null,        created: '2026-06-07', eta: '2026-06-09', completed: '2026-06-09', progress: 100, assignedTo: null,       completedDates: { screener: '2026-06-07', examiner: '2026-06-08', typer: '2026-06-08', delivery: '2026-06-09' }, completedBy: { screener: 'Sam Carter', examiner: 'Jordan Lee', typer: 'Priya Nair', delivery: 'Morgan Davis' } },
-  { id: 'RTS-10047', client: 'Coastal Title Services',  state: 'NC', county: 'Mecklenburg', type: 'HOA Estoppel',    status: 'searching',  screener: 'Sam Carter',   examiner: 'Jordan Lee',  typer: 'Priya Nair', delivery: 'Morgan Davis', priority: 'rush',   payment: 'ACH',              clarification: null,        created: '2026-06-09', eta: '2026-06-11', completed: null,         progress: 55,  assignedTo: 'examiner', completedDates: { screener: '2026-06-09', examiner: null, typer: null, delivery: null }, completedBy: { screener: 'Sam Carter', examiner: null, typer: null, delivery: null } },
+  { id: 'RTS-10047', client: 'Coastal Title Services',  state: 'NC', county: 'Mecklenburg', type: 'HOA Estoppel',    status: 'examining',  screener: 'Sam Carter',   examiner: 'Jordan Lee',  typer: 'Priya Nair', delivery: 'Morgan Davis', priority: 'rush',   payment: 'ACH',              clarification: null,        created: '2026-06-09', eta: '2026-06-11', completed: null,         progress: 55,  assignedTo: 'examiner', completedDates: { screener: '2026-06-09', examiner: null, typer: null, delivery: null }, completedBy: { screener: 'Sam Carter', examiner: null, typer: null, delivery: null } },
   { id: 'RTS-10048', client: 'Lakewood Title Group',    state: 'AZ', county: 'Maricopa',    type: 'Current Owner',   status: 'typing',     screener: 'Sam Carter',   examiner: 'Jordan Lee',  typer: 'Priya Nair', delivery: 'Morgan Davis', priority: 'normal', payment: 'Wire',             clarification: null,        created: '2026-06-08', eta: '2026-06-12', completed: null,         progress: 85,  assignedTo: 'typer',    completedDates: { screener: '2026-06-08', examiner: '2026-06-10', typer: null, delivery: null }, completedBy: { screener: 'Sam Carter', examiner: 'Jordan Lee', typer: null, delivery: null } },
 ]
 
@@ -83,6 +85,12 @@ export const ROLE_SEQUENCE = ['screener', 'examiner', 'typer', 'delivery']
 export const nextRoleFor = (order) =>
   ROLE_SEQUENCE.find(r => !(order.completedDates && order.completedDates[r])) || null
 
+// The single source of truth for status: it follows the owning role.
+// null role (all stages done) → 'delivered'.
+export const statusForRole = (role) =>
+  role === null ? 'delivered'
+    : ({ screener: 'screening', examiner: 'examining', typer: 'typing', delivery: 'delivery' }[role] || 'received')
+
 export const ACTIVITY = [
   { time: '10:42 AM', action: 'Order RTS-10044 received from Pinnacle Real Estate', type: 'new' },
   { time: '10:28 AM', action: 'RTS-10042 delivered to Apex Lending Partners', type: 'delivered' },
@@ -116,6 +124,7 @@ export const STATUS_COLORS = {
   searching: { bg: 'bg-purple-500/20', text: 'text-purple-300', dot: 'bg-purple-400' },
   examining: { bg: 'bg-orange-500/20', text: 'text-orange-300', dot: 'bg-orange-400' },
   typing:    { bg: 'bg-cyan-500/20',   text: 'text-cyan-300',   dot: 'bg-cyan-400'   },
+  delivery:  { bg: 'bg-amber-500/20',  text: 'text-amber-300',  dot: 'bg-amber-400'  },
   delivered: { bg: 'bg-green-500/20',  text: 'text-green-300',  dot: 'bg-green-400'  },
   onhold:    { bg: 'bg-red-500/20',    text: 'text-red-300',    dot: 'bg-red-400'    },
 }

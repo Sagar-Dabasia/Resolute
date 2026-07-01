@@ -55,8 +55,9 @@ const STATUS_MAP = {
   screening: { label:'Screening', color:'#d97706', bg:'#fffbeb' },
   searching: { label:'Searching', color:'#2563eb', bg:'#eff6ff' },
   examining: { label:'Examining', color:'#7c3aed', bg:'#f5f3ff' },
-  typing:    { label:'Typing',    color:'#0891b2', bg:'#ecfeff' },
-  delivered: { label:'Delivered', color:'#16a34a', bg:'#f0fdf4' },
+  typing:    { label:'Typing',    color:'#0e7490', bg:'#ecfeff' },
+  delivery:  { label:'Out for Delivery', color:'#b45309', bg:'#fff7ed' },
+  delivered: { label:'Delivered', color:'#15803d', bg:'#f0fdf4' },
 }
 
 function QCard({ children, className = '', style = {} }) {
