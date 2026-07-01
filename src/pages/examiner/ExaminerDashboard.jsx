@@ -177,6 +177,17 @@ function ExaminerHome() {
   )
 }
 
+function ExaminerQueue({ orders, title }) {
+  const [selected, setSelected] = useState(null)
+  return (
+    <div className="space-y-6">
+      {selected && <ExamineModal order={selected} onClose={() => setSelected(null)} />}
+      <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>{title}</h1>
+      <div className="glass-card p-5"><OrdersTable orders={orders} onOrderClick={setSelected} /></div>
+    </div>
+  )
+}
+
 export default function ExaminerDashboard() {
   const { getOrdersForRole, orders } = useOrders()
   const myOrders  = getOrdersForRole('examiner')
@@ -185,14 +196,8 @@ export default function ExaminerDashboard() {
     <Layout navItems={NAV} role="examiner" roleColor={ROLE_COLOR}>
       <Routes>
         <Route index element={<ExaminerHome />} />
-        <Route path="examine" element={<div className="space-y-6">
-          <h1 className="text-2xl font-bold" style={{color:'#1e293b'}}>To Examine</h1>
-          <div className="glass-card p-5"><OrdersTable orders={myOrders} /></div>
-        </div>} />
-        <Route path="completed" element={<div className="space-y-6">
-          <h1 className="text-2xl font-bold" style={{color:'#1e293b'}}>Completed</h1>
-          <div className="glass-card p-5"><OrdersTable orders={completed} /></div>
-        </div>} />
+        <Route path="examine" element={<ExaminerQueue orders={myOrders} title="To Examine" />} />
+        <Route path="completed" element={<ExaminerQueue orders={completed} title="Completed" />} />
       </Routes>
     </Layout>
   )

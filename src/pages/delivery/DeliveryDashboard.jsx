@@ -196,6 +196,17 @@ function DeliveryHome() {
   )
 }
 
+function DeliveryQueue({ orders, title }) {
+  const [selected, setSelected] = useState(null)
+  return (
+    <div className="space-y-6">
+      {selected && <DeliveryModal order={selected} onClose={() => setSelected(null)} />}
+      <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>{title}</h1>
+      <div className="glass-card p-5"><OrdersTable orders={orders} onOrderClick={setSelected} /></div>
+    </div>
+  )
+}
+
 export default function DeliveryDashboard() {
   const { getOrdersForRole, orders } = useOrders()
   const readyOrders     = getOrdersForRole('delivery')
@@ -204,14 +215,8 @@ export default function DeliveryDashboard() {
     <Layout navItems={NAV} role="delivery" roleColor={ROLE_COLOR}>
       <Routes>
         <Route index element={<DeliveryHome />} />
-        <Route path="queue" element={<div className="space-y-6">
-          <h1 className="text-2xl font-bold" style={{color:'#1e293b'}}>Ready to Send</h1>
-          <div className="glass-card p-5"><OrdersTable orders={readyOrders} /></div>
-        </div>} />
-        <Route path="sent" element={<div className="space-y-6">
-          <h1 className="text-2xl font-bold" style={{color:'#1e293b'}}>Delivered Orders</h1>
-          <div className="glass-card p-5"><OrdersTable orders={deliveredOrders} /></div>
-        </div>} />
+        <Route path="queue" element={<DeliveryQueue orders={readyOrders} title="Ready to Send" />} />
+        <Route path="sent" element={<DeliveryQueue orders={deliveredOrders} title="Delivered Orders" />} />
       </Routes>
     </Layout>
   )

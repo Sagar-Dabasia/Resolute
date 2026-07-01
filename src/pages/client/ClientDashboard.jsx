@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import Layout from '../../components/Layout'
 import USAMap from '../../components/USAMap'
@@ -147,14 +147,49 @@ function TrackOrder({ order }) {
   )
 }
 
+const PRODUCTS = [
+  { name:'Current Owner Search', price:75,  tat:'8–16 hr',  desc:'Current owner rundown forward from and including the current vesting document with all supporting documentation. Includes chain of title, legal description, requirements, and exceptions.' },
+  { name:'Two Owner Search',     price:100, tat:'16–24 hr', desc:'Current vesting deed and all deeds back to the deed prior to the out-of-family deed. Includes copies of open mortgages and assignments, any judgments and liens against those owners, and tax assessment and current tax info including delinquencies.' },
+  { name:'Full Search',          price:150, tat:'24–48 hr', desc:'Current vesting deed and all deeds back to state statute or a developer. Includes open mortgages and assignments, judgments and liens, and tax assessment and current tax information including delinquencies.' },
+  { name:'Update / Bringdown',   price:45,  tat:'8–16 hr',  desc:'An extension of a title search to verify no liens have been filed between the original search and the recording of the deed or mortgage. Update on tax info from last effective date; any newly recorded instruments.' },
+  { name:'Commercial Search',    price:250, desc:'Commitment-ready report for commercial properties.' },
+  { name:'Energy / Infrastructure', price:350, desc:'Solar, wind, pipelines, cell towers, EV infrastructure.' },
+  { name:'Tax Search',           desc:'Property tax assessment, current tax status, and delinquency information.' },
+  { name:'Patriot Name Search',  desc:'OFAC / Patriot Act compliance name search against government watch lists.' },
+  { name:'Bankruptcy Name Search', desc:'Federal bankruptcy court name search for all parties in the transaction.' },
+  { name:'Document Retrieval',   desc:'Retrieval of specific recorded documents from county and municipal records.' },
+]
+const TURNAROUND = [
+  { key:'normal', label:'Standard — 48 hrs', fee:0,  desc:'Delivered within 2 business days' },
+  { key:'rush',   label:'Rush — 24 hrs',     fee:50, desc:'Priority processing, next business day' },
+]
+
 function PlaceOrderPage() {
+  const navigate = useNavigate()
+  const { createOrder } = useOrders()
   const [step, setStep] = useState(1)
+  const [createdId, setCreatedId] = useState(null)
   const [form, setForm] = useState({
-    searchType:'', state:'', county:'', address:'', parcelId:'',
-    priority:'normal', firstName:'', lastName:'', email:'', company:'', notes:''
+    searchType:'', state:'', county:'', address:'', city:'', zip:'', parcelId:'',
+    buyer:'', borrower:'', seller:'',
+    priority:'normal', firstName:'', lastName:'', email:'', company:'', role:'', notes:''
   })
   const [submitted, setSubmitted] = useState(false)
   const set = (k,v) => setForm(f => ({ ...f, [k]:v }))
+  const submit = () => {
+    const order = createOrder({
+      state: form.state, county: form.county, type: form.searchType || 'Full Search',
+      priority: form.priority,
+      intake: {
+        source: 'web', propertyAddress: [form.address, form.city, form.state, form.zip].filter(Boolean).join(', '),
+        parcelNumberAPN: form.parcelId, borrowerName: form.borrower, buyer: form.buyer, seller: form.seller,
+        orderType: form.searchType, from: `${form.firstName} ${form.lastName} <${form.email}>`.trim(),
+        company: form.company, role: form.role, specialInstructions: form.notes,
+      },
+    })
+    setCreatedId(order.id)
+    setSubmitted(true)
+  }
 
   if (submitted) return (
     <motion.div initial={{ opacity:0, scale:0.95 }} animate={{ opacity:1, scale:1 }}
@@ -165,14 +200,14 @@ function PlaceOrderPage() {
       </div>
       <h2 className="text-2xl font-bold mb-2" style={{ color:'#1e293b' }}>Order Submitted!</h2>
       <p className="text-sm mb-1" style={{ color:'#475569' }}>
-        Assigned <span className="font-mono font-bold" style={{ color:ROLE_COLOR }}>RTS-10049</span>
+        Assigned <span className="font-mono font-bold" style={{ color:ROLE_COLOR }}>{createdId || 'RTS-10049'}</span>
       </p>
       <p className="text-xs mb-8" style={{ color:'#64748b' }}>
-        Confirmation sent to {form.email || 'your email'} within minutes.
+        We'll email a quote to {form.email || 'your email'} within 1 business hour.
       </p>
       <div className="flex gap-3">
-        <button onClick={() => { setSubmitted(false); setStep(1) }} className="btn-primary">Place Another</button>
-        <button className="btn-secondary">Track Order</button>
+        <button onClick={() => { setSubmitted(false); setStep(1); setCreatedId(null) }} className="btn-primary">Place Another</button>
+        <button onClick={() => navigate('/client/orders')} className="btn-secondary">Track Order</button>
       </div>
     </motion.div>
   )
@@ -210,7 +245,7 @@ function PlaceOrderPage() {
       <AnimatePresence mode="wait">
         <motion.div key={step} initial={{ opacity:0, x:20 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:-20 }}
           className="glass-card p-6">
-          <form onSubmit={e => { e.preventDefault(); setSubmitted(true) }}>
+          <form onSubmit={e => { e.preventDefault(); submit() }}>
             {step===1 && (
               <div className="space-y-4">
                 <h2 className="text-lg font-semibold mb-4" style={{ color:'#1e293b' }}>Property Information</h2>
@@ -229,9 +264,27 @@ function PlaceOrderPage() {
                   <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'#64748b' }}>Property Address</label>
                   <input value={form.address} onChange={e=>set('address',e.target.value)} placeholder="123 Main St, City, State 00000" className="input-field text-sm"/>
                 </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'#64748b' }}>City</label>
+                    <input value={form.city} onChange={e=>set('city',e.target.value)} placeholder="Springfield" className="input-field text-sm"/>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'#64748b' }}>ZIP <span style={{textTransform:'none',opacity:.6}}>(optional)</span></label>
+                    <input value={form.zip} onChange={e=>set('zip',e.target.value)} placeholder="62701" className="input-field text-sm"/>
+                  </div>
+                </div>
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'#64748b' }}>Parcel / APN #</label>
-                  <input value={form.parcelId} onChange={e=>set('parcelId',e.target.value)} placeholder="Optional" className="input-field text-sm"/>
+                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'#64748b' }}>Parcel / APN # <span style={{textTransform:'none',opacity:.6}}>(optional)</span></label>
+                  <input value={form.parcelId} onChange={e=>set('parcelId',e.target.value)} placeholder="14-25-376-012" className="input-field text-sm"/>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'#64748b' }}>Parties <span style={{textTransform:'none',opacity:.6}}>(optional)</span></label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <input value={form.buyer} onChange={e=>set('buyer',e.target.value)} placeholder="Buyer" className="input-field text-sm"/>
+                    <input value={form.borrower} onChange={e=>set('borrower',e.target.value)} placeholder="Borrower" className="input-field text-sm"/>
+                    <input value={form.seller} onChange={e=>set('seller',e.target.value)} placeholder="Seller" className="input-field text-sm"/>
+                  </div>
                 </div>
               </div>
             )}
@@ -239,32 +292,41 @@ function PlaceOrderPage() {
               <div className="space-y-4">
                 <h2 className="text-lg font-semibold mb-4" style={{ color:'#1e293b' }}>Search Details</h2>
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color:'#64748b' }}>Search Type *</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color:'#64748b' }}>Titled Products *</label>
                   <div className="grid grid-cols-2 gap-2">
-                    {['Current Owner','Two-Owner','Full Search','Lien Search','Tax Certificate','HOA Estoppel','Municipal Lien','Property Valuation'].map(t => (
-                      <button key={t} type="button" onClick={() => set('searchType',t)}
-                        className="p-3 rounded-xl text-sm text-left border transition-all"
-                        style={form.searchType===t
-                          ? { border:`1px solid ${ROLE_COLOR}55`, background:`${ROLE_COLOR}18`, color:'#1e293b' }
-                          : { border:'1px solid rgba(30,41,59,0.08)', color:'#475569' }}>
-                        {t}
-                      </button>
-                    ))}
+                    {PRODUCTS.map(p => {
+                      const active = form.searchType === p.name
+                      return (
+                        <button key={p.name} type="button" onClick={() => set('searchType', p.name)}
+                          className="p-3 rounded-xl text-left border transition-all"
+                          style={active
+                            ? { border:`1px solid ${ROLE_COLOR}66`, background:`${ROLE_COLOR}14`, boxShadow:`0 0 0 1px ${ROLE_COLOR}44` }
+                            : { border:'1px solid #e2e8f0', background:'#fff' }}>
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-semibold text-sm" style={{ color:'#1e293b' }}>{p.name}</span>
+                            {p.price != null && <span className="font-bold text-sm" style={{ color:'#b45309' }}>${p.price}</span>}
+                          </div>
+                          <p className="text-[11px] mt-1 leading-snug" style={{ color:'#64748b' }}>{p.desc}</p>
+                          {p.tat && <span className="inline-block mt-2 text-[10px] font-medium px-1.5 py-0.5 rounded" style={{ background:'#f1f5f9', color:'#475569' }}>⏱ {p.tat}</span>}
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color:'#64748b' }}>Priority</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color:'#64748b' }}>Turnaround</label>
                   <div className="grid grid-cols-2 gap-3">
-                    {[['normal','Standard (2-3 days)','Normal turnaround'],['rush','Rush (24 hrs)','+ Rush fee applies']].map(([k,l,d]) => (
-                      <button key={k} type="button" onClick={() => set('priority',k)}
+                    {TURNAROUND.map(t => (
+                      <button key={t.key} type="button" onClick={() => set('priority', t.key)}
                         className="p-3 rounded-xl text-left border transition-all"
-                        style={form.priority===k
-                          ? k==='rush'
-                            ? { border:'1px solid rgba(220,80,60,0.40)', background:'rgba(220,80,60,0.12)', color:'#1e293b' }
-                            : { border:`1px solid ${ROLE_COLOR}55`, background:`${ROLE_COLOR}18`, color:'#1e293b' }
-                          : { border:'1px solid rgba(30,41,59,0.08)', color:'#475569' }}>
-                        <div className="font-semibold text-sm">{l}</div>
-                        <div className="text-xs mt-0.5 opacity-60">{d}</div>
+                        style={form.priority===t.key
+                          ? { border:`1px solid ${ROLE_COLOR}66`, background:`${ROLE_COLOR}14` }
+                          : { border:'1px solid #e2e8f0', background:'#fff' }}>
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-sm" style={{ color:'#1e293b' }}>{t.label}</span>
+                          <span className="text-xs font-bold" style={{ color: t.fee ? '#b45309' : '#64748b' }}>+${t.fee}</span>
+                        </div>
+                        <div className="text-xs mt-0.5" style={{ color:'#64748b' }}>{t.desc}</div>
                       </button>
                     ))}
                   </div>
@@ -337,6 +399,7 @@ function PlaceOrderPage() {
 
 function ClientHome() {
   const myOrders = useMyOrders()
+  const navigate = useNavigate()
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between">
@@ -344,7 +407,8 @@ function ClientHome() {
           <h1 className="text-2xl font-bold" style={{ color:'#1e293b' }}>Client Portal</h1>
           <p className="text-sm" style={{ color:'#475569' }}>Welcome back, Taylor Brooks</p>
         </div>
-        <motion.button whileHover={{ scale:1.02 }} whileTap={{ scale:0.98 }} className="btn-primary flex items-center gap-2 text-sm">
+        <motion.button whileHover={{ scale:1.02 }} whileTap={{ scale:0.98 }} onClick={() => navigate('/client/order')}
+          className="btn-primary flex items-center gap-2 text-sm">
           <PlusCircle className="w-4 h-4" /> New Order
         </motion.button>
       </div>

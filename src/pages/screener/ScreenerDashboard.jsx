@@ -157,6 +157,17 @@ function ScreenerHome() {
   )
 }
 
+function ScreenerQueue({ orders, title }) {
+  const [selected, setSelected] = useState(null)
+  return (
+    <div className="space-y-6">
+      {selected && <OrderModal order={selected} onClose={() => setSelected(null)} />}
+      <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>{title}</h1>
+      <div className="glass-card p-5"><OrdersTable orders={orders} onOrderClick={setSelected} /></div>
+    </div>
+  )
+}
+
 export default function ScreenerDashboard() {
   const { getOrdersForRole, orders } = useOrders()
   const myOrders  = getOrdersForRole('screener')
@@ -165,14 +176,8 @@ export default function ScreenerDashboard() {
     <Layout navItems={NAV} role="screener" roleColor={ROLE_COLOR}>
       <Routes>
         <Route index element={<ScreenerHome />} />
-        <Route path="queue" element={<div className="space-y-6">
-          <h1 className="text-2xl font-bold" style={{color:'#1e293b'}}>Screening Queue</h1>
-          <div className="glass-card p-5"><OrdersTable orders={myOrders} /></div>
-        </div>} />
-        <Route path="completed" element={<div className="space-y-6">
-          <h1 className="text-2xl font-bold" style={{color:'#1e293b'}}>Completed Screenings</h1>
-          <div className="glass-card p-5"><OrdersTable orders={completed} /></div>
-        </div>} />
+        <Route path="queue" element={<ScreenerQueue orders={myOrders} title="Screening Queue" />} />
+        <Route path="completed" element={<ScreenerQueue orders={completed} title="Completed Screenings" />} />
       </Routes>
     </Layout>
   )

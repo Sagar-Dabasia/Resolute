@@ -85,8 +85,10 @@ function TyperHome() {
 
 export default function TyperDashboard() {
   const { getOrdersForRole, orders } = useOrders()
+  const navigate = useNavigate()
   const myOrders  = getOrdersForRole('typer')
   const completed = orders.filter(o => o.completedDates?.typer)
+  const openOrder = (o) => navigate(`/typer/order/${o.id}`)
   return (
     <Layout navItems={NAV} role="typer" roleColor={ROLE_COLOR}>
       <Routes>
@@ -94,11 +96,11 @@ export default function TyperDashboard() {
         <Route path="order/:id" element={<FulfillmentScreen />} />
         <Route path="queue" element={<div className="space-y-6">
           <h1 className="text-2xl font-bold" style={{color:'#1e293b'}}>To Type</h1>
-          <div className="glass-card p-5"><OrdersTable orders={myOrders} /></div>
+          <div className="glass-card p-5"><OrdersTable orders={myOrders} onOrderClick={openOrder} /></div>
         </div>} />
         <Route path="completed" element={<div className="space-y-6">
           <h1 className="text-2xl font-bold" style={{color:'#1e293b'}}>Completed</h1>
-          <div className="glass-card p-5"><OrdersTable orders={completed} /></div>
+          <div className="glass-card p-5"><OrdersTable orders={completed} onOrderClick={openOrder} /></div>
         </div>} />
       </Routes>
     </Layout>
