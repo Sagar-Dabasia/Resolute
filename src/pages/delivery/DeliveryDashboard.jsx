@@ -8,6 +8,7 @@ import { displayClient, clientByName } from '../../data/mockData'
 import { useAuth } from '../../context/AuthContext'
 import { useOrders } from '../../context/OrderContext'
 import AttachedDocs from '../../components/AttachedDocs'
+import { CommitmentDocumentModal } from '../../components/CommitmentDocument'
 
 const ROLE_COLOR = '#b45309'
 const NAV = [
@@ -23,6 +24,7 @@ function DeliveryModal({ order, onClose }) {
   const [method, setMethod] = useState(order.workflow?.deliveryMethod || 'email')
   const [recipient, setRecipient] = useState(user?.superAdmin && cli ? cli.email : '')
   const [note, setNote] = useState('')
+  const [showDoc, setShowDoc] = useState(false)
   const submit = () => {
     updateOrder({ ...order, workflow: { ...order.workflow, deliveryMethod: method, deliveryRecipient: recipient, invoiceVisibleToClient: method === 'portal' } })
     completeStep(order.id, 'delivery', user?.name, `via ${method}${note ? ' · ' + note : ''}`)
@@ -88,11 +90,12 @@ function DeliveryModal({ order, onClose }) {
           <button className="flex-1 btn-primary text-sm py-2.5 flex items-center justify-center gap-2" onClick={submit}>
             <Send className="w-4 h-4" /> Deliver &amp; Submit to Admin
           </button>
-          <button className="btn-secondary text-sm py-2.5 px-4 flex items-center gap-2" onClick={onClose}>
-            <Download className="w-4 h-4" /> Preview
+          <button className="btn-secondary text-sm py-2.5 px-4 flex items-center gap-2" onClick={() => setShowDoc(true)}>
+            <Download className="w-4 h-4" /> Preview Document
           </button>
         </div>
       </motion.div>
+      {showDoc && <CommitmentDocumentModal order={order} onClose={() => setShowDoc(false)} />}
     </div>
   )
 }
