@@ -19,6 +19,13 @@ const LOGO_SVG = `
   <text x="52" y="40" font-family="Arial, sans-serif" font-size="8" fill="#4d7c2f" letter-spacing="0.5">integrity · intelligence · innovation</text>
 </svg>`
 
+// Prefer the official logo from /public; fall back to the inline mark if absent.
+const LOGO_HTML = `<span style="display:inline-block">
+  <img src="/logo-left.jpg" alt="Resolute" style="height:58px;width:auto;max-width:300px;display:block"
+       onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block'" />
+  <span style="display:none">${LOGO_SVG}</span>
+</span>`
+
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 const val = (s, ph = '—') => (s && String(s).trim() ? esc(s) : `<span class="ph">${ph}</span>`)
 
@@ -90,7 +97,7 @@ export function buildCommitmentHtml(order, f) {
   footer { font-family: Arial, sans-serif; font-size: 7.5pt; color: #94a3b8; display: flex; justify-content: space-between; margin-top: 10px; border-top: 1px solid #e2e8f0; padding-top: 6px; }
 </style></head><body><div class="wrap">
   <header>
-    <div>${LOGO_SVG}</div>
+    <div>${LOGO_HTML}</div>
     <div class="doc-title"><h1>Title Commitment &amp; Search Report</h1>
       <div class="meta">Order ${esc(order.id)} &nbsp;·&nbsp; ${esc(m.productType || order.type || '')}<br>Prepared ${esc(genAt)}</div></div>
   </header>
