@@ -21,7 +21,7 @@ const LOGO_SVG = `
 
 // Prefer the official logo from /public; fall back to the inline mark if absent.
 const LOGO_HTML = `<span style="display:inline-block">
-  <img src="/resolute-logo.png" alt="Resolute" style="height:52px;width:auto;max-width:230px;display:block"
+  <img src="/logo-left.jpg" alt="Resolute" style="height:58px;width:auto;max-width:300px;display:block"
        onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block'" />
   <span style="display:none">${LOGO_SVG}</span>
 </span>`
