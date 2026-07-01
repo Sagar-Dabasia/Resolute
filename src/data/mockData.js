@@ -2,7 +2,7 @@
 export const STAGE_KEYS   = ['received','screening','searching','examining','typing','delivered']
 export const STAGE_LABELS = ['Received','Screening','Searching','Examining','Typing','Delivered']
 
-export const PAYMENT_METHODS = ['Wire', 'Check', 'Credit Card', 'ACH', 'Invoice (Net-30)']
+export const PAYMENT_METHODS = ['Check', 'ACH']
 
 export const ORDERS = [
   { id: 'RTS-10041', client: 'Lakewood Title Group',    state: 'FL', county: 'Miami-Dade',  type: 'Full Search',     status: 'searching',  screener: 'Sam Carter',   examiner: 'Jordan Lee',  typer: 'Priya Nair', delivery: 'Morgan Davis', priority: 'rush',   payment: 'Wire',             clarification: null,        created: '2026-06-09', eta: '2026-06-11', completed: null,         progress: 65,  assignedTo: 'examiner', completedDates: { screener: '2026-06-09', examiner: null, typer: null, delivery: null }, completedBy: { screener: 'Sam Carter', examiner: null, typer: null, delivery: null } },
