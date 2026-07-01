@@ -10,6 +10,7 @@ import ExaminerDashboard from './pages/examiner/ExaminerDashboard'
 import TyperDashboard from './pages/typer/TyperDashboard'
 import DeliveryDashboard from './pages/delivery/DeliveryDashboard'
 import ClientDashboard from './pages/client/ClientDashboard'
+import OperatorDashboard from './pages/operator/OperatorDashboard'
 
 function ProtectedRoute({ children, allowedRole }) {
   const { user } = useAuth()
@@ -50,6 +51,9 @@ export default function App() {
           } />
           <Route path="/client/*" element={
             <ProtectedRoute allowedRole="client"><ClientDashboard /></ProtectedRoute>
+          } />
+          <Route path="/operator/*" element={
+            <ProtectedRoute allowedRole="operator"><OperatorDashboard /></ProtectedRoute>
           } />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
