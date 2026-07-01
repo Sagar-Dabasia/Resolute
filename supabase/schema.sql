@@ -65,6 +65,7 @@ create table if not exists public.orders (
   completed       date,
   completed_dates jsonb not null default '{}'::jsonb,  -- { screener: date, ... }
   completed_by    jsonb not null default '{}'::jsonb,  -- { screener: name, ... }
+  workflow        jsonb not null default '{}'::jsonb,  -- per-role data: searchAssignment, screenerDoc, examinerDoc, deliveryMethod, ...
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now()
 );

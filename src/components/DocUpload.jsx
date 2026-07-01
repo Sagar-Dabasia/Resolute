@@ -1,0 +1,64 @@
+import React, { useState, useRef } from 'react'
+import { UploadCloud, FileText, Trash2, CheckCircle2, AlertCircle, Eye } from 'lucide-react'
+import { ACCEPTED_DOCS, validDocType, fileKind, uid } from '../data/fulfillment'
+import { isSupabaseConfigured, uploadDocument } from '../lib/backend'
+
+// Compact PDF/Word upload used across the role portals (dark theme).
+// Uploads to Supabase Storage when configured; otherwise stores a local ref.
+export default function DocUpload({ orderId, value, onChange, accent = '#6aab42' }) {
+  const [drag, setDrag] = useState(false)
+  const [err, setErr]   = useState('')
+  const inputRef = useRef(null)
+
+  const handle = async (list) => {
+    const file = Array.from(list || [])[0]
+    if (!file) return
+    if (!validDocType(file)) { setErr('PDF or Word (.doc/.docx) only'); return }
+    setErr('')
+    const ref = { id: uid(), name: file.name, type: fileKind(file.name), status: isSupabaseConfigured ? 'uploading' : 'done', url: null }
+    onChange(ref)
+    if (isSupabaseConfigured) {
+      try { const { url, path } = await uploadDocument(orderId, file); onChange({ ...ref, status: 'done', url, path }) }
+      catch { onChange({ ...ref, status: 'error' }) }
+    }
+  }
+
+  if (value) return (
+    <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
+      style={{ background: 'rgba(245,240,224,0.04)', border: '1px solid rgba(138,194,104,0.14)' }}>
+      <FileText className="w-5 h-5 flex-shrink-0" style={{ color: value.type === 'pdf' ? '#e0857a' : '#7aa6e0' }} />
+      <div className="flex-1 min-w-0">
+        <div className="text-sm font-medium truncate" style={{ color: '#f5ede0' }}>{value.name}</div>
+        <div className="text-[11px] flex items-center gap-1" style={{ color: 'rgba(245,237,224,0.35)' }}>
+          {value.status === 'uploading' ? 'Uploading…'
+            : value.status === 'error' ? <><AlertCircle className="w-3 h-3" style={{ color: '#e0857a' }} /> Failed</>
+            : <><CheckCircle2 className="w-3 h-3" style={{ color: accent }} /> Uploaded</>}
+        </div>
+      </div>
+      {value.url && <button onClick={() => window.open(value.url, '_blank')} title="Preview"
+        className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ color: 'rgba(245,237,224,0.4)' }}><Eye className="w-4 h-4" /></button>}
+      <button onClick={() => onChange(null)} title="Remove"
+        className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ color: '#d98a7a' }}><Trash2 className="w-4 h-4" /></button>
+    </div>
+  )
+
+  return (
+    <div>
+      <div role="button" tabIndex={0}
+        onClick={() => inputRef.current?.click()}
+        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); inputRef.current?.click() } }}
+        onDragOver={e => { e.preventDefault(); setDrag(true) }}
+        onDragLeave={() => setDrag(false)}
+        onDrop={e => { e.preventDefault(); setDrag(false); handle(e.dataTransfer.files) }}
+        className="rounded-xl flex flex-col items-center justify-center py-5 px-4 cursor-pointer transition-all"
+        style={{ border: `1.5px dashed ${drag ? accent : 'rgba(138,194,104,0.25)'}`, background: drag ? `${accent}12` : 'transparent' }}>
+        <UploadCloud className="w-6 h-6 mb-1.5" style={{ color: drag ? accent : 'rgba(245,237,224,0.35)' }} />
+        <div className="text-sm font-medium" style={{ color: '#f5ede0' }}>Drag &amp; drop or <span style={{ color: accent }}>browse</span></div>
+        <div className="text-[11px] mt-0.5" style={{ color: 'rgba(245,237,224,0.28)' }}>PDF or Word · up to 25 MB</div>
+        <input ref={inputRef} type="file" accept={ACCEPTED_DOCS} className="hidden"
+          onChange={e => { handle(e.target.files); e.target.value = '' }} />
+      </div>
+      {err && <div className="flex items-center gap-1.5 mt-2 text-[12px]" style={{ color: '#e0857a' }}><AlertCircle className="w-3.5 h-3.5" /> {err}</div>}
+    </div>
+  )
+}
