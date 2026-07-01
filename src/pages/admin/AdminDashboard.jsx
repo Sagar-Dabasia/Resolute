@@ -7,8 +7,9 @@ import AssignModal from '../../components/AssignModal'
 import {
   LayoutDashboard, ClipboardList, Users, BarChart3, Settings, MapPin,
   Package, CheckCircle, Clock, Search, Plus, Filter, Eye,
-  ChevronDown, ChevronUp, FileText, ArrowUpRight, X, Lock, ShieldCheck, UserPlus,
+  ChevronDown, ChevronUp, FileText, ArrowUpRight, X, Lock, ShieldCheck, UserPlus, Download,
 } from 'lucide-react'
+import { downloadCsv } from '../../lib/exportCsv'
 import {
   USERS, MONTHLY_STATS, PAYMENT_METHODS, MESSAGES,
   STAGE_KEYS, STAGE_LABELS, displayClient, clientByName,
@@ -957,6 +958,19 @@ function AdminReports() {
   const rows = Object.entries(counts).sort((a, b) => b[1] - a[1])
   const max  = Math.max(...rows.map(r => r[1]), 1)
 
+  const dimLabel = DIMS.find(d => d.key === dim)?.label || 'Group'
+  const exportSummary = () => downloadCsv(`report-${dim}.csv`,
+    [{ label: dimLabel, get: r => r[0] }, { label: 'Orders', get: r => r[1] }], rows)
+  const exportOrders = () => downloadCsv('orders.csv', [
+    { label: 'Order', get: o => o.id }, { label: 'Client', get: o => displayClient(o.client, user) },
+    { label: 'State', get: o => o.state }, { label: 'County', get: o => o.county },
+    { label: 'Type', get: o => o.type }, { label: 'Status', get: o => STATUS_MAP[o.status]?.label || o.status },
+    { label: 'Priority', get: o => o.priority }, { label: 'Payment', get: o => o.payment },
+    { label: 'Created', get: o => o.created }, { label: 'ETA', get: o => o.eta }, { label: 'Completed', get: o => o.completed || '' },
+  ], scoped)
+  const btn = { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 8,
+    border: `1px solid ${Q.border}`, background: Q.card, color: Q.text, fontSize: 13, fontWeight: 600, cursor: 'pointer', boxShadow: Q.shadow }
+
   const repSelect = {
     padding:'8px 10px', borderRadius:8, border:`1px solid ${Q.border}`,
     background:Q.card, color:Q.text, fontSize:13, fontWeight:500, outline:'none', cursor:'pointer',
@@ -970,7 +984,13 @@ function AdminReports() {
           <h1 className="text-xl font-bold" style={{ color: Q.text }}>Reports</h1>
           <p className="text-sm" style={{ color: Q.muted }}>Order breakdown and monthly volume</p>
         </div>
-        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap' }}>
+          <button onClick={exportSummary} style={btn} title="Export the grouped summary as CSV">
+            <Download style={{ width:14, height:14 }} /> Summary CSV
+          </button>
+          <button onClick={exportOrders} style={btn} title="Export the filtered orders as CSV">
+            <Download style={{ width:14, height:14 }} /> Orders CSV
+          </button>
           <span style={{ fontSize:13, color:Q.muted }}>Group by</span>
           <select value={dim} onChange={e => setDim(e.target.value)}
             style={{ ...repSelect, fontWeight:600 }}>
