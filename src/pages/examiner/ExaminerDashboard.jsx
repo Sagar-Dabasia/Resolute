@@ -7,6 +7,7 @@ import { LayoutDashboard, FileSearch, CheckCircle, Clock, AlertCircle, ChevronRi
 import { displayClient } from '../../data/mockData'
 import { useAuth } from '../../context/AuthContext'
 import { useOrders } from '../../context/OrderContext'
+import DocUpload from '../../components/DocUpload'
 
 const ROLE_COLOR = '#c4a44e'
 const NAV = [
@@ -17,11 +18,16 @@ const NAV = [
 
 function ExamineModal({ order, onClose }) {
   const { user } = useAuth()
-  const { completeStep } = useOrders()
+  const { returnToAdmin } = useOrders()
   const [findings, setFindings] = useState('')
   const [liens, setLiens] = useState(false)
   const [encumbrances, setEncumbrances] = useState(false)
-  const submit = () => { completeStep(order.id, 'examiner', user?.name, findings); onClose() }
+  const [doc, setDoc] = useState(order.workflow?.examinerDoc || null)
+  const submit = () => {
+    if (!doc || doc.status !== 'done') return
+    returnToAdmin(order.id, 'examiner', user?.name, findings, { examinerDoc: doc })
+    onClose()
+  }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: 'rgba(0,0,0,0.65)' }} onClick={onClose}>
@@ -76,18 +82,26 @@ function ExamineModal({ order, onClose }) {
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
+              style={{ color:'rgba(245,237,224,0.38)' }}>Researched Document <span style={{ textTransform:'none', color:'#e08080' }}>*required</span></label>
+            <DocUpload orderId={order.id} value={doc} onChange={setDoc} accent={ROLE_COLOR} />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
               style={{ color:'rgba(245,237,224,0.38)' }}>Examination Notes</label>
             <textarea value={findings} onChange={e=>setFindings(e.target.value)}
               placeholder="Document findings, chain of title issues, liens, easements…"
-              rows={4} className="input-field text-sm resize-none" />
+              rows={3} className="input-field text-sm resize-none" />
           </div>
         </div>
         <div className="flex gap-3">
-          <button className="btn-primary flex-1 text-sm py-2.5 flex items-center justify-center gap-2" onClick={submit}>
-            <Send className="w-4 h-4" /> Complete &amp; Submit to Admin
+          <button disabled={!doc || doc.status !== 'done'} onClick={submit}
+            className="btn-primary flex-1 text-sm py-2.5 flex items-center justify-center gap-2"
+            style={{ opacity: (doc && doc.status === 'done') ? 1 : 0.5, cursor: (doc && doc.status === 'done') ? 'pointer' : 'not-allowed' }}>
+            <Send className="w-4 h-4" /> Confirm &amp; Send to Admin
           </button>
           <button className="btn-secondary text-sm py-2.5 px-4" onClick={onClose}>Save Draft</button>
         </div>
+        {(!doc || doc.status !== 'done') && <p className="text-[11px] mt-2" style={{ color:'rgba(245,237,224,0.35)' }}>Upload the researched document to continue.</p>}
       </motion.div>
     </div>
   )

@@ -7,8 +7,10 @@ import { LayoutDashboard, ClipboardList, CheckCircle, Clock, AlertTriangle, Sear
 import { displayClient } from '../../data/mockData'
 import { useAuth } from '../../context/AuthContext'
 import { useOrders } from '../../context/OrderContext'
+import DocUpload from '../../components/DocUpload'
 
 const ROLE_COLOR = '#8ab868'
+const ASSIGN_OPTS = [['in_house', 'In-House'], ['abc', 'ABC (Abroad, US)'], ['both', 'Both']]
 const NAV = [
   { path: '/screener',           label: 'Dashboard',       icon: LayoutDashboard },
   { path: '/screener/queue',     label: 'Screening Queue', icon: ClipboardList, badge: 3 },
@@ -22,10 +24,15 @@ const STATUS_DOT = {
 
 function OrderModal({ order, onClose }) {
   const { user } = useAuth()
-  const { completeStep } = useOrders()
-  const [status, setStatus] = useState(order.status)
+  const { returnToAdmin } = useOrders()
+  const [assignment, setAssignment] = useState(order.workflow?.searchAssignment || null)
+  const [doc, setDoc]       = useState(order.workflow?.screenerDoc || null)
   const [notes, setNotes]   = useState('')
-  const submit = () => { completeStep(order.id, 'screener', user?.name, notes); onClose() }
+  const submit = () => {
+    if (!assignment) return
+    returnToAdmin(order.id, 'screener', user?.name, notes, { searchAssignment: assignment, screenerDoc: doc })
+    onClose()
+  }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: 'rgba(0,0,0,0.65)' }} onClick={onClose}>
@@ -49,27 +56,35 @@ function OrderModal({ order, onClose }) {
         </div>
         <div className="mb-4">
           <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
-            style={{ color: 'rgba(245,237,224,0.38)' }}>Update Status</label>
-          <div className="flex gap-2 flex-wrap">
-            {['received','screening','searching'].map(s => (
-              <button key={s} onClick={() => setStatus(s)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all"
-                style={status === s
+            style={{ color: 'rgba(245,237,224,0.38)' }}>Assign Search To</label>
+          <div className="grid grid-cols-3 gap-2">
+            {ASSIGN_OPTS.map(([k, l]) => (
+              <button key={k} onClick={() => setAssignment(k)}
+                className="py-2.5 rounded-lg text-xs font-semibold transition-all"
+                style={assignment === k
                   ? { background: `${ROLE_COLOR}28`, color: ROLE_COLOR, border: `1px solid ${ROLE_COLOR}55` }
                   : { background: 'rgba(245,240,224,0.05)', color: 'rgba(245,237,224,0.40)', border: '1px solid rgba(245,240,224,0.08)' }}>
-                {s}
+                {l}
               </button>
             ))}
           </div>
         </div>
+        <div className="mb-4">
+          <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
+            style={{ color: 'rgba(245,237,224,0.38)' }}>Search Document <span style={{ textTransform: 'none', opacity: 0.6 }}>(optional)</span></label>
+          <DocUpload orderId={order.id} value={doc} onChange={setDoc} accent={ROLE_COLOR} />
+        </div>
         <textarea value={notes} onChange={e => setNotes(e.target.value)}
-          placeholder="Add screening notes…" rows={3} className="input-field text-sm mb-4 resize-none" />
+          placeholder="Add screening notes…" rows={2} className="input-field text-sm mb-4 resize-none" />
         <div className="flex gap-3">
-          <button className="btn-primary flex-1 text-sm py-2.5 flex items-center justify-center gap-2" onClick={submit}>
-            <Send className="w-4 h-4" /> Complete &amp; Submit to Admin
+          <button disabled={!assignment} onClick={submit}
+            className="btn-primary flex-1 text-sm py-2.5 flex items-center justify-center gap-2"
+            style={{ opacity: assignment ? 1 : 0.5, cursor: assignment ? 'pointer' : 'not-allowed' }}>
+            <Send className="w-4 h-4" /> Confirm &amp; Send to Admin
           </button>
           <button className="btn-secondary text-sm py-2.5 px-4" onClick={onClose}>Hold</button>
         </div>
+        {!assignment && <p className="text-[11px] mt-2" style={{ color: 'rgba(245,237,224,0.35)' }}>Choose who conducts the search to continue.</p>}
       </motion.div>
     </div>
   )

@@ -17,12 +17,16 @@ const NAV = [
 
 function DeliveryModal({ order, onClose }) {
   const { user } = useAuth()
-  const { completeStep } = useOrders()
+  const { completeStep, updateOrder } = useOrders()
   const cli = clientByName(order.client)
-  const [method, setMethod] = useState('email')
+  const [method, setMethod] = useState(order.workflow?.deliveryMethod || 'email')
   const [recipient, setRecipient] = useState(user?.superAdmin && cli ? cli.email : '')
   const [note, setNote] = useState('')
-  const submit = () => { completeStep(order.id, 'delivery', user?.name, note); onClose() }
+  const submit = () => {
+    updateOrder({ ...order, workflow: { ...order.workflow, deliveryMethod: method, deliveryRecipient: recipient, invoiceVisibleToClient: method === 'portal' } })
+    completeStep(order.id, 'delivery', user?.name, `via ${method}${note ? ' · ' + note : ''}`)
+    onClose()
+  }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background:'rgba(0,0,0,0.65)' }} onClick={onClose}>
@@ -49,8 +53,8 @@ function DeliveryModal({ order, onClose }) {
         <div className="mb-4">
           <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
             style={{ color:'rgba(245,237,224,0.38)' }}>Delivery Method</label>
-          <div className="grid grid-cols-3 gap-2">
-            {[['email','Email'],['portal','Portal'],['api','API Push']].map(([k,l]) => (
+          <div className="grid grid-cols-2 gap-2">
+            {[['email','Email'],['portal','Client Portal']].map(([k,l]) => (
               <button key={k} onClick={() => setMethod(k)}
                 className="py-2.5 rounded-xl text-sm font-medium transition-all border"
                 style={method===k
@@ -60,8 +64,13 @@ function DeliveryModal({ order, onClose }) {
               </button>
             ))}
           </div>
+          <p className="text-[11px] mt-2" style={{ color:'rgba(245,237,224,0.40)' }}>
+            {method==='email'
+              ? 'Full package + invoice will be emailed to the client.'
+              : 'Package is posted to the client portal and the invoice is reflected there.'}
+          </p>
         </div>
-        <div className="mb-4">
+        <div className="mb-4" style={{ display: method==='email' ? 'block' : 'none' }}>
           <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
             style={{ color:'rgba(245,237,224,0.38)' }}>Recipient Email</label>
           <input value={recipient} onChange={e=>setRecipient(e.target.value)}

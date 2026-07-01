@@ -67,6 +67,31 @@ export function OrderProvider({ children }) {
     })
   }
 
+  // A role finishes its stage and hands the order BACK to Admin to assign the
+  // next stage (screener → admin, examiner → admin). Stamps completion + saves
+  // any workflow data (assignment choice, uploaded doc), advances status, and
+  // parks the order in the Admin queue (assignedTo = 'admin').
+  const returnToAdmin = (orderId, role, userName, notes, extra = {}) => {
+    setOrders(os => os.map(o => {
+      if (o.id !== orderId) return o
+      const idx = PIPELINE.indexOf(o.status)
+      const nextStatus = idx >= 0 && idx < PIPELINE.length - 1 ? PIPELINE[idx + 1] : o.status
+      const newIdx = PIPELINE.indexOf(nextStatus)
+      const next = {
+        ...o,
+        status: nextStatus,
+        assignedTo: 'admin',
+        progress: Math.round((newIdx / (PIPELINE.length - 1)) * 100),
+        completedDates: { ...o.completedDates, [role]: todayISO() },
+        completedBy: { ...o.completedBy, [role]: userName },
+        workflow: { ...o.workflow, ...extra },
+      }
+      persist(next)
+      return next
+    }))
+    log({ id: Date.now(), action: `${userName} completed ${STAGE_BY_ROLE[role] || role} on ${orderId} → returned to Admin for assignment` + (notes ? ` (${notes})` : ''), time: 'Just now', type: 'status' })
+  }
+
   const updateOrder = (updated) => {
     setOrders(os => os.map(o => (o.id === updated.id ? updated : o)))
     persist(updated)
@@ -75,7 +100,7 @@ export function OrderProvider({ children }) {
   const getOrdersForRole = (role) => orders.filter(o => o.assignedTo === role)
 
   return (
-    <OrderContext.Provider value={{ orders, activityLog, assignOrder, completeStep, updateOrder, getOrdersForRole }}>
+    <OrderContext.Provider value={{ orders, activityLog, assignOrder, completeStep, returnToAdmin, updateOrder, getOrdersForRole }}>
       {children}
     </OrderContext.Provider>
   )

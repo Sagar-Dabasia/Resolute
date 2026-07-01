@@ -22,6 +22,7 @@ const toAppOrder = (r) => ({
   created: r.created, eta: r.eta, completed: r.completed,
   completedDates: r.completed_dates || {},
   completedBy: r.completed_by || {},
+  workflow: r.workflow || {},
 })
 
 const toOrderRow = (o) => ({
@@ -30,6 +31,7 @@ const toOrderRow = (o) => ({
   screener: o.screener, examiner: o.examiner, typer: o.typer, delivery: o.delivery,
   progress: o.progress, eta: o.eta, completed: o.completed,
   completed_dates: o.completedDates, completed_by: o.completedBy,
+  workflow: o.workflow || {},
 })
 
 const mapUser = (authUser, prof) => ({
