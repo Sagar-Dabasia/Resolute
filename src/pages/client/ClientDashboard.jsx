@@ -5,9 +5,10 @@ import Layout from '../../components/Layout'
 import USAMap from '../../components/USAMap'
 import {
   LayoutDashboard, PlusCircle, ClipboardList, MessageSquare,
-  Package, CheckCircle, Clock, ChevronRight, X, MapPin, Zap, Send
+  Package, CheckCircle, Clock, ChevronRight, X, MapPin, Zap, Send, FileText, DollarSign
 } from 'lucide-react'
-import { ORDERS } from '../../data/mockData'
+import { ORDERS, PAYMENT_METHODS } from '../../data/mockData'
+import { useOrders } from '../../context/OrderContext'
 
 const ROLE_COLOR = '#a0c070'
 const NAV = [
@@ -16,7 +17,61 @@ const NAV = [
   { path: '/client/orders',  label: 'My Orders',   icon: ClipboardList },
   { path: '/client/support', label: 'Support',     icon: MessageSquare },
 ]
-const myOrders = ORDERS.filter(o => ['RTS-10041','RTS-10042','RTS-10045'].includes(o.id))
+const MY_IDS = ['RTS-10041', 'RTS-10042', 'RTS-10045']
+
+// Live copies of this client's orders (so delivered invoices/status reflect).
+function useMyOrders() {
+  const { orders } = useOrders()
+  return MY_IDS.map(id => orders.find(o => o.id === id) || ORDERS.find(o => o.id === id)).filter(Boolean)
+}
+
+// Fallback billable estimate when the typed invoice total isn't stamped on the order yet.
+const BASE_PRICE = { 'Full Search': 175, 'Two-Owner': 150, 'Current Owner': 125, 'Lien Search': 110, 'Tax Certificate': 95, 'HOA Estoppel': 120 }
+const estimatePrice = (o) => (o.workflow?.invoiceAmount ?? BASE_PRICE[o.type] ?? 125) + (o.priority === 'rush' ? 50 : 0)
+
+// Invoice + payment card shown when Delivery sent the order via the client portal.
+function InvoiceCard({ order }) {
+  const { updateOrder } = useOrders()
+  const pay = order.workflow?.payment
+  const amount = estimatePrice(order)
+  const [method, setMethod] = useState(pay?.method || PAYMENT_METHODS[1])
+  const confirm = () => updateOrder({ ...order, workflow: { ...order.workflow, payment: { method, status: 'submitted', at: new Date().toISOString().slice(0, 10) } } })
+  const money = (n) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+  return (
+    <div className="glass-card p-5" style={{ border: '1px solid rgba(160,192,112,0.28)' }}>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <FileText className="w-4 h-4" style={{ color: ROLE_COLOR }} />
+          <span className="font-semibold text-sm" style={{ color: '#f5ede0' }}>Invoice · {order.id}</span>
+        </div>
+        <span className="text-lg font-bold tabular-nums" style={{ color: '#f5ede0' }}>{money(amount)}</span>
+      </div>
+      <p className="text-[11px] mb-3" style={{ color: 'rgba(245,237,224,0.35)' }}>Sales tax applied automatically at settlement.</p>
+      {pay?.status === 'submitted' ? (
+        <div className="flex items-center gap-2 text-sm px-3 py-2.5 rounded-xl"
+          style={{ background: 'rgba(109,188,120,0.12)', border: '1px solid rgba(109,188,120,0.25)', color: '#6dbc78' }}>
+          <CheckCircle className="w-4 h-4" /> Payment submitted via {pay.method} on {pay.at}
+        </div>
+      ) : (
+        <>
+          <div className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'rgba(245,237,224,0.40)' }}>Payment Method</div>
+          <div className="grid grid-cols-2 gap-2 mb-3">
+            {PAYMENT_METHODS.map(m => (
+              <button key={m} onClick={() => setMethod(m)}
+                className="py-2.5 rounded-xl text-sm font-medium transition-all border flex items-center justify-center gap-1.5"
+                style={method === m
+                  ? { background: `${ROLE_COLOR}1e`, border: `1px solid ${ROLE_COLOR}55`, color: '#f5ede0' }
+                  : { border: '1px solid rgba(245,240,224,0.08)', color: 'rgba(245,237,224,0.45)' }}>
+                <DollarSign className="w-3.5 h-3.5" /> {m}
+              </button>
+            ))}
+          </div>
+          <button onClick={confirm} className="btn-primary w-full text-sm py-2.5">Confirm Payment via {method}</button>
+        </>
+      )}
+    </div>
+  )
+}
 
 const US_STATES = [
   'Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware',
@@ -281,6 +336,7 @@ function PlaceOrderPage() {
 }
 
 function ClientHome() {
+  const myOrders = useMyOrders()
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between">
@@ -311,7 +367,12 @@ function ClientHome() {
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="space-y-4">
           <h2 className="font-semibold" style={{ color:'#f5ede0' }}>Order Tracking</h2>
-          {myOrders.map(o => <TrackOrder key={o.id} order={o} />)}
+          {myOrders.map(o => (
+            <React.Fragment key={o.id}>
+              <TrackOrder order={o} />
+              {o.workflow?.invoiceVisibleToClient && <InvoiceCard order={o} />}
+            </React.Fragment>
+          ))}
         </div>
         <div className="glass-card p-5">
           <h2 className="font-semibold mb-1" style={{ color:'#f5ede0' }}>Coverage Map</h2>
@@ -385,16 +446,30 @@ function SupportPage() {
   )
 }
 
+function MyOrdersPage() {
+  const myOrders = useMyOrders()
+  return (
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold" style={{ color: '#f5ede0' }}>My Orders</h1>
+      <div className="space-y-4">
+        {myOrders.map(o => (
+          <React.Fragment key={o.id}>
+            <TrackOrder order={o} />
+            {o.workflow?.invoiceVisibleToClient && <InvoiceCard order={o} />}
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function ClientDashboard() {
   return (
     <Layout navItems={NAV} role="client" roleColor={ROLE_COLOR}>
       <Routes>
         <Route index         element={<ClientHome />} />
         <Route path="order"  element={<PlaceOrderPage />} />
-        <Route path="orders" element={<div className="space-y-6">
-          <h1 className="text-2xl font-bold" style={{color:'#f5ede0'}}>My Orders</h1>
-          <div className="space-y-4">{myOrders.map(o => <TrackOrder key={o.id} order={o} />)}</div>
-        </div>} />
+        <Route path="orders" element={<MyOrdersPage />} />
         <Route path="support" element={<SupportPage />} />
       </Routes>
     </Layout>
