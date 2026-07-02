@@ -82,7 +82,7 @@ export default function OrdersTable({ orders, showAssignees = false, onOrderClic
       </div>
 
       <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid rgba(138,194,104,0.10)' }}>
-        <table className="w-full text-sm">
+        <table className="w-full min-w-[900px] text-sm">
           <thead>
             <tr style={{ borderBottom: '1px solid rgba(138,194,104,0.09)' }}>
               {['Order ID','Client','Location','Type','Status','Progress',

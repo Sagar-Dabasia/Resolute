@@ -74,7 +74,7 @@ function StageModal({ order, onClose }) {
         {role === 'screener' && (
           <>
             <Lbl>Assign Search To</Lbl>
-            <div className="grid grid-cols-3 gap-2 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">
               {ASSIGN.map(([k, l]) => (
                 <button key={k} onClick={() => setAssignment(k)}
                   className="py-2.5 rounded-lg text-xs font-semibold transition-all"
@@ -115,7 +115,7 @@ function StageModal({ order, onClose }) {
         {role === 'delivery' && (
           <>
             <Lbl>Delivery Method</Lbl>
-            <div className="grid grid-cols-2 gap-2 mb-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
               {[['email', 'Email'], ['portal', 'Client Portal']].map(([k, l]) => (
                 <button key={k} onClick={() => setMethod(k)}
                   className="py-2.5 rounded-xl text-sm font-medium transition-all border"

@@ -5,7 +5,7 @@ import { Label, TextInput, TextArea, DateInput, MoneyInput, GhostButton, RoundBt
 import { makeJudgment, uid } from '../../../data/fulfillment'
 
 const Minus = () => <span className="text-[15px] leading-none">−</span>
-const Pair = ({ children }) => <div className="grid grid-cols-2 gap-3">{children}</div>
+const Pair = ({ children }) => <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{children}</div>
 
 // ── Search Information ───────────────────────────────────────────────────────
 export function SearchInformation({ meta, onChange }) {
@@ -31,12 +31,12 @@ export function AssessmentTax({ tax, onChange }) {
   const f = (k) => (v) => onChange({ [k]: v })
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <div><Label>Assessed Land</Label><MoneyInput value={tax.assessedLand} onChange={f('assessedLand')} /></div>
         <div><Label>Assessed Building</Label><MoneyInput value={tax.assessedBuilding} onChange={f('assessedBuilding')} /></div>
         <div><Label>Total Assessed</Label><MoneyInput value={tax.totalAssessed} onChange={f('totalAssessed')} /></div>
       </div>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <div><Label>Parcel No.</Label><TextInput value={tax.parcelNo} onChange={f('parcelNo')} numeric /></div>
         <div><Label>Tax Year</Label><TextInput value={tax.taxYear} onChange={f('taxYear')} numeric /></div>
         <div><Label>Status</Label><TextInput value={tax.status} onChange={f('status')} placeholder="Paid / Due" /></div>
@@ -74,7 +74,7 @@ export function JudgmentsLiens({ items, onChange }) {
               <div><Label>Instrument Name</Label><TextInput value={j.instrumentName} onChange={v => set(j.id, { instrumentName: v })} /></div>
               <div><Label>Case No.</Label><TextInput value={j.caseNo} onChange={v => set(j.id, { caseNo: v })} numeric /></div>
             </Pair>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               <div><Label>Filed On</Label><DateInput value={j.filedOn} onChange={v => set(j.id, { filedOn: v })} /></div>
               <div><Label>Rec Date</Label><DateInput value={j.recDate} onChange={v => set(j.id, { recDate: v })} /></div>
               <div><Label>Amount</Label><MoneyInput value={j.amount} onChange={v => set(j.id, { amount: v })} /></div>

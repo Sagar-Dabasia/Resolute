@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react'
 import { Drawer, Label, TextInput, TextArea, DateInput, GhostButton, AccentButton, RoundBtn, ClausePreview, T } from './ui'
 import { surveyClause, platmapsClause, easementClause, exceptionText, uid } from '../../../data/fulfillment'
 
-const Pair = ({ children }) => <div className="grid grid-cols-2 gap-3">{children}</div>
+const Pair = ({ children }) => <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{children}</div>
 
 const META = {
   survey:   { title: 'Survey / Encroachment', sub: 'ENCX01 — Facts Disclosed by Survey' },
@@ -82,7 +82,7 @@ export default function ExceptionDrawer({ open, onClose, exception, onSave }) {
                       <span className="text-[10px] font-mono font-semibold" style={{ color: T.accentBright }}>MAP {i + 1}</span>
                       <RoundBtn icon={() => <span className="text-[15px] leading-none">−</span>} danger title="Remove" onClick={() => rmMap(m.id)} />
                     </div>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       <div><Label>Date</Label><DateInput value={m.date} onChange={v => setMap(m.id, 'date', v)} /></div>
                       <div><Label>Book</Label><TextInput value={m.book} onChange={v => setMap(m.id, 'book', v)} numeric /></div>
                       <div><Label>Page</Label><TextInput value={m.page} onChange={v => setMap(m.id, 'page', v)} numeric /></div>

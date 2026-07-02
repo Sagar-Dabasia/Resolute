@@ -61,19 +61,19 @@ export default function DeedTabs({ deeds, onChange }) {
       {/* Active deed fields */}
       <motion.div key={deed.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.15 }}
         className="space-y-3">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div><Label>Deed Type</Label><TextInput value={deed.deedType} onChange={v => setField('deedType', v)} placeholder="e.g. Warranty Deed" /></div>
           <div><Label>Consideration</Label><TextInput value={deed.consideration} onChange={v => setField('consideration', v)} placeholder="$0.00" numeric /></div>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div><Label>Grantor</Label><TextArea value={deed.grantor} onChange={v => setField('grantor', v)} rows={2} placeholder="Grantor name(s)" /></div>
           <div><Label>Grantee</Label><TextArea value={deed.grantee} onChange={v => setField('grantee', v)} rows={2} placeholder="Grantee name(s) … their heirs and assigns" /></div>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div><Label>Date of Deed</Label><DateInput value={deed.dateOfDeed} onChange={v => setField('dateOfDeed', v)} /></div>
           <div><Label>Recorded Date</Label><DateInput value={deed.recordedDate} onChange={v => setField('recordedDate', v)} /></div>
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <div><Label>Book</Label><TextInput value={deed.book} onChange={v => setField('book', v)} numeric /></div>
           <div><Label>Page</Label><TextInput value={deed.page} onChange={v => setField('page', v)} numeric /></div>
           <div><Label>Instrument #</Label><TextInput value={deed.instrument} onChange={v => setField('instrument', v)} numeric /></div>
@@ -89,7 +89,7 @@ export default function DeedTabs({ deeds, onChange }) {
           <span className="text-[10px] uppercase tracking-[0.14em]" style={{ color: T.dim }}>or — registered land</span>
           <div className="h-px flex-1" style={{ background: T.borderSoft }} />
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div><Label>Cert. of Title #</Label><TextInput value={deed.certOfTitle} onChange={v => setField('certOfTitle', v)} numeric /></div>
           <div><Label>Document #</Label><TextInput value={deed.documentNo} onChange={v => setField('documentNo', v)} numeric /></div>
         </div>

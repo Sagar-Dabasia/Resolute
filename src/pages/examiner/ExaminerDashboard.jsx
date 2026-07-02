@@ -42,7 +42,7 @@ function ExamineModal({ order, onClose }) {
           </div>
           <button onClick={onClose} style={{ color:'#64748b' }}><X className="w-5 h-5" /></button>
         </div>
-        <div className="grid grid-cols-2 gap-3 mb-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
           {[['Search Type',order.type],['County',order.county],['State',order.state],['Priority',order.priority.toUpperCase()]].map(([k,v]) => (
             <div key={k} className="glass p-3 rounded-xl">
               <div className="text-xs mb-1" style={{ color:'#64748b' }}>{k}</div>
@@ -70,7 +70,7 @@ function ExamineModal({ order, onClose }) {
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
               style={{ color:'#64748b' }}>Issues Found</label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[['Open Liens',liens,setLiens],['Encumbrances',encumbrances,setEncumbrances]].map(([l,v,s]) => (
                 <button key={l} onClick={() => s(!v)}
                   className="p-3 rounded-xl text-sm font-medium transition-all border"

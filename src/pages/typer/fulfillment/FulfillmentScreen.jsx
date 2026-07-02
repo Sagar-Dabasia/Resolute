@@ -52,7 +52,7 @@ export default function FulfillmentScreen() {
           onMouseOver={e => e.currentTarget.style.color = T.text} onMouseOut={e => e.currentTarget.style.color = T.faint}>
           <ArrowLeft className="w-3.5 h-3.5" /> Queue
         </button>
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="min-w-0">
             <div className="flex items-center gap-3">
               <h1 className="text-[22px] font-bold font-mono tracking-tight" style={{ color: T.text }}>{order.id}</h1>
@@ -73,12 +73,12 @@ export default function FulfillmentScreen() {
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-1 mt-4 -mb-px">
+        <div className="flex flex-nowrap items-center gap-1 mt-4 -mb-px overflow-x-auto">
           {TABS.map(t => {
             const on = t === tab
             return (
               <button key={t} onClick={() => setTab(t)}
-                className="px-3 py-2.5 text-[13px] font-medium transition-colors relative"
+                className="px-3 py-2.5 text-[13px] font-medium transition-colors relative flex-shrink-0 whitespace-nowrap"
                 style={{ color: on ? T.text : T.faint }}>
                 {t}
                 {on && <motion.div layoutId="tabunderline" className="absolute left-0 right-0 -bottom-px h-0.5" style={{ background: T.accentBright }} />}
@@ -327,7 +327,7 @@ function ImportControl({ order, set }) {
   }
 
   return (
-    <div className="flex items-center gap-2 mb-6 rounded-lg px-3 py-2.5" style={{ background: T.card, border: `1px dashed ${T.border}` }}>
+    <div className="flex flex-wrap items-center gap-2 mb-6 rounded-lg px-3 py-2.5" style={{ background: T.card, border: `1px dashed ${T.border}` }}>
       <Download className="w-4 h-4 flex-shrink-0" style={{ color: T.faint }} />
       <span className="text-[12px] flex-shrink-0" style={{ color: T.faint }}>Import data from an existing order</span>
       <div className="relative flex-1 max-w-[260px]">
@@ -661,7 +661,7 @@ function OverviewTab({ order, f, user }) {
   const Card = ({ title, children }) => (
     <div className="rounded-xl p-4 mb-4" style={{ background: T.card, border: `1px solid ${T.border}` }}>
       <div className="text-[10px] font-semibold uppercase tracking-[0.12em] mb-2.5" style={{ color: T.faint }}>{title}</div>
-      <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">{children}</div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5">{children}</div>
     </div>
   )
   const Row = ({ k, v, mono }) => (
@@ -704,7 +704,7 @@ function OverviewTab({ order, f, user }) {
         <Card title="Client Message">
           <Row k="From" v={intake.from} />
           <Row k="Subject" v={intake.subject} />
-          <div className="col-span-2 pt-1">
+          <div className="col-span-1 sm:col-span-2 pt-1">
             <span className="text-[11px] uppercase tracking-[0.06em]" style={{ color: T.dim }}>Special instructions</span>
             <p className="text-[12.5px] mt-1 leading-relaxed" style={{ color: T.muted }}>{intake.specialInstructions || '—'}</p>
           </div>

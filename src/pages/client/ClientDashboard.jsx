@@ -268,7 +268,7 @@ function PlaceOrderPage() {
                   <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'#64748b' }}>Property Address</label>
                   <input value={form.address} onChange={e=>set('address',e.target.value)} placeholder="123 Main St, City, State 00000" className="input-field text-sm"/>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'#64748b' }}>City</label>
                     <input value={form.city} onChange={e=>set('city',e.target.value)} placeholder="Springfield" className="input-field text-sm"/>
@@ -290,7 +290,7 @@ function PlaceOrderPage() {
                       { label:'Borrower', first:'borrowerFirst', last:'borrowerLast' },
                       { label:'Seller',   first:'sellerFirst',   last:'sellerLast' },
                     ].map(p => (
-                      <div key={p.label} className="grid grid-cols-[80px,1fr,1fr] gap-2 items-center">
+                      <div key={p.label} className="grid grid-cols-1 sm:grid-cols-[80px,1fr,1fr] gap-2 sm:items-center">
                         <span className="text-xs font-medium" style={{ color:'#475569' }}>{p.label}</span>
                         <input value={form[p.first]} onChange={e=>set(p.first,e.target.value)} placeholder="First Name" className="input-field text-sm"/>
                         <input value={form[p.last]}  onChange={e=>set(p.last,e.target.value)}  placeholder="Last Name"  className="input-field text-sm"/>
@@ -305,7 +305,7 @@ function PlaceOrderPage() {
                 <h2 className="text-lg font-semibold mb-4" style={{ color:'#1e293b' }}>Search Details</h2>
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color:'#64748b' }}>Titled Products *</label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {PRODUCTS.map(p => {
                       const active = form.searchType === p.name
                       return (
@@ -327,7 +327,7 @@ function PlaceOrderPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color:'#64748b' }}>Turnaround</label>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {TURNAROUND.map(t => (
                       <button key={t.key} type="button" onClick={() => set('priority', t.key)}
                         className="p-3 rounded-xl text-left border transition-all"
@@ -352,7 +352,7 @@ function PlaceOrderPage() {
             {step===3 && (
               <div className="space-y-4">
                 <h2 className="text-lg font-semibold mb-4" style={{ color:'#1e293b' }}>Contact Information</h2>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color:'#64748b' }}>First Name *</label>
                     <input value={form.firstName} onChange={e=>set('firstName',e.target.value)} placeholder="First name" className="input-field text-sm" required/>
@@ -375,7 +375,7 @@ function PlaceOrderPage() {
             {step===4 && (
               <div className="space-y-4">
                 <h2 className="text-lg font-semibold mb-4" style={{ color:'#1e293b' }}>Review & Submit</h2>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[['State',form.state||'—'],['County',form.county||'—'],['Search Type',form.searchType||'—'],
                     ['Priority',form.priority.toUpperCase()],['Contact',`${form.firstName} ${form.lastName}`.trim()||'—'],['Email',form.email||'—']].map(([k,v]) => (
                     <div key={k} className="glass p-3 rounded-xl">
