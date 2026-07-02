@@ -4,7 +4,7 @@ import { Drawer, Label, TextInput, DateInput, MoneyInput, GhostButton, AccentBut
 import { mortgageClause, emptyLien, makeAssignment, uid } from '../../../data/fulfillment'
 
 // Two-up field grid helper.
-const Pair = ({ children }) => <div className="grid grid-cols-2 gap-3">{children}</div>
+const Pair = ({ children }) => <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{children}</div>
 const Minus = () => <span className="text-[15px] leading-none">−</span>
 
 // Free-text repeater (subordinations).
@@ -59,11 +59,11 @@ function AssignmentList({ items, onChange }) {
                 <div><Label>Assignor</Label><TextInput value={a.assignor} onChange={v => set(a.id, { assignor: v })} /></div>
                 <div><Label>Assignee</Label><TextInput value={a.assignee} onChange={v => set(a.id, { assignee: v })} /></div>
               </Pair>
-              <div className="grid grid-cols-2 gap-3 mt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
                 <div><Label>Dated Date</Label><DateInput value={a.datedDate} onChange={v => set(a.id, { datedDate: v })} /></div>
                 <div><Label>Rec Date</Label><DateInput value={a.recDate} onChange={v => set(a.id, { recDate: v })} /></div>
               </div>
-              <div className="grid grid-cols-2 gap-3 mt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
                 <div><Label>Book</Label><TextInput value={a.book} onChange={v => set(a.id, { book: v })} numeric /></div>
                 <div><Label>Page</Label><TextInput value={a.page} onChange={v => set(a.id, { page: v })} numeric /></div>
               </div>

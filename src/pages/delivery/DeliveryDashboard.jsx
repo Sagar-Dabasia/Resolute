@@ -32,7 +32,7 @@ function DeliveryModal({ order, onClose }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background:'rgba(0,0,0,0.65)' }} onClick={onClose}>
       <motion.div initial={{ scale:0.95, opacity:0 }} animate={{ scale:1, opacity:1 }}
-        className="glass-card p-6 w-full max-w-lg" onClick={e=>e.stopPropagation()}>
+        className="glass-card p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e=>e.stopPropagation()}>
         <div className="flex items-start justify-between mb-6">
           <div>
             <div className="font-mono font-semibold text-sm" style={{ color:ROLE_COLOR }}>{order.id}</div>
@@ -55,7 +55,7 @@ function DeliveryModal({ order, onClose }) {
         <div className="mb-4">
           <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
             style={{ color:'#64748b' }}>Delivery Method</label>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {[['email','Email'],['portal','Client Portal']].map(([k,l]) => (
               <button key={k} onClick={() => setMethod(k)}
                 className="py-2.5 rounded-xl text-sm font-medium transition-all border"

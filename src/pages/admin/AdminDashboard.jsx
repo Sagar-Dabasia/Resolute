@@ -192,11 +192,12 @@ function OrderEditModal({ order, user, onClose, onSave }) {
         </div>
 
         {/* Detail tabs */}
-        <div style={{ display:'flex', gap:0, padding:'0 22px', borderBottom:`1px solid ${Q.border}` }}>
+        <div className="overflow-x-auto" style={{ display:'flex', gap:0, padding:'0 22px', borderBottom:`1px solid ${Q.border}` }}>
           {DETAIL_TABS.map(t => {
             const badge = t.key === 'inbox' ? orderMessages.length : t.key === 'files' ? files.length : 0
             return (
               <button key={t.key} onClick={() => setTab(t.key)}
+                className="shrink-0 whitespace-nowrap"
                 style={{ display:'flex', alignItems:'center', gap:6, padding:'10px 14px', fontSize:13, fontWeight:600,
                   background:'transparent', border:'none', cursor:'pointer',
                   color: tab === t.key ? ROLE_COLOR : Q.muted,
@@ -561,9 +562,10 @@ function OrdersPipeline() {
       </div>
 
       {/* Tab bar */}
-      <div style={{ display:'flex', gap:0, borderBottom:`1px solid ${Q.border}` }}>
+      <div className="overflow-x-auto" style={{ display:'flex', gap:0, borderBottom:`1px solid ${Q.border}` }}>
         {tabs.map(t => (
           <button key={t.key} onClick={() => setActiveTab(t.key)}
+            className="shrink-0 whitespace-nowrap"
             style={{
               display:'flex', alignItems:'center', gap:6,
               padding:'10px 16px', fontSize:13, fontWeight:500,
@@ -848,7 +850,7 @@ function AdminOrders() {
 function AdminUsers() {
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-xl font-bold" style={{ color: Q.text }}>User Management</h1>
           <p className="text-sm" style={{ color: Q.muted }}>Team members and client accounts</p>
@@ -883,7 +885,8 @@ function AdminUsers() {
       </div>
 
       <div style={{ background:Q.card, border:`1px solid ${Q.border}`, borderRadius:10, boxShadow:Q.shadow, overflow:'hidden' }}>
-        <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
+        <div className="overflow-x-auto">
+        <table className="min-w-[720px]" style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
           <thead>
             <tr style={{ background:'#f8fafc', borderBottom:`1px solid ${Q.border}` }}>
               {['Name','Email','Role','Status','Orders','Joined'].map(h => (
@@ -936,6 +939,7 @@ function AdminUsers() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   )

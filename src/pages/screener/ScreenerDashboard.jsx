@@ -37,7 +37,7 @@ function OrderModal({ order, onClose }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: 'rgba(0,0,0,0.65)' }} onClick={onClose}>
       <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-        className="glass-card p-6 w-full max-w-lg" onClick={e => e.stopPropagation()}>
+        className="glass-card p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="flex items-start justify-between mb-6">
           <div>
             <div className="font-mono font-semibold text-sm" style={{ color: ROLE_COLOR }}>{order.id}</div>
@@ -45,7 +45,7 @@ function OrderModal({ order, onClose }) {
           </div>
           <button onClick={onClose} style={{ color: '#64748b' }}><X className="w-5 h-5" /></button>
         </div>
-        <div className="grid grid-cols-2 gap-3 mb-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
           {[['State/County',`${order.state} · ${order.county}`],['Search Type',order.type],
             ['Priority',order.priority.toUpperCase()],['ETA',order.eta]].map(([k,v]) => (
             <div key={k} className="glass p-3 rounded-xl">
@@ -57,7 +57,7 @@ function OrderModal({ order, onClose }) {
         <div className="mb-4">
           <label className="block text-xs font-semibold uppercase tracking-wider mb-2"
             style={{ color: '#64748b' }}>Assign Search To</label>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {ASSIGN_OPTS.map(([k, l]) => (
               <button key={k} onClick={() => setAssignment(k)}
                 className="py-2.5 rounded-lg text-xs font-semibold transition-all"

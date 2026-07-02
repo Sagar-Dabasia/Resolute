@@ -22,7 +22,7 @@ export default function InvoiceBlock({ invoice, onChange }) {
   const cancelCharge = invoice.chargeOnCancel ? invoice.additionalCosts.reduce((a, li) => a + (li.discount ? 0 : lineTotal(li)), 0) : 0
 
   const Row = ({ li, sectionKey, locked }) => (
-    <div className="grid grid-cols-[1fr_120px_72px_110px_28px] gap-2 items-center">
+    <div className="grid grid-cols-[1fr_120px_72px_110px_28px] gap-2 items-center min-w-[560px]">
       <div className="relative">
         <TextInput value={li.type} onChange={v => setRow(sectionKey, li.id, { type: v })} disabled={locked}
           className={locked ? 'opacity-70' : ''} />
@@ -45,7 +45,7 @@ export default function InvoiceBlock({ invoice, onChange }) {
   )
 
   const HeaderRow = () => (
-    <div className="grid grid-cols-[1fr_120px_72px_110px_28px] gap-2 px-0.5">
+    <div className="grid grid-cols-[1fr_120px_72px_110px_28px] gap-2 px-0.5 min-w-[560px]">
       {['Type', 'Cost / Unit', 'Units', 'Total', ''].map((h, i) => (
         <div key={i} className={`text-[10px] font-semibold uppercase tracking-[0.1em] ${i === 3 ? 'text-right pr-1' : ''}`} style={{ color: T.dim }}>{h}</div>
       ))}
@@ -54,16 +54,18 @@ export default function InvoiceBlock({ invoice, onChange }) {
 
   return (
     <div className="rounded-lg p-3.5" style={{ background: T.card, border: `1px solid ${T.border}` }}>
-      <div className="text-[11px] font-semibold uppercase tracking-[0.12em] mb-2" style={{ color: T.faint }}>Services</div>
-      <HeaderRow />
-      <div className="space-y-1.5 mt-1.5">{invoice.services.map(li => <Row key={li.id} li={li} sectionKey="services" locked={li.locked} />)}</div>
+      <div className="overflow-x-auto">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.12em] mb-2" style={{ color: T.faint }}>Services</div>
+        <HeaderRow />
+        <div className="space-y-1.5 mt-1.5">{invoice.services.map(li => <Row key={li.id} li={li} sectionKey="services" locked={li.locked} />)}</div>
 
-      {invoice.additionalCosts.length > 0 && (
-        <>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.12em] mt-4 mb-1.5" style={{ color: T.faint }}>Additional Costs</div>
-          <div className="space-y-1.5">{invoice.additionalCosts.map(li => <Row key={li.id} li={li} sectionKey="additionalCosts" />)}</div>
-        </>
-      )}
+        {invoice.additionalCosts.length > 0 && (
+          <>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.12em] mt-4 mb-1.5" style={{ color: T.faint }}>Additional Costs</div>
+            <div className="space-y-1.5">{invoice.additionalCosts.map(li => <Row key={li.id} li={li} sectionKey="additionalCosts" />)}</div>
+          </>
+        )}
+      </div>
 
       <div className="flex items-center gap-2 mt-3">
         <FooterBtn icon={Plus} onClick={addCost}>Add Cost</FooterBtn>
