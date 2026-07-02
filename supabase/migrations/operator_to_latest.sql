@@ -42,16 +42,41 @@ end)::order_status;
 -- ── 4a — Operator login (all-in-one portal) ─────────────────────────────────
 -- Creates operator@resolute.com / operator123. Skip this block if you prefer
 -- to add the user via Authentication → Users, then just set the role (bottom).
+-- IMPORTANT: GoTrue reads the token columns below into non-nullable strings, so
+-- they MUST be '' (not NULL) or password sign-in returns 500 unexpected_failure.
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
-  raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+  confirmation_token, recovery_token, email_change, email_change_token_new,
+  email_change_token_current, phone_change, phone_change_token, reauthentication_token
 )
 select '00000000-0000-0000-0000-000000000000', gen_random_uuid(),
   'authenticated', 'authenticated', 'operator@resolute.com',
   crypt('operator123', gen_salt('bf')), now(),
   '{"provider":"email","providers":["email"]}',
-  '{"name":"Jordan Blake","role":"operator"}', now(), now()
+  '{"name":"Jordan Blake","role":"operator"}', now(), now(),
+  '', '', '', '', '', '', '', ''
 where not exists (select 1 from auth.users where email = 'operator@resolute.com');
+
+-- Backfill NULL token columns for any auth user created via raw SQL (idempotent).
+-- Prevents the 500 unexpected_failure on password sign-in described above.
+update auth.users
+set confirmation_token         = coalesce(confirmation_token, ''),
+    recovery_token             = coalesce(recovery_token, ''),
+    email_change               = coalesce(email_change, ''),
+    email_change_token_new     = coalesce(email_change_token_new, ''),
+    email_change_token_current = coalesce(email_change_token_current, ''),
+    phone_change               = coalesce(phone_change, ''),
+    phone_change_token         = coalesce(phone_change_token, ''),
+    reauthentication_token     = coalesce(reauthentication_token, '')
+where confirmation_token is null
+   or recovery_token is null
+   or email_change is null
+   or email_change_token_new is null
+   or email_change_token_current is null
+   or phone_change is null
+   or phone_change_token is null
+   or reauthentication_token is null;
 
 insert into auth.identities (
   id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at

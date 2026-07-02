@@ -53,7 +53,14 @@ export async function getCurrentUser() {
 
 export async function signIn(email, password) {
   const { error } = await supabase.auth.signInWithPassword({ email, password })
-  if (error) return { success: false, error: error.message }
+  if (error) {
+    // Surface the real reason even when GoTrue's message is empty — include the
+    // error code and HTTP status so misconfig (wrong project, disabled email
+    // logins, unconfirmed email) is diagnosable from the UI, not just "invalid".
+    const detail = [error.message, error.code, error.status ? `HTTP ${error.status}` : '']
+      .map(s => (s || '').toString().trim()).filter(Boolean).join(' · ')
+    return { success: false, error: detail || 'Authentication failed', code: error.code, status: error.status }
+  }
   const user = await getCurrentUser()
   return { success: true, role: user?.role, user }
 }
