@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useAuth } from '../context/AuthContext'
+import { useAuth, toErrorMessage } from '../context/AuthContext'
 import {
   ShieldCheck, Users, Search, FileSearch, Truck, Building2, Keyboard,
   Eye, EyeOff, ArrowRight, MapPin, CheckCircle2, AlertCircle
@@ -54,11 +54,16 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     setError('')
-    await new Promise(r => setTimeout(r, 250))
-    const result = await login(email, password)
-    if (result.success) navigate(`/${result.role}`)
-    else setError(result.error)
-    setLoading(false)
+    try {
+      await new Promise(r => setTimeout(r, 250))
+      const result = await login(email, password)
+      if (result?.success) navigate(`/${result.role}`)
+      else setError(toErrorMessage(result?.error))
+    } catch (err) {
+      setError(toErrorMessage(err))
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
