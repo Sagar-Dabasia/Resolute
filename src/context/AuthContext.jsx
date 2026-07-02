@@ -3,6 +3,21 @@ import { isSupabaseConfigured, getCurrentUser, signIn, signOut, onAuthChange } f
 
 const AuthContext = createContext(null)
 
+// Coerce anything (string, Error, Supabase error object, empty object) into a
+// human-readable message. Guards against rendering `{}`/`[object Object]` in the
+// login error box when an auth failure carries no usable message string.
+export function toErrorMessage(err) {
+  if (typeof err === 'string') {
+    const s = err.trim()
+    return s && s !== '{}' && s !== '[object Object]' ? s : 'Invalid email or password. Please try again.'
+  }
+  if (err && typeof err === 'object') {
+    const m = typeof err.message === 'string' ? err.message.trim() : ''
+    if (m && m !== '{}') return m
+  }
+  return 'Invalid email or password. Please try again.'
+}
+
 const MOCK_USERS = {
   'rajni@resolute.com':     { password: 'admin123',     role: 'admin',    name: 'Rajni',         avatar: 'RJ', superAdmin: true },
   'saravanan@resolute.com': { password: 'admin123',     role: 'admin',    name: 'Saravanan',     avatar: 'SV', superAdmin: true },
@@ -30,13 +45,18 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     if (isSupabaseConfigured) {
-      const res = await signIn(email, password)
+      let res
+      try {
+        res = await signIn(email, password)
+      } catch (err) {
+        return { success: false, error: toErrorMessage(err) }
+      }
       if (res.success && !res.user?.role) {
         await signOut()
         return { success: false, error: 'This account has no role assigned. In Supabase, set profiles.role for this user (see SUPABASE.md).' }
       }
       if (res.success) setUser(res.user)
-      return res
+      return { ...res, error: res.success ? undefined : toErrorMessage(res.error) }
     }
     const found = MOCK_USERS[email.toLowerCase()]
     if (found && found.password === password) {
