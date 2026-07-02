@@ -21,7 +21,7 @@ export async function createInboundOrder(fields, meta = {}) {
   const id = await nextOrderId()
   const row = {
     id,
-    client_code: null,                       // unknown sender — Screener links the client on review
+    client_code: meta.clientCode ?? null,     // matched sender, or null for Screener to link on review
     type: fields.orderType || 'Full Search',
     status: 'received',                       // draft / PENDING_REVIEW equivalent
     priority: 'normal',
@@ -37,8 +37,12 @@ export async function createInboundOrder(fields, meta = {}) {
         parcelNumberAPN: fields.parcelNumberAPN ?? null,
         borrowerName: fields.borrowerName ?? null,
         orderType: fields.orderType ?? null,
+        clientReference: fields.clientReference ?? null,
+        requestedTurnaround: fields.requestedTurnaround ?? null,
+        specialInstructions: fields.notes ?? null,
         from: meta.from ?? null,
         subject: meta.subject ?? null,
+        messageId: meta.messageId ?? null,
         receivedAt: new Date().toISOString(),
       },
     },
